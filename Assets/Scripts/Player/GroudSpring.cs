@@ -5,51 +5,66 @@ public class GroudSpring : MonoBehaviour
 {
     [Header("Ground probe")]
     public Transform springOrigin;
-    public LayerMask groundMask = ~0;
-    public float restLength = 0.3f;
+    public LayerMask groundMask;
+    public float targetGroundGap = 0.02f;
     public float maxLength = 0.55f;
 
     [Header("Spring")]
     public float springStrength = 2500f;
-    public float damping = 180f;
+    [Range(0f, 2f)]
+    public float dampingRatio = 1f;
 
-    Rigidbody rb;
+    private Rigidbody rb;
 
     private void Awake()
-        => rb = GetComponent<Rigidbody>();
+     => rb = GetComponent<Rigidbody>();
 
     private void FixedUpdate()
     {
-        if (springOrigin == null)
+        if (springOrigin == null || springStrength <= 0f)
             return;
-        if (!Physics.Raycast(
-            new(springOrigin.position, Vector3.down),
+
+        bool grounded = Physics.Raycast(
+            springOrigin.position,
+            Vector3.down,
             out RaycastHit hit,
             maxLength,
             groundMask,
-            QueryTriggerInteraction.Ignore))
+            QueryTriggerInteraction.Ignore
+        );
+        Debug.DrawRay(
+            springOrigin.position,
+            Vector3.down * maxLength,
+            grounded ? Color.green : Color.red
+        );
+        if (!grounded)
             return;
-        
-        float compression = restLength - hit.distance;
+
+        float gravityIntoSurface = Mathf.Max(0f, -Vector3.Dot(Physics.gravity, hit.normal));
+        float naturalLength = targetGroundGap + rb.mass * gravityIntoSurface / springStrength;
+        float compression = naturalLength - hit.distance;
         float normalSpeed = Vector3.Dot(
-            rb.GetPointVelocity(hit.point),
+            rb.GetPointVelocity(springOrigin.position),
             hit.normal
         );
-        float force = springStrength * compression - damping * normalSpeed;
-        force = Mathf.Max(0.0f, force);
-        if (force > 0.0f)
+        float damping = 2f * dampingRatio * Mathf.Sqrt(springStrength * rb.mass);
+        float force =springStrength * compression - damping * normalSpeed;
+
+        force = Mathf.Max(0f, force);
+
+        if (force > 0f)
             rb.AddForceAtPosition(
                 hit.normal * force,
-                hit.point,
+                springOrigin.position,
                 ForceMode.Force
             );
     }
 
-    private void OwGizmosSelected()
+    private void OnDrawGizmosSelected()
     {
         if (springOrigin == null)
             return;
-        
+
         Gizmos.color = Color.yellow;
         Gizmos.DrawLine(
             springOrigin.position,
