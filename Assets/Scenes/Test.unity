@@ -373,6 +373,7 @@ GameObject:
   - component: {fileID: 232837883}
   - component: {fileID: 232837887}
   - component: {fileID: 232837888}
+  - component: {fileID: 232837889}
   m_Layer: 0
   m_Name: Capsule
   m_TagString: Untagged
@@ -516,10 +517,36 @@ MonoBehaviour:
   groundMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  targetGroundGap: 0.02
-  maxLength: 0.55
-  springStrength: 2500
-  dampingRatio: 1
+  targetGroundGap: 0.33333334
+  maxLength: 0.6666667
+  springStrength: 100
+  dampingRatio: 0.5
+--- !u!114 &232837889
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 232837882}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ba933541218e2947828092e2b21e6dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  viewPivot: {fileID: 2082971921}
+  springOrigin: {fileID: 738669485}
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  moveSpeed: 5
+  acceleration: 30
+  braking: 40
+  velocityResponse: 10
+  mouseSensitivity: 0.08
+  minPitch: -85
+  maxPitch: 85
+  jumpImpulse: 5.5
+  groundedDistance: 0.12
 --- !u!1 &243413000
 GameObject:
   m_ObjectHideFlags: 0
@@ -1192,7 +1219,7 @@ Transform:
   m_GameObject: {fileID: 738669484}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -1, z: 0}
+  m_LocalPosition: {x: 0, y: -0.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2292,7 +2319,7 @@ Transform:
   m_GameObject: {fileID: 2082971920}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.5, z: 0}
+  m_LocalPosition: {x: 0, y: 0.6, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
