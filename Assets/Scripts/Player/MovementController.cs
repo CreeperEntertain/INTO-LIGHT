@@ -10,8 +10,8 @@ public class MovementController : MonoBehaviour
 
     [Header("Movement")]
     public float moveSpeed = 5f;
-    public float acceleration = 30f;
-    public float braking = 40f;
+    public float acceleration = 80f;
+    public float braking = 80f;
     public float velocityResponse = 10f;
 
     [Header("Mouse Look")]
