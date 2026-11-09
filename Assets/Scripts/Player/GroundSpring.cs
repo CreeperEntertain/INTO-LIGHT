@@ -31,6 +31,10 @@ public class GroundSpring : MonoBehaviour
     public float dampingRatio = 1.0f;
     public float jumpReleaseTime = 0.15f;
 
+    [Header("Slope hold")]
+    [Min(0f)]
+    public float idleSlopeDamping = 12f;
+
 
     private Rigidbody rb;
     private CapsuleCollider capsule;
@@ -244,6 +248,17 @@ public class GroundSpring : MonoBehaviour
                 averagePoint,
                 ForceMode.Force
             );
+        
+        if (IsGrounded && moveDirection.sqrMagnitude < 0.001f)
+        {
+            Vector3 slopeGravity = Vector3.ProjectOnPlane(gravity, supportNormal);
+            if (slopeGravity.sqrMagnitude > 0.001f)
+            {
+                Vector3 surfaceVelocity = Vector3.ProjectOnPlane(rb.linearVelocity, supportNormal);
+                Vector3 holdAcceleration = -slopeGravity - surfaceVelocity * idleSlopeDamping;
+                rb.AddForce(holdAcceleration, ForceMode.Acceleration);
+            }
+        }
     }
 
     private bool TryFitSupportPlane(
