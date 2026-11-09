@@ -115,7 +115,10 @@ public class MovementController : MonoBehaviour
         {
             if (Mathf.Abs(contact.normal.y) > 0.3f)
                 continue;
-            wallNormals.Add(contact.normal);
+            Vector3 normal = Vector3.ProjectOnPlane(contact.normal, Vector3.up);
+            if (normal.sqrMagnitude < 0.001f)
+                continue;
+            wallNormals.Add(normal.normalized);
         }
     }
 
