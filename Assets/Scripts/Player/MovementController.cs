@@ -1,13 +1,12 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-[RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(Rigidbody), typeof(GroundSpring))]
 public class MovementController : MonoBehaviour
 {
     [Header("References")]
+    public Transform yawPivot;
     public Transform viewPivot;
-    public Transform springOrigin;
-    public LayerMask groundMask;
 
     [Header("Movement")]
     public float moveSpeed = 5f;
@@ -22,9 +21,10 @@ public class MovementController : MonoBehaviour
 
     [Header("Jump")]
     public float jumpImpulse = 5.5f;
-    public float groundedDistance = 0.12f;
 
     private Rigidbody rb;
+    private GroundSpring groundSpring;
+
     private Vector2 moveInput;
 
     private float yaw;
@@ -35,11 +35,14 @@ public class MovementController : MonoBehaviour
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
-        rb.constraints |=
-            RigidbodyConstraints.FreezeRotationX |
-            RigidbodyConstraints.FreezeRotationZ;
+        groundSpring = GetComponent<GroundSpring>();
+
+        rb.constraints |= RigidbodyConstraints.FreezeRotation;
         rb.interpolation = RigidbodyInterpolation.Interpolate;
-        yaw = rb.rotation.eulerAngles.y;
+        if (yawPivot != null)
+            yawPivot.localRotation = Quaternion.identity;
+        if (viewPivot != null)
+            viewPivot.localRotation = Quaternion.identity;
     }
 
     private void Start()
@@ -55,7 +58,10 @@ public class MovementController : MonoBehaviour
     {
         Keyboard keyboard = Keyboard.current;
         if (keyboard == null)
+        {
+            moveInput = Vector2.zero;
             return;
+        }
         
         Vector2 input = Vector2.zero;
         if (keyboard.wKey.isPressed) input.y += 1.0f;
@@ -86,6 +92,8 @@ public class MovementController : MonoBehaviour
 
         pitch -= delta.y * mouseSensitivity;
         pitch = Mathf.Clamp(pitch, minPitch, maxPitch);
+        if (yawPivot != null)
+            yawPivot.localRotation = Quaternion.Euler(0f, yaw, 0f);
         if (viewPivot != null)
             viewPivot.localRotation = Quaternion.Euler(pitch, 0.0f, 0.0f);
     }
@@ -93,29 +101,29 @@ public class MovementController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        HandleRotation();
         HandleMovement();
         HandleJump();
     }
-
-    private void HandleRotation()
-        => rb.MoveRotation(Quaternion.Euler(0.0f, yaw, 0.0f));
     
     private void HandleMovement()
     {
-        Quaternion yawRotation = Quaternion.Euler(0.0f, yaw, 0.0f);
-        Vector3 desiredVelocity = yawRotation * new Vector3(moveInput.x, 0.0f, moveInput.y) * moveSpeed;
+        Transform movementFrame = yawPivot != null ? yawPivot : transform;
+
+        Vector3 forward = Vector3.ProjectOnPlane(movementFrame.forward, Vector3.up).normalized;
+        Vector3 right = Vector3.ProjectOnPlane(movementFrame.right, Vector3.up).normalized;
+
+        Vector3 direction = right * moveInput.x + forward * moveInput.y;
+        direction = Vector3.ClampMagnitude(direction, 1.0f);
+
+        Vector3 desitedVelocity = direction * moveSpeed;
         Vector3 currentVelocity = rb.linearVelocity;
         currentVelocity.y = 0.0f;
-        Vector3 velocityError = desiredVelocity - currentVelocity;
 
+        Vector3 velocityError = desitedVelocity - currentVelocity;
         float maxAcceleration = moveInput.sqrMagnitude > 0.001f
-            ? acceleration
-            : braking;
-        Vector3 accelerationVector = Vector3.ClampMagnitude(
-            velocityError * velocityResponse,
-            maxAcceleration
-        );
+            ? acceleration : braking;
+        
+        Vector3 accelerationVector = Vector3.ClampMagnitude(velocityError * velocityResponse, maxAcceleration);
 
         rb.AddForce(accelerationVector, ForceMode.Acceleration);
     }
@@ -126,19 +134,11 @@ public class MovementController : MonoBehaviour
             return;
         
         jumpQueued = false;
-        if (springOrigin == null)
+        if (!groundSpring.IsGrounded)
             return;
         
-        bool grounded = Physics.Raycast(
-            springOrigin.position,
-            Vector3.down,
-            out _,
-            groundedDistance,
-            groundMask,
-            QueryTriggerInteraction.Ignore
-        );
-        if (grounded)
-            rb.AddForce(Vector3.up * jumpImpulse, ForceMode.Impulse);
+        groundSpring.ReleaseForJump();
+        rb.AddForce(Vector3.up * jumpImpulse, ForceMode.Impulse);
     }
 
 
