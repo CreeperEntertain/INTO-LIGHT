@@ -24,6 +24,8 @@ public class MovementController : MonoBehaviour
     public float coyoteTime = 0.25f;
     [Min(0f)]
     public float jumpSpeed = 5.5f;
+    [Min(0f)]
+    public float jumpBufferTime = 0.2f;
 
     private Rigidbody rb;
     private GroundSpring groundSpring;
@@ -35,6 +37,7 @@ public class MovementController : MonoBehaviour
     private float pitch;
 
     private float lastGroundedTime = float.NegativeInfinity;
+    private float jumpPressedTime = float.NegativeInfinity;
     private bool jumpQueued;
 
 
@@ -78,7 +81,10 @@ public class MovementController : MonoBehaviour
 
         moveInput = Vector2.ClampMagnitude(input, 1.0f);
         if (keyboard.spaceKey.wasPressedThisFrame)
+        {
             jumpQueued = true;
+            jumpPressedTime = Time.fixedTime;
+        }
         if (keyboard.escapeKey.wasPressedThisFrame)
             UnlockCursor();
     }
@@ -162,12 +168,17 @@ public class MovementController : MonoBehaviour
     {
         if (!jumpQueued)
             return;
+        if (Time.fixedTime - jumpPressedTime > jumpBufferTime)
+        {
+            jumpQueued = false;
+            return;
+        }
         
-        jumpQueued = false;
         bool canJump = Time.fixedTime - lastGroundedTime <= coyoteTime;
         if (!canJump)
             return;
-        
+
+        jumpQueued = false;
         groundSpring.ReleaseForJump();
         Vector3 velocity = rb.linearVelocity;
         velocity.y = jumpSpeed;
