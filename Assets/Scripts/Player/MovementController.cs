@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -31,6 +32,9 @@ public class MovementController : MonoBehaviour
     private float pitch;
 
     private bool jumpQueued;
+
+    private readonly List<Vector3> wallNormals = new();
+
 
     private void Awake()
     {
@@ -104,7 +108,17 @@ public class MovementController : MonoBehaviour
         HandleMovement();
         HandleJump();
     }
-    
+
+    private void OsionStay(Collision collision)
+    {
+        foreach (ContactPoint contact in collision.contacts)
+        {
+            if (Mathf.Abs(contact.normal.y) > 0.3f)
+                continue;
+            wallNormals.Add(contact.normal);
+        }
+    }
+
     private void HandleMovement()
     {
         Transform movementFrame = yawPivot != null ? yawPivot : transform;
@@ -125,7 +139,16 @@ public class MovementController : MonoBehaviour
         
         Vector3 accelerationVector = Vector3.ClampMagnitude(velocityError * velocityResponse, maxAcceleration);
 
+        foreach (Vector3 normal in wallNormals)
+        {
+            float intoWall = Vector3.Dot(accelerationVector, normal);
+            if (intoWall < 0.0f)
+                accelerationVector -= normal * intoWall;
+        }
+
         rb.AddForce(accelerationVector, ForceMode.Acceleration);
+
+        wallNormals.Clear();
     }
 
     private void HandleJump()
