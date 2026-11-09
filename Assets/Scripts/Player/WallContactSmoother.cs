@@ -46,7 +46,9 @@ public class WallContactSmoother : MonoBehaviour
         }
     }
 
-    private void OllisionEnter(Collision collision)
+    private void OnCollisionEnter(Collision collision)
+        => MarkWallContact(collision);
+    private void OnCollisionStay(Collision collision)
         => MarkWallContact(collision);
     
     private void MarkWallContact(Collision collision)
