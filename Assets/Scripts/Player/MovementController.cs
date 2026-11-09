@@ -136,6 +136,8 @@ public class MovementController : MonoBehaviour
         Vector3 direction = right * moveInput.x + forward * moveInput.y;
         direction = Vector3.ClampMagnitude(direction, 1.0f);
 
+        groundSpring.SetMoveDirection(direction);
+
         Vector3 desitedVelocity = direction * moveSpeed;
         Vector3 currentVelocity = rb.linearVelocity;
         currentVelocity.y = 0.0f;
