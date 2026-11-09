@@ -482,6 +482,7 @@ GameObject:
   - component: {fileID: 232837887}
   - component: {fileID: 232837888}
   - component: {fileID: 232837889}
+  - component: {fileID: 232837890}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -653,6 +654,21 @@ MonoBehaviour:
   minPitch: -85
   maxPitch: 85
   jumpImpulse: 5.5
+--- !u!114 &232837890
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 232837882}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b795e606f0d86c74f9cf216683427e6f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxWallNormalY: 0.64
+  normalResponse: 0.12
+  contactMemory: 0.08
 --- !u!1 &243413000
 GameObject:
   m_ObjectHideFlags: 0

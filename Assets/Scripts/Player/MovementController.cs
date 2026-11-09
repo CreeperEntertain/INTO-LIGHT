@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -25,6 +24,7 @@ public class MovementController : MonoBehaviour
 
     private Rigidbody rb;
     private GroundSpring groundSpring;
+    private WallContactSmoother wallContactSmoother;
 
     private Vector2 moveInput;
 
@@ -33,13 +33,12 @@ public class MovementController : MonoBehaviour
 
     private bool jumpQueued;
 
-    private readonly List<Vector3> wallNormals = new();
-
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
         groundSpring = GetComponent<GroundSpring>();
+        wallContactSmoother = GetComponent<WallContactSmoother>();
 
         rb.constraints |= RigidbodyConstraints.FreezeRotation;
         rb.interpolation = RigidbodyInterpolation.Interpolate;
@@ -118,7 +117,6 @@ public class MovementController : MonoBehaviour
             Vector3 normal = Vector3.ProjectOnPlane(contact.normal, Vector3.up);
             if (normal.sqrMagnitude < 0.001f)
                 continue;
-            wallNormals.Add(normal.normalized);
         }
     }
 
@@ -142,16 +140,14 @@ public class MovementController : MonoBehaviour
         
         Vector3 accelerationVector = Vector3.ClampMagnitude(velocityError * velocityResponse, maxAcceleration);
 
-        foreach (Vector3 normal in wallNormals)
+        if (wallContactSmoother.TryGetWallNormal(out Vector3 wallNormal))
         {
-            float intoWall = Vector3.Dot(accelerationVector, normal);
+            float intoWall = Vector3.Dot(accelerationVector, wallNormal);
             if (intoWall < 0.0f)
-                accelerationVector -= normal * intoWall;
+            accelerationVector -= wallNormal * intoWall;
         }
 
         rb.AddForce(accelerationVector, ForceMode.Acceleration);
-
-        wallNormals.Clear();
     }
 
     private void HandleJump()
