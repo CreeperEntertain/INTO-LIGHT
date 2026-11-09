@@ -149,7 +149,7 @@ public class GroundSpring : MonoBehaviour
         {
             Vector3 stepForward = Vector3.ProjectOnPlane(moveDirection, up).normalized;
             Vector3 stepRight = Vector3.Cross(up, stepForward).normalized;
-            for (int i = -1; i < 1; i++)
+            for (int i = -1; i <= 1; i++)
             {
                 Vector3 sampleBase =
                     springOrigin.position +
