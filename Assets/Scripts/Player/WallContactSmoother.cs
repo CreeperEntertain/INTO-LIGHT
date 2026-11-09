@@ -7,12 +7,18 @@ using UnityEngine;
 public class WallContactSmoother : MonoBehaviour
 {
     [Header("Wall smoothing")]
-    [Range(0.1f, 0.9f)]
-    public float maxWallNormalY = 0.64f;
     [Range(0.01f, 1.0f)]
     public float normalResponse = 0.12f;
     [Min(0.01f)]
     public float contactMemory = 0.08f;
+
+    [Header("Contact classification")]
+    [Min(0.005f)]
+    public float capContactMargin = 0.03f;
+
+    private Rigidbody body;
+    private float centerOffsetY;
+    private float sideContactHalfHeight;
 
     private CapsuleCollider playerCollider;
     private int playerColliderId;
@@ -27,9 +33,19 @@ public class WallContactSmoother : MonoBehaviour
     private void Awake()
     {
         playerCollider = GetComponent<CapsuleCollider>();
-        playerColliderId = playerCollider.GetInstanceID();
+        body = GetComponent<Rigidbody>();
 
+        playerColliderId = playerCollider.GetInstanceID();
         playerCollider.hasModifiableContacts = true;
+
+        Vector3 scale = transform.lossyScale;
+
+        float radius = playerCollider.radius * Mathf.Max(Mathf.Abs(scale.x), Mathf.Abs(scale.z));
+        float halfHeight = playerCollider.height * Mathf.Abs(scale.y) * 0.5f;
+
+        centerOffsetY = playerCollider.center.y * scale.y;
+
+        sideContactHalfHeight = Mathf.Max(0f, Mathf.Max(halfHeight, radius) - capContactMargin);
     }
 
     private void OnEnable()
@@ -50,20 +66,26 @@ public class WallContactSmoother : MonoBehaviour
         => MarkWallContact(collision);
     private void OnCollisionStay(Collision collision)
         => MarkWallContact(collision);
+
+    private bool IsSideContact(float pointY, float playerPivotY)
+    {
+        float capsuleCenterY = playerPivotY + centerOffsetY;
+        return Mathf.Abs(pointY - capsuleCenterY) <= sideContactHalfHeight;
+    }
     
     private void MarkWallContact(Collision collision)
     {
+        float playerY = body.position.y;
         for (int i = 0; i < collision.contactCount; i++)
         {
-            Vector3 normal = collision.GetContact(i).normal;
-            if (Math.Abs(normal.y) <= maxWallNormalY)
+            ContactPoint contact = collision.GetContact(i);
+            if (!IsSideContact(contact.point.y, playerY))
+                continue;
+            lock (sync)
             {
-                lock (sync)
-                {
-                    lastWallContactTime = Time.fixedTime;
-                }
-                return;
+                lastWallContactTime = Time.fixedTime;
             }
+            return;
         }
     }
 
@@ -94,10 +116,13 @@ public class WallContactSmoother : MonoBehaviour
                     Vector3 normal = pair.GetNormal(i);
                     if (playerIsSecond)
                         normal = -normal;
-                    if (Mathf.Abs(normal.y) > maxWallNormalY)
+                    float playerY = playerIsFirst
+                        ? pair.position.y
+                        : pair.otherPosition.y;
+                    if (!IsSideContact(pair.GetPoint(i).y, playerY))
                         continue;
-                    
-                    normal.y = 0.0f;
+
+                    normal = Vector3.ProjectOnPlane(normal, Vector3.up);
                     if (normal.sqrMagnitude < 0.0001f)
                         continue;
                     
@@ -142,9 +167,11 @@ public class WallContactSmoother : MonoBehaviour
                     Vector3 originalNormal = pair.GetNormal(i);
                     if (playerIsSecond)
                         originalNormal = -originalNormal;
-                    if (Mathf.Abs(originalNormal.y) > maxWallNormalY)
+                    float playerY = playerIsFirst
+                        ? pair.position.y : pair.otherPosition.y;
+                    if (!IsSideContact(pair.GetPoint(i).y, playerY))
                         continue;
-                    
+
                     pair.SetNormal(i, replacementNormal);
                 }
             }
