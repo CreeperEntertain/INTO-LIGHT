@@ -20,7 +20,10 @@ public class MovementController : MonoBehaviour
     public float maxPitch = 85f;
 
     [Header("Jump")]
-    public float jumpImpulse = 5.5f;
+    [Min(0f)]
+    public float coyoteTime = 0.25f;
+    [Min(0f)]
+    public float jumpSpeed = 5.5f;
 
     private Rigidbody rb;
     private GroundSpring groundSpring;
@@ -31,6 +34,7 @@ public class MovementController : MonoBehaviour
     private float yaw;
     private float pitch;
 
+    private float lastGroundedTime = float.NegativeInfinity;
     private bool jumpQueued;
 
 
@@ -104,6 +108,8 @@ public class MovementController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (groundSpring.IsGrounded)
+            lastGroundedTime = Time.fixedTime;
         HandleMovement();
         HandleJump();
     }
@@ -156,11 +162,15 @@ public class MovementController : MonoBehaviour
             return;
         
         jumpQueued = false;
-        if (!groundSpring.IsGrounded)
+        bool canJump = Time.fixedTime - lastGroundedTime <= coyoteTime;
+        if (!canJump)
             return;
         
         groundSpring.ReleaseForJump();
-        rb.AddForce(Vector3.up * jumpImpulse, ForceMode.Impulse);
+        Vector3 velocity = rb.linearVelocity;
+        velocity.y = jumpSpeed;
+        rb.linearVelocity = velocity;
+        lastGroundedTime = float.NegativeInfinity;
     }
 
 
