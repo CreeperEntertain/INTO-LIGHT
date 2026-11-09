@@ -118,7 +118,7 @@ public class GroundSpring : MonoBehaviour
 
         foreach (Vector2 sample in probePattern)
         {
-            Vector3 offset = right * sample.x * radius * probeSpread + forward * sample.y * radius * probeSpread;
+            Vector3 offset = probeSpread * radius * sample.x * right + probeSpread * radius * sample.y * forward;
             Vector3 sampleBase = springOrigin.position + offset;
             if (!TryGetSupportHit(
                 sampleBase,
