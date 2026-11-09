@@ -647,8 +647,8 @@ MonoBehaviour:
   yawPivot: {fileID: 999866635}
   viewPivot: {fileID: 2082971921}
   moveSpeed: 5
-  acceleration: 30
-  braking: 40
+  acceleration: 80
+  braking: 80
   velocityResponse: 10
   mouseSensitivity: 0.08
   minPitch: -85
