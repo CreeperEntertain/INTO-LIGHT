@@ -24,8 +24,6 @@ public class GroundSpring : MonoBehaviour
     public float stepProbeWeight = 1.0f;
     [Min(0.0f)]
     public float groundedTolerance = 0.08f;
-    [Min(0.0f)]
-    public float normalMemoryTime = 0.2f;
 
     [Header("Spring")]
     public float springStrength = 100.0f;
@@ -39,7 +37,6 @@ public class GroundSpring : MonoBehaviour
 
     private Vector3 moveDirection;
     private float suppressSpringUntil;
-    private float lastSupportTime = float.NegativeInfinity;
 
     private readonly RaycastHit[] hitBuffer = new RaycastHit[32];
     private static readonly Vector2[] probePattern =
@@ -56,6 +53,13 @@ public class GroundSpring : MonoBehaviour
         new(0.7071f, -0.7071f),
         new(-0.7071f, -0.7071f)
     };
+
+    private struct SupportSample
+    {
+        public Vector3 point;
+        public float weight;
+    }
+    private readonly SupportSample[] supportSamples = new SupportSample[12];
 
 
     public bool IsGrounded {get; private set; }
@@ -96,129 +100,241 @@ public class GroundSpring : MonoBehaviour
         Vector3 gravity = Physics.gravity;
         Vector3 up = gravity.sqrMagnitude > 0.0001f
             ? -gravity.normalized : Vector3.up;
-        Vector3 castDirection = Time.fixedTime - lastSupportTime <= normalMemoryTime
-            ? -GroundNormal : -up;
-        
-        castDirection.Normalize();
 
         Bounds capsuleBounds = capsule.bounds;
         float radius = Mathf.Max(capsuleBounds.extents.x, capsuleBounds.extents.z);
-
-        float castStartHeight = maxStepHeight + 0.02f;
 
         Vector3 right = Vector3.ProjectOnPlane(transform.right, up).normalized;
         Vector3 forward = Vector3.Cross(right, up).normalized;
         if (right.sqrMagnitude < 0.001f || forward.sqrMagnitude < 0.001f)
             return;
 
-        float distanceSum = 0.0f;
+        float maxAngle = Mathf.Clamp(maxGroundAngle, 0.0f, 80.0f);
+        float slopeRise = Mathf.Tan(maxAngle * Mathf.Deg2Rad);
+        float sideOffset = radius * 0.45f;
+        float farthestProbe = Mathf.Sqrt(Mathf.Pow(radius + stepProbeForward, 2.0f) + sideOffset * sideOffset);
+        float castStartHeight = maxStepHeight + farthestProbe * slopeRise + 0.02f;
+
+        int supportCount = 0;
         Vector3 normalSum = Vector3.zero;
         Vector3 pointSum = Vector3.zero;
-        int supportCount = 0;
+        float totalWeight = 0.0f;
 
         foreach (Vector2 sample in probePattern)
         {
             Vector3 offset = probeSpread * radius * sample.x * right + probeSpread * radius * sample.y * forward;
             Vector3 sampleBase = springOrigin.position + offset;
+            float maxRise = maxStepHeight + offset.magnitude * slopeRise;
             if (!TryGetSupportHit(
                 sampleBase,
                 up,
-                castDirection,
                 castStartHeight,
-                out RaycastHit hit,
-                out float separation
+                maxRise,
+                out RaycastHit hit
             ))
                 continue;
             
-            distanceSum += separation;
-            normalSum += hit.normal;
+            supportSamples[supportCount++] = new SupportSample
+            {
+                point = hit.point,
+                weight = 1.0f
+            };
             pointSum += hit.point;
-            supportCount++;
+            normalSum += hit.normal;
+            totalWeight += 1f;
         }
         if (supportCount == 0)
             return;
-
-        float coreAverageDistance = distanceSum / supportCount;
-        float totalWeight = supportCount;
+        
+        bool hasCorePlane = TryFitSupportPlane(
+            springOrigin.position,
+            up,
+            right,
+            forward,
+            supportCount,
+            out Vector3 coreNormal,
+            out Vector3 corePlanePoint
+        );
 
         if (
+            hasCorePlane &&
+            Vector3.Angle(coreNormal, up) <= maxAngle &&
             moveDirection.sqrMagnitude > 0.001f &&
-            maxStepHeight > 0.0f &&
             stepProbeWeight > 0.0f
         )
         {
-            Vector3 stepForward = Vector3.ProjectOnPlane(moveDirection, up).normalized;
+            Vector3 stepForward = moveDirection.normalized;
             Vector3 stepRight = Vector3.Cross(up, stepForward).normalized;
-            for (int i = -1; i <= 1; i++)
-            {
-                Vector3 sampleBase =
-                    springOrigin.position +
-                    stepForward * (radius + stepProbeForward) +
-                    stepRight * (i * radius * 0.45f);
-                if (!TryGetSupportHit(
-                    sampleBase,
-                    up,
-                    castDirection,
-                    castStartHeight,
-                    out RaycastHit hit,
-                    out float separation
-                ))
-                    continue;
-                
-                float rise = coreAverageDistance - separation;
-                if (rise <= 0.005f || rise > maxStepHeight)
-                    continue;
-                
-                distanceSum += separation * stepProbeWeight;
-                normalSum += hit.normal * stepProbeWeight;
-                pointSum += hit.point * stepProbeWeight;
-                totalWeight += stepProbeWeight;
-            }
+            float normalUp = Vector3.Dot(coreNormal, up);
+            if (normalUp > 0.05f)
+                for (int i = -1; i <= 1; i++)
+                {
+                    Vector3 sampleBase =
+                        springOrigin.position +
+                        stepForward * (radius + stepProbeForward) +
+                        stepRight * (i * sideOffset);
+                    Vector3 offset = Vector3.ProjectOnPlane(sampleBase - springOrigin.position, up);
+                    float maxRise = maxStepHeight + offset.magnitude * slopeRise;
+                    if (!TryGetSupportHit(
+                        sampleBase,
+                        up,
+                        castStartHeight,
+                        maxRise,
+                        out RaycastHit hit
+                    ))
+                        continue;
+                    
+                    float expectedHeight =
+                        Vector3.Dot(sampleBase, up) -
+                        Vector3.Dot(sampleBase - corePlanePoint, coreNormal) / normalUp;
+                    float stepRise = Vector3.Dot(hit.point, up) - expectedHeight;
+                    if (stepRise <= 0.005f || stepRise > maxStepHeight)
+                        continue;
+                    
+                    supportSamples[supportCount++] = new SupportSample
+                    {
+                        point = hit.point,
+                        weight = stepProbeWeight
+                    };
+                    pointSum += hit.point * stepProbeWeight;
+                    normalSum += hit.normal * stepProbeWeight;
+                    totalWeight += stepProbeWeight;
+                }
         }
 
-        float averageDistance = distanceSum / totalWeight;
-        Vector3 averageNormal = normalSum.normalized;
+        if (!TryFitSupportPlane(
+            springOrigin.position,
+            up,
+            right,
+            forward,
+            supportCount,
+            out Vector3 supportNormal,
+            out Vector3 supportPlanePoint
+        ))
+        {
+            supportNormal = normalSum.normalized;
+            supportPlanePoint = pointSum / totalWeight;
+        }
+        if (Vector3.Dot(supportNormal, up) < 0.0f)
+            supportNormal = -supportNormal;
+        
+        float angle = Vector3.Angle(supportNormal, up);
+        if (angle > maxAngle)
+        {
+            Vector3 tangent = Vector3.ProjectOnPlane(supportNormal, up).normalized;
+            supportNormal = (
+                up * Mathf.Cos(maxAngle * Mathf.Deg2Rad) +
+                tangent * Mathf.Sin(maxAngle * Mathf.Deg2Rad)
+            ).normalized;
+        }
+
+        GroundNormal = supportNormal;
         Vector3 averagePoint = pointSum / totalWeight;
-
-        GroundNormal = averageNormal;
-        lastSupportTime = Time.fixedTime;
+        float averageDistance = Vector3.Dot(springOrigin.position - supportPlanePoint, supportNormal);
         IsGrounded = averageDistance <= targetGroundGap + groundedTolerance;
-
-        float gravityIntoSurface = Mathf.Max(0.0f, -Vector3.Dot(gravity, averageNormal));
+        float gravityIntoSurface = Mathf.Max(0.0f, -Vector3.Dot(gravity, supportNormal));
         float naturalLength = targetGroundGap + rb.mass * gravityIntoSurface / springStrength;
         float compression = naturalLength - averageDistance;
-        float normalSpeed = Vector3.Dot(rb.GetPointVelocity(averagePoint), averageNormal);
+        float normalSpeed = Vector3.Dot(rb.GetPointVelocity(averagePoint), supportNormal);
         float damping = 2.0f * dampingRatio * Mathf.Sqrt(springStrength * rb.mass);
-        float force = springStrength * compression - damping * normalSpeed;
-        force = Mathf.Max(0.0f, force);
+        float force = Mathf.Max(0.0f, springStrength * compression - damping * normalSpeed);
         if (force > 0.0f)
             rb.AddForceAtPosition(
-                averageNormal * force,
+                supportNormal * force,
                 averagePoint,
                 ForceMode.Force
             );
     }
 
+    private bool TryFitSupportPlane(
+        Vector3 origin,
+        Vector3 up,
+        Vector3 right,
+        Vector3 forward,
+        int count,
+        out Vector3 normal,
+        out Vector3 planePoint
+    )
+    {
+        normal = up;
+        planePoint = origin;
+        if (count < 3)
+            return false;
+        
+        float xx = 0.0f;
+        float xz = 0.0f;
+        float x = 0.0f;
+        float zz = 0.0f;
+        float z = 0.0f;
+        float xy = 0.0f;
+        float zy = 0.0f;
+        float y = 0.0f;
+        float weightSum = 0.0f;
+
+        for (int i = 0; i < count; i++)
+        {
+            SupportSample sample = supportSamples[i];
+            Vector3 relative = sample.point - origin;
+
+            float px = Vector3.Dot(relative, right);
+            float pz = Vector3.Dot(relative, forward);
+            float py = Vector3.Dot(relative, up);
+            float w = sample.weight;
+
+            xx += px * px * w;
+            xz += px * pz * w;
+            x += px * w;
+            zz += pz * pz * w;
+            z += pz * w;
+
+            xy += px * py * w;
+            zy += pz * py * w;
+            y += py * w;
+
+            weightSum += w;
+        }
+
+        Matrix4x4 matrix = Matrix4x4.identity;
+
+        matrix.m00 = xx;
+        matrix.m01 = xz;
+        matrix.m02 = x;
+
+        matrix.m10 = xz;
+        matrix.m11 = zz;
+        matrix.m12 = z;
+
+        matrix.m20 = x;
+        matrix.m21 = z;
+        matrix.m22 = weightSum;
+
+        if (Mathf.Abs(matrix.determinant) < 0.000001f)
+            return false;
+        
+        Vector4 fit = matrix.inverse * new Vector4(xy, zy, y, 0f);
+        normal = (up - right * fit.x - forward * fit.y).normalized;
+        if (Vector3.Dot(normal, up) < 0.0f)
+            normal = -normal;
+        
+        planePoint = origin + up * fit.z;
+        return true;
+    }
+
     private bool TryGetSupportHit(
         Vector3 sampleBase,
         Vector3 up,
-        Vector3 castDirection,
         float startHeight,
-        out RaycastHit bestHit,
-        out float separation
+        float maxRise,
+        out RaycastHit bestHit
     )
     {
         bestHit = default;
-        separation = 0.0f;
-        float downwardComponent = Vector3.Dot(up, -castDirection);
-        if (downwardComponent <= 0.01f)
-            return false;
         
         Vector3 rayOrigin = sampleBase + up * startHeight;
-        float rayLength = (startHeight + maxLength) / downwardComponent + 0.02f;
+        float rayLength = startHeight + maxLength + 0.02f;
         int hitCount = Physics.RaycastNonAlloc(
             rayOrigin,
-            castDirection,
+            -up,
             hitBuffer,
             rayLength,
             groundMask,
@@ -241,15 +357,14 @@ public class GroundSpring : MonoBehaviour
             if (Vector3.Angle(hit.normal, up) > maxGroundAngle)
                 continue;
             
-            float candidateSeparation = Vector3.Dot(sampleBase - hit.point, hit.normal);
-            if (candidateSeparation < -maxStepHeight || candidateSeparation > maxLength)
+            float separation = Vector3.Dot(sampleBase - hit.point, hit.normal);
+            if (separation < -maxRise || separation > maxLength)
                 continue;
             if (hit.distance >= closestHitDistance)
                 continue;
             
             closestHitDistance = hit.distance;
             bestHit = hit;
-            separation = candidateSeparation;
             found = true;
         }
 
