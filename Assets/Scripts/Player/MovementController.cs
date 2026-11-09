@@ -109,7 +109,7 @@ public class MovementController : MonoBehaviour
         HandleJump();
     }
 
-    private void OsionStay(Collision collision)
+    private void OnCollisionStay(Collision collision)
     {
         foreach (ContactPoint contact in collision.contacts)
         {
