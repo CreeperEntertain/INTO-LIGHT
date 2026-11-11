@@ -143,6 +143,8 @@ public class MovementController : MonoBehaviour
         direction = Vector3.ClampMagnitude(direction, 1.0f);
 
         groundSpring.SetMoveDirection(direction);
+        if (moveInput.sqrMagnitude < 0.001f && !groundSpring.IsGrounded)
+            return;
 
         Vector3 desitedVelocity = direction * moveSpeed;
         Vector3 currentVelocity = rb.linearVelocity;
