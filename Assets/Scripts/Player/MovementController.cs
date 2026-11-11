@@ -11,6 +11,8 @@ public class MovementController : MonoBehaviour
     [Header("Movement")]
     public float moveSpeed = 5f;
     public float acceleration = 80f;
+    [Range(0.0f, 100.0f)]
+    public float airAcceleratonPercentage = 15.0f;
     public float braking = 80f;
     public float velocityResponse = 10f;
 
@@ -152,7 +154,9 @@ public class MovementController : MonoBehaviour
 
         Vector3 velocityError = desitedVelocity - currentVelocity;
         float maxAcceleration = moveInput.sqrMagnitude > 0.001f
-            ? acceleration : braking;
+            ? acceleration * (groundSpring.IsGrounded
+                ? 1.0f : airAcceleratonPercentage / 100.0f
+            ) : braking;
         
         Vector3 accelerationVector = Vector3.ClampMagnitude(velocityError * velocityResponse, maxAcceleration);
 

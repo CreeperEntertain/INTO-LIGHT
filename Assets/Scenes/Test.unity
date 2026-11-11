@@ -629,9 +629,15 @@ MonoBehaviour:
   targetGroundGap: 0.33333334
   maxLength: 0.6666667
   maxGroundAngle: 50
+  probeSpread: 0.75
+  maxStepHeight: 0.2
+  stepProbeForward: 0.08
+  stepProbeWeight: 1
+  groundedTolerance: 0.08
   springStrength: 100
   dampingRatio: 1
   jumpReleaseTime: 0.15
+  idleSlopeDamping: 12
 --- !u!114 &232837889
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -648,12 +654,15 @@ MonoBehaviour:
   viewPivot: {fileID: 2082971921}
   moveSpeed: 5
   acceleration: 80
+  airAcceleratonPercentage: 15
   braking: 80
   velocityResponse: 10
   mouseSensitivity: 0.08
   minPitch: -85
   maxPitch: 85
-  jumpImpulse: 5.5
+  coyoteTime: 0.25
+  jumpSpeed: 5.5
+  jumpBufferTime: 0.2
 --- !u!114 &232837890
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1010,7 +1019,7 @@ Camera:
   m_ShutterSpeed: 0.005
   m_Aperture: 16
   m_FocusDistance: 10
-  m_FocalLength: 50
+  m_FocalLength: 15.638705
   m_BladeCount: 5
   m_Curvature: {x: 2, y: 11}
   m_BarrelClipping: 0.25
