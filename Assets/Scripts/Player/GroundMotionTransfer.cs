@@ -39,28 +39,38 @@ public class GroundMotionTransfer : MonoBehaviour
             return;
         }
 
+        Rigidbody supportBody = groundSpring.SupportBody;
         Transform supportTransform = groundSpring.SupportTransform;
-        if (trackedSupport != supportTransform)
-        {
-            trackedSupport = supportTransform;
-            CarriedVelocity = Vector3.zero;
-        }
+        Vector3 point = groundSpring.SupportPoint;
+        Vector3 normal = groundSpring.GroundNormal.normalized;
+        Vector3 supportVelocity = groundSpring.GetSupportVelocityAtPoint(point);
 
         float normalForce = groundSpring.SupportNormalForce;
         if (normalForce <= 0.0f)
             return;
 
-        Rigidbody supportBody = groundSpring.SupportBody;
-        Vector3 point = groundSpring.SupportPoint;
-        Vector3 normal = groundSpring.GroundNormal.normalized;
-        Vector3 supportVelocity = groundSpring.GetSupportVelocityAtPoint(point);
-        Vector3 relativeVelocity = Vector3.ProjectOnPlane(supportVelocity - CarriedVelocity, normal);
+        Vector3 surfaceVelocity = Vector3.ProjectOnPlane(supportVelocity, normal);
+        if (trackedSupport != supportTransform)
+        {
+            trackedSupport = supportTransform;
+            Vector3 carryChange = surfaceVelocity - CarriedVelocity;
+            if (carryChange.sqrMagnitude > 0.00000001f)
+            {
+                playerBody.linearVelocity += carryChange;
+                if (supportBody != null && !supportBody.isKinematic)
+                    supportBody.AddForceAtPosition(-carryChange * playerBody.mass, point, ForceMode.Impulse);
+            }
+            CarriedVelocity = surfaceVelocity;
+            return;
+        }
+
+        Vector3 relativeVelocity = Vector3.ProjectOnPlane(surfaceVelocity - CarriedVelocity, normal);
         float relativeSpeed = relativeVelocity.magnitude;
         if (relativeSpeed < 0.0001f)
             return;
 
         Vector3 direction = relativeVelocity / relativeSpeed;
-        float inverseEffectiveMass =GetInverseEffectiveMass(playerBody, point, direction);
+        float inverseEffectiveMass = GetInverseEffectiveMass(playerBody, point, direction);
         if (supportBody != null && !supportBody.isKinematic)
             inverseEffectiveMass += GetInverseEffectiveMass(supportBody, point, direction);
         if (inverseEffectiveMass <= 0.000001f)
