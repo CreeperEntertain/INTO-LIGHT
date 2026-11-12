@@ -9,24 +9,24 @@ public class MovementController : MonoBehaviour
     public Transform viewPivot;
 
     [Header("Movement")]
-    public float moveSpeed = 5f;
-    public float acceleration = 80f;
+    public float moveSpeed = 5.0f;
+    public float acceleration = 80.0f;
     [Range(0.0f, 100.0f)]
     public float airAcceleratonPercentage = 15.0f;
-    public float braking = 80f;
-    public float velocityResponse = 10f;
+    public float braking = 80.0f;
+    public float velocityResponse = 10.0f;
 
     [Header("Mouse Look")]
     public float mouseSensitivity = 0.08f;
-    public float minPitch = -85f;
-    public float maxPitch = 85f;
+    public float minPitch = -85.0f;
+    public float maxPitch = 85.0f;
 
     [Header("Jump")]
-    [Min(0f)]
+    [Min(0.0f)]
     public float coyoteTime = 0.25f;
-    [Min(0f)]
+    [Min(0.0f)]
     public float jumpSpeed = 5.5f;
-    [Min(0f)]
+    [Min(0.0f)]
     public float jumpBufferTime = 0.2f;
 
     private Rigidbody rb;
@@ -108,7 +108,7 @@ public class MovementController : MonoBehaviour
         pitch -= delta.y * mouseSensitivity;
         pitch = Mathf.Clamp(pitch, minPitch, maxPitch);
         if (yawPivot != null)
-            yawPivot.localRotation = Quaternion.Euler(0f, yaw, 0f);
+            yawPivot.localRotation = Quaternion.Euler(0.0f, yaw, 0.0f);
         if (viewPivot != null)
             viewPivot.localRotation = Quaternion.Euler(pitch, 0.0f, 0.0f);
     }

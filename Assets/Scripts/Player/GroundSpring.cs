@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using UnityEngine.AI;
 
 [DefaultExecutionOrder(100)]
 [RequireComponent(typeof(Rigidbody), typeof(CapsuleCollider))]
