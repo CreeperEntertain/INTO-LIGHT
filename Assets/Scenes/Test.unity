@@ -559,6 +559,7 @@ GameObject:
   - component: {fileID: 232837888}
   - component: {fileID: 232837889}
   - component: {fileID: 232837890}
+  - component: {fileID: 232837891}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -758,6 +759,20 @@ MonoBehaviour:
   normalResponse: 0.12
   contactMemory: 0.08
   capContactMargin: 0.03
+--- !u!114 &232837891
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 232837882}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0d7b10106f0d6b4e80a6d2896ed0f31, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GroundMotionTransfer
+  staticFrictionCoefficient: 0.8
+  dynamicFrictionCoefficient: 0.6
 --- !u!1 &243413000
 GameObject:
   m_ObjectHideFlags: 0
@@ -3825,6 +3840,7 @@ GameObject:
   - component: {fileID: 1335245170}
   - component: {fileID: 1335245169}
   - component: {fileID: 1335245172}
+  - component: {fileID: 1335245173}
   m_Layer: 0
   m_Name: Cube (9)
   m_TagString: Untagged
@@ -3947,6 +3963,33 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!54 &1335245173
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1335245167}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &1493423059
 GameObject:
   m_ObjectHideFlags: 0

@@ -32,7 +32,7 @@ public class GroundMotionTransfer : MonoBehaviour
 
     public void Apply()
     {
-        if (!HasRigidbodySupport || groundSpring.SupportNormalForce != 0.0f)
+        if (!HasRigidbodySupport || groundSpring.SupportNormalForce <= 0.0f)
             return;
         
         Rigidbody supportBody = groundSpring.SupportBody;
@@ -89,11 +89,11 @@ public class GroundMotionTransfer : MonoBehaviour
         Vector3 angularDeltaWorld = inertiaFrame * localAngularDelta;
         Vector3 angularDeltaLocal = Quaternion.Inverse(body.rotation) * angularDeltaWorld;
         RigidbodyConstraints constraints = body.constraints;
-        if ((constraints & RigidbodyConstraints.FreezePositionX) != 0)
+        if ((constraints & RigidbodyConstraints.FreezeRotationX) != 0)
             angularDeltaLocal.x = 0.0f;
-        if ((constraints & RigidbodyConstraints.FreezePositionY) != 0)
+        if ((constraints & RigidbodyConstraints.FreezeRotationY) != 0)
             angularDeltaLocal.y = 0.0f;
-        if ((constraints & RigidbodyConstraints.FreezePositionZ) != 0)
+        if ((constraints & RigidbodyConstraints.FreezeRotationZ) != 0)
             angularDeltaLocal.z = 0.0f;
 
         angularDeltaWorld = body.rotation * angularDeltaLocal;
