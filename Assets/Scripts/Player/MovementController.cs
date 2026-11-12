@@ -152,23 +152,14 @@ public class MovementController : MonoBehaviour
         groundSpring.SetMoveDirection(direction);
         if (moveInput.sqrMagnitude < 0.001f && !groundSpring.IsGrounded)
             return;
-        if (
-            moveInput.sqrMagnitude < 0.001f &&
-            groundMotionTransfer != null &&
-            groundMotionTransfer.HasRigidbodySupport
-        )
-            return;
 
-        Vector3 desitedVelocity = direction * moveSpeed;
+        Vector3 desiredVelocity = direction * moveSpeed;
         Vector3 currentVelocity = rb.linearVelocity;
-        if (groundSpring.IsGrounded && groundMotionTransfer != null)
-            currentVelocity -= Vector3.ProjectOnPlane(
-                groundMotionTransfer.GetSupportVelocity(),
-                Vector3.up
-            );
-        currentVelocity.y = 0.0f;
+        if (groundSpring.IsGrounded && groundMotionTransfer != null && groundMotionTransfer.HasSupport)
+            currentVelocity -= groundMotionTransfer.CarriedVelocity;
 
-        Vector3 velocityError = desitedVelocity - currentVelocity;
+        currentVelocity.y = 0.0f;
+        Vector3 velocityError = desiredVelocity - currentVelocity;
         float maxAcceleration = moveInput.sqrMagnitude > 0.001f
             ? acceleration * (groundSpring.IsGrounded
                 ? 1.0f : airAcceleratonPercentage / 100.0f
@@ -176,11 +167,11 @@ public class MovementController : MonoBehaviour
         
         Vector3 accelerationVector = Vector3.ClampMagnitude(velocityError * velocityResponse, maxAcceleration);
 
-        if (wallContactSmoother.TryGetWallNormal(out Vector3 wallNormal))
+        if (wallContactSmoother.TryGetWallNormal(out Vector3 wallNormal2))
         {
-            float intoWall = Vector3.Dot(accelerationVector, wallNormal);
+            float intoWall = Vector3.Dot(accelerationVector, wallNormal2);
             if (intoWall < 0.0f)
-            accelerationVector -= wallNormal * intoWall;
+                accelerationVector -= wallNormal2 * intoWall;
         }
 
         rb.AddForce(accelerationVector, ForceMode.Acceleration);

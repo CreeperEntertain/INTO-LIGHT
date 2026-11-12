@@ -62,8 +62,16 @@ public class GroundSpring : MonoBehaviour
         public Vector3 point;
         public float weight;
         public Rigidbody body;
+        public Transform surfaceTransform;
     }
     private readonly SupportSample[] supportSamples = new SupportSample[12];
+
+    private Transform previousSupportTransform;
+    private Matrix4x4 previousSupportMatrix;
+    private Matrix4x4 previousSupportMatrixForStep;
+    private Matrix4x4 currentSupportMatrix;
+    private bool hasPreviousSupportMatrix;
+    private bool supportMotionValid;
 
 
     public bool IsGrounded {get; private set; }
@@ -71,6 +79,8 @@ public class GroundSpring : MonoBehaviour
     public Rigidbody SupportBody { get; private set; }
     public Vector3 SupportPoint { get; private set; }
     public float SupportNormalForce { get; private set; }
+    public Transform SupportTransform { get; private set; }
+    public Vector3 SupportVelocity { get; private set; }
 
 
 
@@ -100,12 +110,20 @@ public class GroundSpring : MonoBehaviour
     {
         IsGrounded = false;
         SupportBody = null;
+        SupportTransform = null;
+        SupportVelocity = Vector3.zero;
         SupportPoint = springOrigin != null ? springOrigin.position : transform.position;
         SupportNormalForce = 0.0f;
         if (springOrigin == null || springStrength <= 0.0f)
+        {
+            ResetSupportMotion();
             return;
+        }
         if (Time.fixedTime < suppressSpringUntil)
+        {
+            ResetSupportMotion();
             return;
+        }
         
         Vector3 gravity = Physics.gravity;
         Vector3 up = gravity.sqrMagnitude > 0.0001f
@@ -148,17 +166,27 @@ public class GroundSpring : MonoBehaviour
             {
                 point = hit.point,
                 weight = 1.0f,
-                body = hit.rigidbody
+                body = hit.rigidbody,
+                surfaceTransform = hit.collider.transform
             };
             pointSum += hit.point;
             normalSum += hit.normal;
             totalWeight += 1f;
         }
         if (supportCount == 0)
+        {
+            ResetSupportMotion();
             return;
+        }
         
-        SupportBody = GetDominantSupportBody(supportCount, out Vector3 supportPoint);
+        SupportBody = GetDominantSupportBody(
+            supportCount,
+            out Transform supportTransform,
+            out Vector3 supportPoint
+        );
+        SupportTransform = supportTransform;
         SupportPoint = supportPoint;
+        UpdateSupportMotion();
         bool hasCorePlane = TryFitSupportPlane(
             springOrigin.position,
             up,
@@ -207,7 +235,8 @@ public class GroundSpring : MonoBehaviour
                     supportSamples[supportCount++] = new SupportSample
                     {
                         point = hit.point,
-                        weight = stepProbeWeight
+                        weight = stepProbeWeight,
+                        surfaceTransform = hit.collider.transform
                     };
                     pointSum += hit.point * stepProbeWeight;
                     normalSum += hit.normal * stepProbeWeight;
@@ -248,44 +277,71 @@ public class GroundSpring : MonoBehaviour
         float gravityIntoSurface = Mathf.Max(0.0f, -Vector3.Dot(gravity, supportNormal));
         float naturalLength = targetGroundGap + rb.mass * gravityIntoSurface / springStrength;
         float compression = naturalLength - averageDistance;
-        float normalSpeed = Vector3.Dot(rb.GetPointVelocity(averagePoint), supportNormal);
+        float normalSpeed = Vector3.Dot(
+            rb.GetPointVelocity(averagePoint) -
+            GetSupportVelocityAtPoint(averagePoint),
+            supportNormal
+        );
         float damping = 2.0f * dampingRatio * Mathf.Sqrt(springStrength * rb.mass);
         float force = Mathf.Max(0.0f, springStrength * compression - damping * normalSpeed);
         SupportNormalForce = IsGrounded ? force : 0.0f;
         if (force > 0.0f)
+        {
             rb.AddForceAtPosition(
                 supportNormal * force,
                 averagePoint,
                 ForceMode.Force
             );
+            if (SupportBody != null && !SupportBody.isKinematic)
+                SupportBody.AddForceAtPosition(
+                    -supportNormal * force,
+                    averagePoint,
+                    ForceMode.Force
+                );
+        }
         
         if (IsGrounded && moveDirection.sqrMagnitude < 0.001f)
         {
             Vector3 slopeGravity = Vector3.ProjectOnPlane(gravity, supportNormal);
             if (slopeGravity.sqrMagnitude > 0.001f)
             {
-                Vector3 surfaceVelocity = Vector3.ProjectOnPlane(rb.linearVelocity, supportNormal);
-                Vector3 holdAcceleration = -slopeGravity - surfaceVelocity * idleSlopeDamping;
+                Vector3 supportVelocity = GetSupportVelocityAtPoint(averagePoint);
+                Vector3 relativeSurfaceVelocity = Vector3.ProjectOnPlane(
+                    rb.GetPointVelocity(averagePoint) - supportVelocity, supportNormal
+                );
+                Vector3 holdAcceleration = -slopeGravity - relativeSurfaceVelocity * idleSlopeDamping;
                 rb.AddForce(holdAcceleration, ForceMode.Acceleration);
             }
         }
     }
 
-    private Rigidbody GetDominantSupportBody(int count, out Vector3 point)
+    private Rigidbody GetDominantSupportBody(
+        int count,
+        out Transform supportTransform,
+        out Vector3 point
+    )
     {
         Rigidbody dominantBody = null;
+        Transform dominantTransform = null;
         float dominantWeight = -1.0f;
         point = springOrigin.position;
+        supportTransform = null;
 
         for (int i = 0; i < count; i++)
         {
-            Rigidbody candidate = supportSamples[i].body;
+            Rigidbody candidateBody = supportSamples[i].body;
+            Transform candidateTransform = candidateBody != null
+                ? candidateBody.transform : supportSamples[i].surfaceTransform;
             float weight = 0.0f;
             Vector3 pointSum = Vector3.zero;
 
             for (int j = 0; j < count; j++)
             {
-                if (supportSamples[j].body != candidate)
+                SupportSample sample = supportSamples[j];
+                bool sameSupport = candidateBody != null
+                    ? sample.body == candidateBody
+                    : sample.body == null && sample.surfaceTransform == candidateTransform;
+                if (!sameSupport)
                     continue;
                 weight += supportSamples[j].weight;
                 pointSum += supportSamples[j].point * supportSamples[j].weight;
@@ -294,11 +350,55 @@ public class GroundSpring : MonoBehaviour
                 continue;
             
             dominantWeight = weight;
-            dominantBody = candidate;
+            dominantBody = candidateBody;
+            dominantTransform = candidateTransform;
             point = pointSum / weight;
         }
 
+        supportTransform = dominantTransform;
         return dominantBody;
+    }
+
+    private void UpdateSupportMotion()
+    {
+        supportMotionValid = false;
+        if (SupportTransform == null)
+        {
+            ResetSupportMotion();
+            return;
+        }
+
+        currentSupportMatrix = SupportTransform.localToWorldMatrix;
+        if (hasPreviousSupportMatrix && previousSupportTransform == SupportTransform)
+        {
+            previousSupportMatrixForStep = previousSupportMatrix;
+            supportMotionValid = true;
+        }
+
+        previousSupportMatrix = currentSupportMatrix;
+        previousSupportTransform = SupportTransform;
+        hasPreviousSupportMatrix = true;
+        SupportVelocity = GetSupportVelocityAtPoint(SupportPoint);
+    }
+
+    public Vector3 GetSupportVelocityAtPoint(Vector3 point)
+    {
+        if (SupportBody != null && !SupportBody.isKinematic)
+            return SupportBody.GetPointVelocity(point);
+        if (!supportMotionValid || SupportTransform == null)
+            return Vector3.zero;
+        
+        Vector3 localPoint = currentSupportMatrix.inverse.MultiplyPoint3x4(point);
+        Vector3 previousWorldPoint = previousSupportMatrixForStep.MultiplyPoint3x4(localPoint);
+        return (point - previousWorldPoint) / Mathf.Max(Time.fixedDeltaTime, 1.0e-6f);
+    }
+
+    private void ResetSupportMotion()
+    {
+        previousSupportTransform = null;
+        hasPreviousSupportMatrix = false;
+        supportMotionValid = false;
+        SupportVelocity = Vector3.zero;
     }
 
     private bool TryFitSupportPlane(
