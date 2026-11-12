@@ -150,22 +150,6 @@ public class MovementController : MonoBehaviour
         direction = Vector3.ClampMagnitude(direction, 1.0f);
 
         groundSpring.SetMoveDirection(direction);
-        if (
-            groundMotionTransfer != null &&
-            groundMotionTransfer.HasSupport &&
-            groundSpring.SupportNormalForce > 0.0f
-        )
-        {
-            Vector3 desiredRelativeVelocity = direction * moveSpeed;
-            if (wallContactSmoother.TryGetWallNormal(out Vector3 wallNormal1))
-            {
-                float intoWall = Vector3.Dot(desiredRelativeVelocity, wallNormal1);
-                if (intoWall < 0.0f)
-                    desiredRelativeVelocity -= wallNormal1 * intoWall;
-            }
-            groundMotionTransfer.SetDesiredRelativeVelocity(desiredRelativeVelocity);
-            return;
-        }
         if (moveInput.sqrMagnitude < 0.001f && !groundSpring.IsGrounded)
             return;
 
@@ -176,7 +160,6 @@ public class MovementController : MonoBehaviour
 
         currentVelocity.y = 0.0f;
         Vector3 velocityError = desiredVelocity - currentVelocity;
-        bool hasGroundMotor = groundSpring.IsGrounded && (groundMotionTransfer == null || !groundMotionTransfer.HasSupport);
         float maxAcceleration = moveInput.sqrMagnitude > 0.001f
             ? acceleration * (groundSpring.IsGrounded
                 ? 1.0f : airAcceleratonPercentage / 100.0f

@@ -31,59 +31,59 @@ public class GroundMotionTransfer : MonoBehaviour
         => HasSupport ? groundSpring.SupportVelocity : Vector3.zero;
     
     public void Apply()
-{
-    if (!HasSupport)
     {
-        trackedSupport = null;
-        CarriedVelocity = Vector3.zero;
-        return;
+        if (!HasSupport)
+        {
+            trackedSupport = null;
+            CarriedVelocity = Vector3.zero;
+            return;
+        }
+
+        Transform supportTransform = groundSpring.SupportTransform;
+        if (trackedSupport != supportTransform)
+        {
+            trackedSupport = supportTransform;
+            CarriedVelocity = Vector3.zero;
+        }
+
+        float normalForce = groundSpring.SupportNormalForce;
+        if (normalForce <= 0.0f)
+            return;
+
+        Rigidbody supportBody = groundSpring.SupportBody;
+        Vector3 point = groundSpring.SupportPoint;
+        Vector3 normal = groundSpring.GroundNormal.normalized;
+        Vector3 supportVelocity = groundSpring.GetSupportVelocityAtPoint(point);
+        Vector3 relativeVelocity = Vector3.ProjectOnPlane(supportVelocity - CarriedVelocity, normal);
+        float relativeSpeed = relativeVelocity.magnitude;
+        if (relativeSpeed < 0.0001f)
+            return;
+
+        Vector3 direction = relativeVelocity / relativeSpeed;
+        float inverseEffectiveMass =GetInverseEffectiveMass(playerBody, point, direction);
+        if (supportBody != null && !supportBody.isKinematic)
+            inverseEffectiveMass += GetInverseEffectiveMass(supportBody, point, direction);
+        if (inverseEffectiveMass <= 0.000001f)
+            return;
+
+        float requiredImpulse = relativeSpeed / inverseEffectiveMass;
+        float dt = Time.fixedDeltaTime;
+        float staticFriction = Mathf.Max(0.0f, staticFrictionCoefficient);
+        float dynamicFriction = Mathf.Clamp(dynamicFrictionCoefficient, 0.0f, staticFriction);
+        float maxStaticImpulse = staticFriction * normalForce * dt;
+        float maxDynamicImpulse = dynamicFriction * normalForce * dt;
+        float impulseMagnitude = requiredImpulse <= maxStaticImpulse
+            ? requiredImpulse : Mathf.Min(requiredImpulse, maxDynamicImpulse);
+        if (impulseMagnitude <= 0.0f)
+            return;
+
+        Vector3 impulse = direction * impulseMagnitude;
+        playerBody.AddForceAtPosition(impulse, point, ForceMode.Impulse);
+        if (supportBody != null && !supportBody.isKinematic)
+            supportBody.AddForceAtPosition(-impulse, point, ForceMode.Impulse);
+
+        CarriedVelocity += impulse / playerBody.mass;
     }
-
-    Transform supportTransform = groundSpring.SupportTransform;
-    if (trackedSupport != supportTransform)
-    {
-        trackedSupport = supportTransform;
-        CarriedVelocity = Vector3.zero;
-    }
-
-    float normalForce = groundSpring.SupportNormalForce;
-    if (normalForce <= 0.0f)
-        return;
-
-    Rigidbody supportBody = groundSpring.SupportBody;
-    Vector3 point = groundSpring.SupportPoint;
-    Vector3 normal = groundSpring.GroundNormal.normalized;
-    Vector3 supportVelocity = groundSpring.GetSupportVelocityAtPoint(point);
-    Vector3 relativeVelocity = Vector3.ProjectOnPlane(supportVelocity - CarriedVelocity, normal);
-    float relativeSpeed = relativeVelocity.magnitude;
-    if (relativeSpeed < 0.0001f)
-        return;
-
-    Vector3 direction = relativeVelocity / relativeSpeed;
-    float inverseEffectiveMass =GetInverseEffectiveMass(playerBody, point, direction);
-    if (supportBody != null && !supportBody.isKinematic)
-        inverseEffectiveMass += GetInverseEffectiveMass(supportBody, point, direction);
-    if (inverseEffectiveMass <= 0.000001f)
-        return;
-
-    float requiredImpulse = relativeSpeed / inverseEffectiveMass;
-    float dt = Time.fixedDeltaTime;
-    float staticFriction = Mathf.Max(0.0f, staticFrictionCoefficient);
-    float dynamicFriction = Mathf.Clamp(dynamicFrictionCoefficient, 0.0f, staticFriction);
-    float maxStaticImpulse = staticFriction * normalForce * dt;
-    float maxDynamicImpulse = dynamicFriction * normalForce * dt;
-    float impulseMagnitude = requiredImpulse <= maxStaticImpulse
-        ? requiredImpulse : Mathf.Min(requiredImpulse, maxDynamicImpulse);
-    if (impulseMagnitude <= 0.0f)
-        return;
-
-    Vector3 impulse = direction * impulseMagnitude;
-    playerBody.AddForceAtPosition(impulse, point, ForceMode.Impulse);
-    if (supportBody != null && !supportBody.isKinematic)
-        supportBody.AddForceAtPosition(-impulse, point, ForceMode.Impulse);
-
-    CarriedVelocity += impulse / playerBody.mass;
-}
 
     private static float GetInverseEffectiveMass(
         Rigidbody body,
