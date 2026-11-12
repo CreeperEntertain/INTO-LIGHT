@@ -13,7 +13,9 @@ public class GroundMotionTransfer : MonoBehaviour
     private Rigidbody playerBody;
     private GroundSpring groundSpring;
 
-    private Vector3 desiredRelativeVelocity;
+    private Transform trackedSupport;
+
+    public Vector3 CarriedVelocity { get; private set; }
 
 
     public bool HasSupport
@@ -24,53 +26,64 @@ public class GroundMotionTransfer : MonoBehaviour
         playerBody = GetComponent<Rigidbody>();
         groundSpring = GetComponent<GroundSpring>();
     }
-
-    public void SetDesiredRelativeVelocity(Vector3 velocity)
-        => desiredRelativeVelocity = velocity;
     
     public Vector3 GetSupportVelocity()
         => HasSupport ? groundSpring.SupportVelocity : Vector3.zero;
     
     public void Apply()
+{
+    if (!HasSupport)
     {
-        if (!HasSupport || groundSpring.SupportNormalForce <= 0.0f)
-            return;
-        
-        Rigidbody supportBody = groundSpring.SupportBody;
-        Vector3 point = groundSpring.SupportPoint;
-        Vector3 normal = groundSpring.GroundNormal.normalized;
-        Vector3 supportVelocity = groundSpring.GetSupportVelocityAtPoint(point);
-        Vector3 targetVelocity = supportVelocity + Vector3.ProjectOnPlane(desiredRelativeVelocity, normal);
-        Vector3 playerVelocity = playerBody.GetPointVelocity(point);
-        Vector3 velocityError = Vector3.ProjectOnPlane(targetVelocity - playerVelocity, normal);
-        float relativeSpeed = velocityError.magnitude;
-        if (relativeSpeed < 0.0001f)
-            return;
-        
-        Vector3 direction = velocityError / relativeSpeed;
-        float inverseEffectiveMass = GetInverseEffectiveMass(playerBody, point, direction);
-        if (supportBody != null && !supportBody.isKinematic)
-            inverseEffectiveMass += GetInverseEffectiveMass(supportBody, point, direction);
-        if (inverseEffectiveMass <= 1.0e-6f)
-            return;
-        
-        float requiredImpulse = relativeSpeed / inverseEffectiveMass;
-        float normalForce = groundSpring.SupportNormalForce;
-        float dt = Time.fixedDeltaTime;
-        float staticFriction = Mathf.Max(0.0f, staticFrictionCoefficient);
-        float dynamicFriction = Mathf.Clamp(dynamicFrictionCoefficient, 0.0f, staticFriction);
-        float maxStaticImpulse = staticFriction * normalForce * dt;
-        float maxDynamicImpulse = dynamicFriction * normalForce * dt;
-        float impulseMagnitude = requiredImpulse <= maxStaticImpulse
-            ? requiredImpulse : maxDynamicImpulse;
-        if (impulseMagnitude <= 0.0f)
-            return;
-        
-        Vector3 impulse = direction * impulseMagnitude;
-        playerBody.AddForceAtPosition(impulse, point, ForceMode.Impulse);
-        if (supportBody != null && !supportBody.isKinematic)
-            supportBody.AddForceAtPosition(-impulse, point, ForceMode.Impulse);
+        trackedSupport = null;
+        CarriedVelocity = Vector3.zero;
+        return;
     }
+
+    Transform supportTransform = groundSpring.SupportTransform;
+    if (trackedSupport != supportTransform)
+    {
+        trackedSupport = supportTransform;
+        CarriedVelocity = Vector3.zero;
+    }
+
+    float normalForce = groundSpring.SupportNormalForce;
+    if (normalForce <= 0.0f)
+        return;
+
+    Rigidbody supportBody = groundSpring.SupportBody;
+    Vector3 point = groundSpring.SupportPoint;
+    Vector3 normal = groundSpring.GroundNormal.normalized;
+    Vector3 supportVelocity = groundSpring.GetSupportVelocityAtPoint(point);
+    Vector3 relativeVelocity = Vector3.ProjectOnPlane(supportVelocity - CarriedVelocity, normal);
+    float relativeSpeed = relativeVelocity.magnitude;
+    if (relativeSpeed < 0.0001f)
+        return;
+
+    Vector3 direction = relativeVelocity / relativeSpeed;
+    float inverseEffectiveMass =GetInverseEffectiveMass(playerBody, point, direction);
+    if (supportBody != null && !supportBody.isKinematic)
+        inverseEffectiveMass += GetInverseEffectiveMass(supportBody, point, direction);
+    if (inverseEffectiveMass <= 0.000001f)
+        return;
+
+    float requiredImpulse = relativeSpeed / inverseEffectiveMass;
+    float dt = Time.fixedDeltaTime;
+    float staticFriction = Mathf.Max(0.0f, staticFrictionCoefficient);
+    float dynamicFriction = Mathf.Clamp(dynamicFrictionCoefficient, 0.0f, staticFriction);
+    float maxStaticImpulse = staticFriction * normalForce * dt;
+    float maxDynamicImpulse = dynamicFriction * normalForce * dt;
+    float impulseMagnitude = requiredImpulse <= maxStaticImpulse
+        ? requiredImpulse : Mathf.Min(requiredImpulse, maxDynamicImpulse);
+    if (impulseMagnitude <= 0.0f)
+        return;
+
+    Vector3 impulse = direction * impulseMagnitude;
+    playerBody.AddForceAtPosition(impulse, point, ForceMode.Impulse);
+    if (supportBody != null && !supportBody.isKinematic)
+        supportBody.AddForceAtPosition(-impulse, point, ForceMode.Impulse);
+
+    CarriedVelocity += impulse / playerBody.mass;
+}
 
     private static float GetInverseEffectiveMass(
         Rigidbody body,

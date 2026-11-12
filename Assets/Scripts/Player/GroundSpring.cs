@@ -305,8 +305,11 @@ public class GroundSpring : MonoBehaviour
             Vector3 slopeGravity = Vector3.ProjectOnPlane(gravity, supportNormal);
             if (slopeGravity.sqrMagnitude > 0.001f)
             {
-                Vector3 surfaceVelocity = Vector3.ProjectOnPlane(rb.linearVelocity, supportNormal);
-                Vector3 holdAcceleration = -slopeGravity - surfaceVelocity * idleSlopeDamping;
+                Vector3 supportVelocity = GetSupportVelocityAtPoint(averagePoint);
+                Vector3 relativeSurfaceVelocity = Vector3.ProjectOnPlane(
+                    rb.GetPointVelocity(averagePoint) - supportVelocity, supportNormal
+                );
+                Vector3 holdAcceleration = -slopeGravity - relativeSurfaceVelocity * idleSlopeDamping;
                 rb.AddForce(holdAcceleration, ForceMode.Acceleration);
             }
         }

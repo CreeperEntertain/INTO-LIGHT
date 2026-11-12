@@ -166,17 +166,16 @@ public class MovementController : MonoBehaviour
             groundMotionTransfer.SetDesiredRelativeVelocity(desiredRelativeVelocity);
             return;
         }
-        if (
-            moveInput.sqrMagnitude < 0.001f &&
-            (!groundSpring.IsGrounded || (groundMotionTransfer != null && groundMotionTransfer.HasSupport))
-        )
+        if (moveInput.sqrMagnitude < 0.001f && !groundSpring.IsGrounded)
             return;
 
-        Vector3 desitedVelocity = direction * moveSpeed;
+        Vector3 desiredVelocity = direction * moveSpeed;
         Vector3 currentVelocity = rb.linearVelocity;
-        currentVelocity.y = 0.0f;
+        if (groundSpring.IsGrounded && groundMotionTransfer != null && groundMotionTransfer.HasSupport)
+            currentVelocity -= groundMotionTransfer.CarriedVelocity;
 
-        Vector3 velocityError = desitedVelocity - currentVelocity;
+        currentVelocity.y = 0.0f;
+        Vector3 velocityError = desiredVelocity - currentVelocity;
         bool hasGroundMotor = groundSpring.IsGrounded && (groundMotionTransfer == null || !groundMotionTransfer.HasSupport);
         float maxAcceleration = moveInput.sqrMagnitude > 0.001f
             ? acceleration * (groundSpring.IsGrounded
