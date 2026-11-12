@@ -61,12 +61,16 @@ public class GroundSpring : MonoBehaviour
     {
         public Vector3 point;
         public float weight;
+        public Rigidbody body;
     }
     private readonly SupportSample[] supportSamples = new SupportSample[12];
 
 
     public bool IsGrounded {get; private set; }
     public Vector3 GroundNormal { get; private set; } = Vector3.up;
+    public Rigidbody SupportBody { get; private set; }
+    public Vector3 SupportPoint { get; private set; }
+    public float SupportNormalForce { get; private set; }
 
 
 
@@ -95,6 +99,9 @@ public class GroundSpring : MonoBehaviour
     private void FixedUpdate()
     {
         IsGrounded = false;
+        SupportBody = null;
+        SupportPoint = springOrigin != null ? springOrigin.position : transform.position;
+        SupportNormalForce = 0.0f;
         if (springOrigin == null || springStrength <= 0.0f)
             return;
         if (Time.fixedTime < suppressSpringUntil)
@@ -140,7 +147,8 @@ public class GroundSpring : MonoBehaviour
             supportSamples[supportCount++] = new SupportSample
             {
                 point = hit.point,
-                weight = 1.0f
+                weight = 1.0f,
+                body = hit.rigidbody
             };
             pointSum += hit.point;
             normalSum += hit.normal;
@@ -149,6 +157,8 @@ public class GroundSpring : MonoBehaviour
         if (supportCount == 0)
             return;
         
+        SupportBody = GetDominantSupportBody(supportCount, out Vector3 supportPoint);
+        SupportPoint = supportPoint;
         bool hasCorePlane = TryFitSupportPlane(
             springOrigin.position,
             up,
@@ -241,6 +251,7 @@ public class GroundSpring : MonoBehaviour
         float normalSpeed = Vector3.Dot(rb.GetPointVelocity(averagePoint), supportNormal);
         float damping = 2.0f * dampingRatio * Mathf.Sqrt(springStrength * rb.mass);
         float force = Mathf.Max(0.0f, springStrength * compression - damping * normalSpeed);
+        SupportNormalForce = IsGrounded ? force : 0.0f;
         if (force > 0.0f)
             rb.AddForceAtPosition(
                 supportNormal * force,
@@ -258,6 +269,36 @@ public class GroundSpring : MonoBehaviour
                 rb.AddForce(holdAcceleration, ForceMode.Acceleration);
             }
         }
+    }
+
+    private Rigidbody GetDominantSupportBody(int count, out Vector3 point)
+    {
+        Rigidbody dominantBody = null;
+        float dominantWeight = -1.0f;
+        point = springOrigin.position;
+
+        for (int i = 0; i < count; i++)
+        {
+            Rigidbody candidate = supportSamples[i].body;
+            float weight = 0.0f;
+            Vector3 pointSum = Vector3.zero;
+
+            for (int j = 0; j < count; j++)
+            {
+                if (supportSamples[j].body != candidate)
+                    continue;
+                weight += supportSamples[j].weight;
+                pointSum += supportSamples[j].point * supportSamples[j].weight;
+            }
+            if (weight <= dominantWeight)
+                continue;
+            
+            dominantWeight = weight;
+            dominantBody = candidate;
+            point = pointSum / weight;
+        }
+
+        return dominantBody;
     }
 
     private bool TryFitSupportPlane(

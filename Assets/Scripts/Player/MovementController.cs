@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+[DefaultExecutionOrder(200)]
 [RequireComponent(typeof(Rigidbody), typeof(GroundSpring))]
 public class MovementController : MonoBehaviour
 {
@@ -32,6 +33,7 @@ public class MovementController : MonoBehaviour
     private Rigidbody rb;
     private GroundSpring groundSpring;
     private WallContactSmoother wallContactSmoother;
+    private GroundMotionTransfer groundMotionTransfer;
 
     private Vector2 moveInput;
 
@@ -48,6 +50,7 @@ public class MovementController : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         groundSpring = GetComponent<GroundSpring>();
         wallContactSmoother = GetComponent<WallContactSmoother>();
+        groundMotionTransfer = GetComponent<GroundMotionTransfer>();
 
         rb.constraints |= RigidbodyConstraints.FreezeRotation;
         rb.interpolation = RigidbodyInterpolation.Interpolate;
@@ -119,6 +122,8 @@ public class MovementController : MonoBehaviour
         if (groundSpring.IsGrounded)
             lastGroundedTime = Time.fixedTime;
         HandleMovement();
+        if (groundMotionTransfer != null)
+            groundMotionTransfer.Apply();
         HandleJump();
     }
 
@@ -147,9 +152,20 @@ public class MovementController : MonoBehaviour
         groundSpring.SetMoveDirection(direction);
         if (moveInput.sqrMagnitude < 0.001f && !groundSpring.IsGrounded)
             return;
+        if (
+            moveInput.sqrMagnitude < 0.001f &&
+            groundMotionTransfer != null &&
+            groundMotionTransfer.HasRigidbodySupport
+        )
+            return;
 
         Vector3 desitedVelocity = direction * moveSpeed;
         Vector3 currentVelocity = rb.linearVelocity;
+        if (groundSpring.IsGrounded && groundMotionTransfer != null)
+            currentVelocity -= Vector3.ProjectOnPlane(
+                groundMotionTransfer.GetSupportVelocity(),
+                Vector3.up
+            );
         currentVelocity.y = 0.0f;
 
         Vector3 velocityError = desitedVelocity - currentVelocity;
