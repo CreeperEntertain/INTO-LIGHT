@@ -155,8 +155,12 @@ public class MovementController : MonoBehaviour
 
         Vector3 desiredVelocity = direction * moveSpeed;
         Vector3 currentVelocity = rb.linearVelocity;
-        if (groundSpring.IsGrounded && groundMotionTransfer != null && groundMotionTransfer.HasSupport)
-            currentVelocity -= groundMotionTransfer.GetSupportVelocity();
+        if (
+            groundSpring.IsGrounded &&
+            groundMotionTransfer != null &&
+            groundMotionTransfer.HasSupport
+        )
+            currentVelocity -= groundSpring.GetSupportVelocityAtPoint(rb.worldCenterOfMass);
 
         currentVelocity.y = 0.0f;
         Vector3 velocityError = desiredVelocity - currentVelocity;
