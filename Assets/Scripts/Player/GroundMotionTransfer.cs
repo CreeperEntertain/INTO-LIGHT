@@ -1,3 +1,4 @@
+using UnityEditor.Rendering;
 using UnityEngine;
 
 [DisallowMultipleComponent]
@@ -9,6 +10,22 @@ public class GroundMotionTransfer : MonoBehaviour
     public float staticFrictionCoefficient = 0.8f;
     [Min(0.0f)]
     public float dynamicFrictionCoefficient = 0.6f;
+
+    [Header("Platform Carry")]
+    [Min(0.0f)]
+    public float fullCarryAcceleration = 2.5f;
+    [Min(0.0f)]
+    public float carryCollisionSkin = 0.002f;
+
+
+    private Transform trackedSupport;
+    private Matrix4x4 previousSupportMatrix;
+    private Vector3 previousSupportVelocity;
+    private bool hasPreviousSupportSample;
+
+    private static int lastCarrySyncFrame = -1;
+    private static double lastCarrySyncFixedTime = -1.0;
+
 
     private Rigidbody playerBody;
     private GroundSpring groundSpring;
@@ -29,10 +46,16 @@ public class GroundMotionTransfer : MonoBehaviour
     public void Apply()
     {
         if (!HasSupport)
+        {
+            ResetPlatformCarry();
             return;
+        }
 
         Rigidbody supportBody = groundSpring.SupportBody;
         Transform supportTransform = groundSpring.SupportTransform;
+
+        ApplyPlatformCarry(supportTransform, supportBody);
+
         Vector3 point = groundSpring.SupportPoint;
         Vector3 normal = groundSpring.GroundNormal.normalized;
         Vector3 supportVelocity = groundSpring.GetSupportVelocityAtPoint(point);
@@ -65,9 +88,146 @@ public class GroundMotionTransfer : MonoBehaviour
             return;
 
         Vector3 impulse = direction * impulseMagnitude;
-        playerBody.AddForceAtPosition(impulse, point, ForceMode.Impulse);
+        playerBody.AddForceAtPosition( impulse, point, ForceMode.Impulse);
         if (supportBody != null && !supportBody.isKinematic)
             supportBody.AddForceAtPosition(-impulse, point, ForceMode.Impulse);
+    }
+
+    private void ApplyPlatformCarry(Transform supportTransform, Rigidbody supportBody)
+    {
+        Matrix4x4 currentMatrix = supportTransform.localToWorldMatrix;
+        Vector3 centerOfMass = playerBody.worldCenterOfMass;
+        Vector3 supportVelocity = groundSpring.GetSupportVelocityAtPoint(centerOfMass);
+        if (
+            !hasPreviousSupportSample ||
+            trackedSupport != supportTransform ||
+            Mathf.Abs(previousSupportMatrix.determinant) < 1.0e-8f
+        )
+        {
+            trackedSupport = supportTransform;
+            previousSupportMatrix = currentMatrix;
+            previousSupportVelocity = supportVelocity;
+            hasPreviousSupportSample = true;
+            return;
+        }
+
+        float dt = Mathf.Max(Time.fixedDeltaTime, 1.0e-6f);
+        Vector3 supportDeltaVelocity = supportVelocity - previousSupportVelocity;
+        float supportAcceleration = supportDeltaVelocity.magnitude / dt;
+        float carryWeight = Mathf.SmoothStep(0.0f, 1.0f, supportAcceleration / Mathf.Max(fullCarryAcceleration, 0.01f));
+        Matrix4x4 platformDelta = currentMatrix * previousSupportMatrix.inverse;
+        Vector3 targetCenter = platformDelta.MultiplyPoint3x4(centerOfMass);
+        Vector3 carryDisplacement = (targetCenter - centerOfMass) * carryWeight;
+
+        previousSupportMatrix = currentMatrix;
+        previousSupportVelocity = supportVelocity;
+        if (supportBody == null || supportBody.isKinematic)
+            playerBody.linearVelocity += supportDeltaVelocity * carryWeight;
+        if (carryDisplacement.sqrMagnitude > 1.0e-10f)
+            ApplyCollisionAwareCarry(carryDisplacement, supportTransform, supportBody);
+    }
+
+    private void ApplyCollisionAwareCarry(
+        Vector3 displacement,
+        Transform supportTransform,
+        Rigidbody supportBody
+    )
+    {
+        SyncTransformsForCarry();
+
+        Vector3 remaining = displacement;
+
+        const int maxIterations = 4;
+        const float minimumDistance = 1.0e-5f;
+
+        for (int iteration = 0; iteration < maxIterations; iteration++)
+        {
+            float distance = remaining.magnitude;
+            if (distance <= minimumDistance)
+                return;
+            
+            Vector3 direction = remaining / distance;
+            RaycastHit[] hits = playerBody.SweepTestAll(direction, distance, QueryTriggerInteraction.Ignore);
+            bool foundBlocker = false;
+            RaycastHit closestHit = default;
+            float closestDistance = distance;
+
+            foreach (RaycastHit hit in hits)
+            {
+                if (hit.collider == null)
+                    continue;
+                if (IsSupportCollider(hit.collider, supportTransform, supportBody))
+                    continue;
+                if (hit.distance >= closestDistance)
+                    continue;
+                
+                closestDistance = hit.distance;
+                closestHit = hit;
+                foundBlocker = true;
+            }
+            if (!foundBlocker)
+            {
+                playerBody.position += remaining;
+                return;
+            }
+
+            float allowedDistance = Mathf.Clamp(closestDistance - carryCollisionSkin, 0.0f, distance);
+            Vector3 allowedMovement = direction * allowedDistance;
+
+            playerBody.position += allowedMovement;
+            remaining -= allowedMovement;
+            if (closestHit.normal.sqrMagnitude < 1.0e-6f)
+                return;
+            if (Vector3.Dot(remaining, closestHit.normal) >= -1.0e-6f)
+                return;
+            
+            remaining = Vector3.ProjectOnPlane(remaining, closestHit.normal);
+        }
+    }
+
+    private static bool IsSupportCollider(
+        Collider collider,
+        Transform supportTransform,
+        Rigidbody supportBody
+    )
+    {
+        if (
+            supportBody != null &&
+            collider.attachedRigidbody == supportBody
+        )
+            return true;
+        return
+            collider.transform == supportTransform ||
+            collider.transform.IsChildOf(supportTransform);
+    }
+
+    private static void SyncTransformsForCarry()
+    {
+        int frame = Time.frameCount;
+        double fixedTime = Time.fixedTimeAsDouble;
+        if (
+            lastCarrySyncFrame == frame &&
+            lastCarrySyncFixedTime == fixedTime
+        )
+            return;
+        
+        Physics.SyncTransforms();
+
+        lastCarrySyncFrame = frame;
+        lastCarrySyncFixedTime = fixedTime;
+    }
+    
+    private void ResetPlatformCarry()
+    {
+        trackedSupport = null;
+        previousSupportMatrix = default;
+        previousSupportVelocity = Vector3.zero;
+        hasPreviousSupportSample= false;
+    }
+
+    private void Osable()
+    {
+        ResetPlatformCarry();
     }
 
     private static float GetInverseEffectiveMass(
