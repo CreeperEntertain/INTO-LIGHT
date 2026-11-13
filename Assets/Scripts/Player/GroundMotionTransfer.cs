@@ -121,8 +121,6 @@ public class GroundMotionTransfer : MonoBehaviour
 
         previousSupportMatrix = currentMatrix;
         previousSupportVelocity = supportVelocity;
-        if (supportBody == null || supportBody.isKinematic)
-            playerBody.linearVelocity += supportDeltaVelocity * carryWeight;
         if (carryDisplacement.sqrMagnitude > 1.0e-10f)
             ApplyCollisionAwareCarry(carryDisplacement, supportTransform, supportBody);
     }
