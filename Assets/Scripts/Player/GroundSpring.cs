@@ -40,6 +40,7 @@ public class GroundSpring : MonoBehaviour
 
     private Vector3 moveDirection;
     private float suppressSpringUntil;
+    private Animator supportAnimator;
 
     private readonly RaycastHit[] hitBuffer = new RaycastHit[32];
     private static readonly Vector2[] probePattern =
@@ -66,10 +67,15 @@ public class GroundSpring : MonoBehaviour
     }
     private readonly SupportSample[] supportSamples = new SupportSample[12];
 
-    private Transform previousSupportTransform;
+    private Transform sampledSupportTransform;
     private Matrix4x4 previousSupportMatrix;
-    private Matrix4x4 previousSupportMatrixForStep;
     private Matrix4x4 currentSupportMatrix;
+
+    private double previousSupportSampleTime;
+    private double currentSupportSampleTime;
+    private float previousSupportTimeScale;
+    private float currentSupportTimeScale;
+
     private bool hasPreviousSupportMatrix;
     private bool supportMotionValid;
 
@@ -315,6 +321,12 @@ public class GroundSpring : MonoBehaviour
         }
     }
 
+    private void LateUpdate()
+    {
+        if (SupportTransform != null)
+            CaptureSupportMotionSample(SupportTransform);
+    }
+
     private Rigidbody GetDominantSupportBody(
         int count,
         out Transform supportTransform,
@@ -361,44 +373,137 @@ public class GroundSpring : MonoBehaviour
 
     private void UpdateSupportMotion()
     {
-        supportMotionValid = false;
         if (SupportTransform == null)
         {
             ResetSupportMotion();
             return;
         }
-
-        currentSupportMatrix = SupportTransform.localToWorldMatrix;
-        if (hasPreviousSupportMatrix && previousSupportTransform == SupportTransform)
+        if (sampledSupportTransform != SupportTransform)
         {
-            previousSupportMatrixForStep = previousSupportMatrix;
-            supportMotionValid = true;
+            supportAnimator = SupportTransform.GetComponentInParent<Animator>();
+            if (supportAnimator == null)
+                supportAnimator = SupportTransform.GetComponentInChildren<Animator>();
+            CaptureSupportMotionSample(SupportTransform);
+        }
+        
+        SupportVelocity = GetSupportVelocityAtPoint(SupportPoint);
+    }
+
+    private void CaptureSupportMotionSample(Transform support)
+    {
+        if (support == null)
+        {
+            ResetSupportMotion();
+            return;
+        }
+
+        Matrix4x4 matrix = support.localToWorldMatrix;
+        double now = Time.realtimeSinceStartupAsDouble;
+        float timeScale = Time.timeScale;
+        if (sampledSupportTransform != support)
+        {
+            sampledSupportTransform = support;
+            previousSupportMatrix = matrix;
+            currentSupportMatrix = matrix;
+            previousSupportSampleTime = now;
+            currentSupportSampleTime = now;
+            previousSupportTimeScale = timeScale;
+            currentSupportTimeScale = timeScale;
+            hasPreviousSupportMatrix = false;
+            supportMotionValid = false;
+            SupportVelocity = Vector3.zero;
+            return;
         }
 
         previousSupportMatrix = currentSupportMatrix;
-        previousSupportTransform = SupportTransform;
+        previousSupportSampleTime = currentSupportSampleTime;
+        previousSupportTimeScale = currentSupportTimeScale;
+
+        currentSupportMatrix = matrix;
+        currentSupportSampleTime = now;
+        currentSupportTimeScale = timeScale;
+
         hasPreviousSupportMatrix = true;
-        SupportVelocity = GetSupportVelocityAtPoint(SupportPoint);
+        supportMotionValid = GetScaledElapsed(
+            previousSupportSampleTime,
+            currentSupportSampleTime,
+            previousSupportTimeScale,
+            currentSupportTimeScale
+        ) > 1.0e-6f;
     }
 
     public Vector3 GetSupportVelocityAtPoint(Vector3 point)
     {
-        if (SupportBody != null && !SupportBody.isKinematic)
-            return SupportBody.GetPointVelocity(point);
-        if (!supportMotionValid || SupportTransform == null)
+        if (SupportBody != null)
+        {
+            if (!SupportBody.isKinematic)
+                return SupportBody.GetPointVelocity(point);
+            
+            bool hasPhysicsVelocity =
+                SupportBody.linearVelocity.sqrMagnitude > 1.0e-10f ||
+                SupportBody.angularVelocity.sqrMagnitude > 1.0e-10f;
+            if (supportAnimator == null && hasPhysicsVelocity)
+                return SupportBody.GetPointVelocity(point);
+        }
+        if (
+            !supportMotionValid ||
+            !hasPreviousSupportMatrix ||
+            SupportTransform == null ||
+            sampledSupportTransform != SupportTransform
+        )
             return Vector3.zero;
         
-        Vector3 localPoint = currentSupportMatrix.inverse.MultiplyPoint3x4(point);
-        Vector3 previousWorldPoint = previousSupportMatrixForStep.MultiplyPoint3x4(localPoint);
-        return (point - previousWorldPoint) / Mathf.Max(Time.fixedDeltaTime, 1.0e-6f);
+        Matrix4x4 liveMatrix = SupportTransform.localToWorldMatrix;
+        bool hasUnsampledPose = !liveMatrix.Equals(currentSupportMatrix);
+        double endTime = hasUnsampledPose
+            ? Time.realtimeSinceStartupAsDouble : currentSupportSampleTime;
+        float endTimeScale = hasUnsampledPose
+            ? Time.timeScale : currentSupportTimeScale;
+        float elapsed = GetScaledElapsed(
+            previousSupportSampleTime,
+            endTime,
+            previousSupportTimeScale,
+            endTimeScale
+        );
+        if (elapsed <= 1.0e-6f)
+            return Vector3.zero;
+        
+        Vector3 localPoint = liveMatrix.inverse.MultiplyPoint3x4(point);
+        Vector3 currentWorldPoint = liveMatrix.MultiplyPoint3x4(localPoint);
+        Vector3 previousWorldPoint = previousSupportMatrix.MultiplyPoint3x4(localPoint);
+        return (currentWorldPoint - previousWorldPoint) / elapsed;
+    }
+
+    private static float GetScaledElapsed(
+        double startTime,
+        double endTime,
+        float startTimeScaled,
+        float endTimeScaled
+    )
+    {
+        double realElapsed = endTime - startTime;
+        float averageTimeScaled = Mathf.Max(0.0f, (startTimeScaled + endTimeScaled) * 0.5f);
+        return (float)(realElapsed * averageTimeScaled);
     }
 
     private void ResetSupportMotion()
     {
-        previousSupportTransform = null;
+        sampledSupportTransform = null;
+
+        previousSupportMatrix = default;
+        currentSupportMatrix = default;
+
+        previousSupportSampleTime = 0.0;
+        currentSupportSampleTime = 0.0;
+
+        previousSupportTimeScale = Time.timeScale;
+        currentSupportTimeScale = Time.timeScale;
+
         hasPreviousSupportMatrix = false;
         supportMotionValid = false;
         SupportVelocity = Vector3.zero;
+
+        supportAnimator = null;
     }
 
     private bool TryFitSupportPlane(

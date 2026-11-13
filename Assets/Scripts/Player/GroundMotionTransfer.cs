@@ -13,10 +13,6 @@ public class GroundMotionTransfer : MonoBehaviour
     private Rigidbody playerBody;
     private GroundSpring groundSpring;
 
-    private Transform trackedSupport;
-
-    public Vector3 CarriedVelocity { get; private set; }
-
 
     public bool HasSupport
         => groundSpring.IsGrounded && groundSpring.SupportTransform != null;
@@ -33,11 +29,7 @@ public class GroundMotionTransfer : MonoBehaviour
     public void Apply()
     {
         if (!HasSupport)
-        {
-            trackedSupport = null;
-            CarriedVelocity = Vector3.zero;
             return;
-        }
 
         Rigidbody supportBody = groundSpring.SupportBody;
         Transform supportTransform = groundSpring.SupportTransform;
@@ -49,22 +41,7 @@ public class GroundMotionTransfer : MonoBehaviour
         if (normalForce <= 0.0f)
             return;
 
-        Vector3 surfaceVelocity = Vector3.ProjectOnPlane(supportVelocity, normal);
-        if (trackedSupport != supportTransform)
-        {
-            trackedSupport = supportTransform;
-            Vector3 carryChange = surfaceVelocity - CarriedVelocity;
-            if (carryChange.sqrMagnitude > 0.00000001f)
-            {
-                playerBody.linearVelocity += carryChange;
-                if (supportBody != null && !supportBody.isKinematic)
-                    supportBody.AddForceAtPosition(-carryChange * playerBody.mass, point, ForceMode.Impulse);
-            }
-            CarriedVelocity = surfaceVelocity;
-            return;
-        }
-
-        Vector3 relativeVelocity = Vector3.ProjectOnPlane(surfaceVelocity - CarriedVelocity, normal);
+        Vector3 relativeVelocity = Vector3.ProjectOnPlane(supportVelocity - playerBody.GetPointVelocity(point), normal);
         float relativeSpeed = relativeVelocity.magnitude;
         if (relativeSpeed < 0.0001f)
             return;
@@ -73,7 +50,7 @@ public class GroundMotionTransfer : MonoBehaviour
         float inverseEffectiveMass = GetInverseEffectiveMass(playerBody, point, direction);
         if (supportBody != null && !supportBody.isKinematic)
             inverseEffectiveMass += GetInverseEffectiveMass(supportBody, point, direction);
-        if (inverseEffectiveMass <= 0.000001f)
+        if (inverseEffectiveMass <= 1.0e-6f)
             return;
 
         float requiredImpulse = relativeSpeed / inverseEffectiveMass;
@@ -91,8 +68,6 @@ public class GroundMotionTransfer : MonoBehaviour
         playerBody.AddForceAtPosition(impulse, point, ForceMode.Impulse);
         if (supportBody != null && !supportBody.isKinematic)
             supportBody.AddForceAtPosition(-impulse, point, ForceMode.Impulse);
-
-        CarriedVelocity += impulse / playerBody.mass;
     }
 
     private static float GetInverseEffectiveMass(
@@ -101,7 +76,7 @@ public class GroundMotionTransfer : MonoBehaviour
         Vector3 direction
     )
     {
-        if (body == null || body.isKinematic || body.mass <= 0.000001f)
+        if (body == null || body.isKinematic || body.mass <= 1.0e-6f)
             return 0.0f;
         
         Vector3 allowedDirectionLocal = Quaternion.Inverse(body.rotation) * direction;
@@ -116,16 +91,16 @@ public class GroundMotionTransfer : MonoBehaviour
         Vector3 allowedDirectionWorld = body.rotation * allowedDirectionLocal;
         float inverseLinearMass = Vector3.Dot(direction, allowedDirectionWorld) / body.mass;
         Vector3 torqueAxis = Vector3.Cross(point - body.worldCenterOfMass, direction);
-        if (torqueAxis.sqrMagnitude < 0.000001f)
+        if (torqueAxis.sqrMagnitude < 1.0e-6f)
             return Mathf.Max(0.0f, inverseLinearMass);
         
         Quaternion inertiaFrame = body.rotation * body.inertiaTensorRotation;
         Vector3 localTorque = Quaternion.Inverse(inertiaFrame) * torqueAxis;
         Vector3 inertia = body.inertiaTensor;
         Vector3 localAngularDelta = new(
-            inertia.x > 0.000001f ? localTorque.x / inertia.x : 0.0f,
-            inertia.y > 0.000001f ? localTorque.y / inertia.y : 0.0f,
-            inertia.z > 0.000001f ? localTorque.z / inertia.z : 0.0f
+            inertia.x > 1.0e-6f ? localTorque.x / inertia.x : 0.0f,
+            inertia.y > 1.0e-6f ? localTorque.y / inertia.y : 0.0f,
+            inertia.z > 1.0e-6f ? localTorque.z / inertia.z : 0.0f
         );
         Vector3 angularDeltaWorld = inertiaFrame * localAngularDelta;
         Vector3 angularDeltaLocal = Quaternion.Inverse(body.rotation) * angularDeltaWorld;
