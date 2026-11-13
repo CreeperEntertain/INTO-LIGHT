@@ -13,10 +13,6 @@ public class GroundMotionTransfer : MonoBehaviour
     private Rigidbody playerBody;
     private GroundSpring groundSpring;
 
-    private Transform trackedSupport;
-
-    public Vector3 CarriedVelocity { get; private set; }
-
 
     public bool HasSupport
         => groundSpring.IsGrounded && groundSpring.SupportTransform != null;
@@ -33,11 +29,7 @@ public class GroundMotionTransfer : MonoBehaviour
     public void Apply()
     {
         if (!HasSupport)
-        {
-            trackedSupport = null;
-            CarriedVelocity = Vector3.zero;
             return;
-        }
 
         Rigidbody supportBody = groundSpring.SupportBody;
         Transform supportTransform = groundSpring.SupportTransform;
@@ -48,21 +40,6 @@ public class GroundMotionTransfer : MonoBehaviour
         float normalForce = groundSpring.SupportNormalForce;
         if (normalForce <= 0.0f)
             return;
-
-        Vector3 surfaceVelocity = Vector3.ProjectOnPlane(supportVelocity, normal);
-        if (trackedSupport != supportTransform)
-        {
-            trackedSupport = supportTransform;
-            Vector3 carryChange = surfaceVelocity - CarriedVelocity;
-            if (carryChange.sqrMagnitude > 1.0e-8f)
-            {
-                playerBody.linearVelocity += carryChange;
-                if (supportBody != null && !supportBody.isKinematic)
-                    supportBody.AddForceAtPosition(-carryChange * playerBody.mass, point, ForceMode.Impulse);
-            }
-            CarriedVelocity = surfaceVelocity;
-            return;
-        }
 
         Vector3 relativeVelocity = Vector3.ProjectOnPlane(supportVelocity - playerBody.GetPointVelocity(point), normal);
         float relativeSpeed = relativeVelocity.magnitude;
@@ -91,8 +68,6 @@ public class GroundMotionTransfer : MonoBehaviour
         playerBody.AddForceAtPosition(impulse, point, ForceMode.Impulse);
         if (supportBody != null && !supportBody.isKinematic)
             supportBody.AddForceAtPosition(-impulse, point, ForceMode.Impulse);
-
-        CarriedVelocity += impulse / playerBody.mass;
     }
 
     private static float GetInverseEffectiveMass(
