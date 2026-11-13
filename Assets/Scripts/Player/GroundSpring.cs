@@ -40,6 +40,7 @@ public class GroundSpring : MonoBehaviour
 
     private Vector3 moveDirection;
     private float suppressSpringUntil;
+    private Animator supportAnimator;
 
     private readonly RaycastHit[] hitBuffer = new RaycastHit[32];
     private static readonly Vector2[] probePattern =
@@ -378,7 +379,12 @@ public class GroundSpring : MonoBehaviour
             return;
         }
         if (sampledSupportTransform != SupportTransform)
+        {
+            supportAnimator = SupportTransform.GetComponentInParent<Animator>();
+            if (supportAnimator == null)
+                supportAnimator = SupportTransform.GetComponentInChildren<Animator>();
             CaptureSupportMotionSample(SupportTransform);
+        }
         
         SupportVelocity = GetSupportVelocityAtPoint(SupportPoint);
     }
@@ -428,8 +434,17 @@ public class GroundSpring : MonoBehaviour
 
     public Vector3 GetSupportVelocityAtPoint(Vector3 point)
     {
-        if (SupportBody != null && !SupportBody.isKinematic)
-            return SupportBody.GetPointVelocity(point);
+        if (SupportBody != null)
+        {
+            if (!SupportBody.isKinematic)
+                return SupportBody.GetPointVelocity(point);
+            
+            bool hasPhysicsVelocity =
+                SupportBody.linearVelocity.sqrMagnitude > 1.0e-10f ||
+                SupportBody.angularVelocity.sqrMagnitude > 1.0e-10f;
+            if (supportAnimator == null && hasPhysicsVelocity)
+                return SupportBody.GetPointVelocity(point);
+        }
         if (
             !supportMotionValid ||
             !hasPreviousSupportMatrix ||
@@ -487,6 +502,8 @@ public class GroundSpring : MonoBehaviour
         hasPreviousSupportMatrix = false;
         supportMotionValid = false;
         SupportVelocity = Vector3.zero;
+
+        supportAnimator = null;
     }
 
     private bool TryFitSupportPlane(
