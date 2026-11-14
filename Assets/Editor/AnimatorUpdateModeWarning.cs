@@ -1,29 +1,55 @@
-using UnityEditor;
-using UnityEngine;
-
-[InitializeOnLoad]
-internal static class AnimatorUpdateModeWarning
+[CustomEditor(typeof(Animator))]
+[CanEditMultipleObjects]
+public class AnimatorUpdateModeWarning : Editor
 {
-    private const string WarningMessage = "Make sure to only use \"Fixed\" in case you are animating a moving platform.";
+    private const string DismissKey = "INTO_LIGHT.AnimatorUpdateModeWarning.Dismissed";
+    private const string WarningText = "Make sure to only use \"Fixed\" in case you are animating a moving platform.";
 
-    static AnimatorUpdateModeWarning()
+    private Editor builtInInspector;
+
+    private void OnEnable()
     {
-        Editor.finishedDefaultHeaderGUI += DrawWarning;
+        Type inspectorType = AppDomain.CurrentDomain
+            .GetAssemblies()
+            .Select(assembly => assembly.GetType("UnityEditor.AnimatorInspector", false))
+            .FirstOrDefault(type => type != null);
+        if (inspectorType != null)
+            builtInInspector = Editor.CreateEditor(targets, inspectorType);
     }
 
-    private static void DrawWarning(Editor editor)
+    public override void OnInspectorGUI()
     {
-        if (editor.target is not Animator animator)
+        if (builtInInspector == null)
+        {
+            EditorGUILayout.HelpBox(
+                "Could not load Unity's built-in AnimatorInspector.",
+                MessageType.Error);
             return;
-        if (animator.updateMode == AnimatorUpdateMode.Fixed)
+        }
+
+        builtInInspector.OnInspectorGUI();
+        if (SessionState.GetBool(DismissKey, false))
             return;
 
-        string key = $"AnimatorUpdateModeWarning_Dismissed_{animator.GetInstanceID()}";
-        if (SessionState.GetBool(key, false))
+        bool needsWarning = targets
+            .OfType<Animator>()
+            .Any(animator => animator.updateMode != AnimatorUpdateMode.Fixed);
+        if (!needsWarning)
             return;
-        
-        EditorGUILayout.HelpBox(WarningMessage, MessageType.Warning);
-        if (GUILayout.Button("Dismiss"))
-            SessionState.SetBool(key, true);
+
+        EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.LabelField(WarningText, EditorStyles.wordWrappedLabel);
+        if (GUILayout.Button("×", GUILayout.Width(22), GUILayout.Height(20)))
+            SessionState.SetBool(DismissKey, true);
+
+        EditorGUILayout.EndHorizontal();
+        EditorGUILayout.EndVertical();
+    }
+
+    private void OnDisable()
+    {
+        if (builtInInspector != null)
+            DestroyImmediate(builtInInspector);
     }
 }
