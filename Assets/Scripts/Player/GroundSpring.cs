@@ -385,11 +385,66 @@ public class GroundSpring : MonoBehaviour
         return found;
     }
 
-    private void OGizmosSelected()
+    private void OnDrawGizmosSelected()
     {
         if (springOrigin == null)
             return;
-        Gizmos.color = Color.yellow;
+
+        Vector3 gravity = Physics.gravity;
+        Vector3 up = gravity.sqrMagnitude > 0.0001f
+            ? -gravity.normalized : Vector3.up;
+
+        Vector3 targetPoint = springOrigin.position - up * targetGroundGap;
+        Vector3 maxPoint = springOrigin.position - up * maxLength;
+
+        Gizmos.color = Color.white;
         Gizmos.DrawWireSphere(springOrigin.position, 0.04f);
+
+        Gizmos.color = Color.green;
+        Gizmos.DrawLine(springOrigin.position, targetPoint);
+        Gizmos.DrawWireSphere(targetPoint, 0.035f);
+
+        Gizmos.color = Color.red;
+        Gizmos.DrawLine(targetPoint, maxPoint);
+        Gizmos.DrawWireSphere(maxPoint, 0.035f);
+
+        CapsuleCollider currentCapsule = GetComponent<CapsuleCollider>();
+        if (currentCapsule == null)
+            return;
+
+        Vector3 right = Vector3.ProjectOnPlane(transform.right, up).normalized;
+        Vector3 forward = Vector3.Cross(right, up).normalized;
+        if (right.sqrMagnitude < 0.001f || forward.sqrMagnitude < 0.001f)
+            return;
+
+        Bounds bounds = currentCapsule.bounds;
+        float radius = Mathf.Max(bounds.extents.x, bounds.extents.z);
+
+        float maxAngle = Mathf.Clamp(maxGroundAngle, 0.0f, 80.0f);
+        float slopeRise = Mathf.Tan(maxAngle * Mathf.Deg2Rad);
+        float sideOffset = radius * 0.45f;
+
+        float farthestProbe = Mathf.Sqrt(
+            Mathf.Pow(radius + stepProbeForward, 2.0f) +
+            sideOffset * sideOffset
+        );
+        float castStartHeight = maxStepHeight + farthestProbe * slopeRise + 0.02f;
+
+        foreach (Vector2 sample in probePattern)
+        {
+            Vector3 offset =
+                probeSpread * radius * sample.x * right +
+                probeSpread * radius * sample.y * forward;
+
+            Vector3 sampleBase = springOrigin.position + offset;
+            Vector3 rayStart = sampleBase + up * castStartHeight;
+            Vector3 rayEnd = sampleBase - up * (maxLength + 0.02f);
+
+            Gizmos.color = sample == Vector2.zero
+                ? Color.cyan : Color.yellow;
+
+            Gizmos.DrawLine(rayStart, rayEnd);
+            Gizmos.DrawWireSphere(sampleBase, 0.025f);
+        }
     }
 }
