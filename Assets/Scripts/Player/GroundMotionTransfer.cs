@@ -7,7 +7,6 @@ public class GroundMotionTransfer : MonoBehaviour
     [Header("Collision-safe carry")]
     [Min(0.0f)]
     public float collisionSkin = 0.002f;
-
     [Min(1)]
     public int maxSlideIterations = 4;
 
