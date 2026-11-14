@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[DefaultExecutionOrder(300)]
+[DefaultExecutionOrder(50)]
 [RequireComponent(typeof(Rigidbody), typeof(CapsuleCollider), typeof(GroundSpring))]
 public class GroundMotionTransfer : MonoBehaviour
 {
