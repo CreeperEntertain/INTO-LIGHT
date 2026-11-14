@@ -17,6 +17,9 @@ public class GroundMotionTransfer : MonoBehaviour
     private Transform support;
     private Matrix4x4 previousSupportMatrix;
     private bool hasPreviousSample;
+    private Vector3 supportVelocity;
+    private Vector3 detachedSupportVelocity;
+    private bool hasDetachedSupportVelocity;
 
     private readonly RaycastHit[] hitBuffer = new RaycastHit[32];
 
@@ -43,31 +46,42 @@ public class GroundMotionTransfer : MonoBehaviour
     private void Update()
     {
         Physics.SyncTransforms();
-        if (!TryFindSupport(out Collider supportCollider))
+        if (!spring.IsGrounded || !TryFindSupport(out Collider supportCollider))
         {
-            support = null;
-            hasPreviousSample = false;
+            DetachAndTransferVelocity();
             return;
         }
 
         Rigidbody supportBody = supportCollider.attachedRigidbody;
         Transform candidate = supportBody != null
             ? supportBody.transform : supportCollider.transform;
+        if (candidate != support && hasPreviousSample)
+            DetachAndTransferVelocity();
+        
+        hasDetachedSupportVelocity = false;
+        detachedSupportVelocity = Vector3.zero;
+
         Matrix4x4 currentMatrix = candidate.localToWorldMatrix;
         if (candidate != support || !hasPreviousSample)
         {
             support = candidate;
             previousSupportMatrix = currentMatrix;
             hasPreviousSample = true;
+            supportVelocity = Vector3.zero;
             return;
         }
 
         Matrix4x4 delta = currentMatrix * previousSupportMatrix.inverse;
         previousSupportMatrix = currentMatrix;
+        Vector3 positionBeforeCarry = body.position;
         Vector3 targetPosition = delta.MultiplyPoint3x4(body.position);
         Vector3 displacement = targetPosition - body.position;
         if (displacement.sqrMagnitude > 1.0e-10f)
             MoveCollisionSafe(displacement);
+
+        float dt = Time.deltaTime;
+        supportVelocity = dt > 1.0e-5f
+            ? (body.position - positionBeforeCarry) / dt : Vector3.zero;
     }
 
     private bool TryFindSupport(out Collider bestCollider)
@@ -197,6 +211,52 @@ public class GroundMotionTransfer : MonoBehaviour
             remaining = Vector3.ProjectOnPlane(remaining, closestHit.normal);
         }
     }
+
+    private void DetachAndTransferVelocity()
+    {
+        if (!hasPreviousSample)
+            return;
+        
+        detachedSupportVelocity = supportVelocity;
+        hasDetachedSupportVelocity = true;
+
+        body.linearVelocity += supportVelocity;
+
+        ClearSupport();
+    }
+
+    private void ClearSupport()
+    {
+        support = null;
+        hasPreviousSample = false;
+        supportVelocity = Vector3.zero;
+    }
+
+    public Vector3 ReleaseSupportVelocityForJump()
+    {
+        if (hasPreviousSample)
+        {
+            Vector3 inheritedVelocity = supportVelocity;
+            body.linearVelocity += inheritedVelocity;
+
+            ClearSupport();
+
+            detachedSupportVelocity = Vector3.zero;
+            hasDetachedSupportVelocity = false;
+
+            return inheritedVelocity;
+        }
+
+        Vector3 pendingVelocity = hasDetachedSupportVelocity
+            ? detachedSupportVelocity : Vector3.zero;
+
+        detachedSupportVelocity = Vector3.zero;
+        hasDetachedSupportVelocity = false;
+
+        return pendingVelocity;
+    }
+
+
 
     private bool IsSupportCollider(Collider other)
     {

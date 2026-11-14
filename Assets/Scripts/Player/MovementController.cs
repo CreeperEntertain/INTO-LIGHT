@@ -32,6 +32,7 @@ public class MovementController : MonoBehaviour
     private Rigidbody rb;
     private GroundSpring groundSpring;
     private WallContactSmoother wallContactSmoother;
+    private GroundMotionTransfer groundMotionTransfer;
 
     private Vector2 moveInput;
 
@@ -48,6 +49,7 @@ public class MovementController : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         groundSpring = GetComponent<GroundSpring>();
         wallContactSmoother = GetComponent<WallContactSmoother>();
+        groundMotionTransfer = GetComponent<GroundMotionTransfer>();
 
         rb.constraints |= RigidbodyConstraints.FreezeRotation;
         rb.interpolation = RigidbodyInterpolation.Interpolate;
@@ -185,10 +187,16 @@ public class MovementController : MonoBehaviour
             return;
 
         jumpQueued = false;
+
+        Vector3 inheritedVelocity = groundMotionTransfer != null
+            ? groundMotionTransfer.ReleaseSupportVelocityForJump() : Vector3.zero;
+
         groundSpring.ReleaseForJump();
+
         Vector3 velocity = rb.linearVelocity;
-        velocity.y = jumpSpeed;
+        velocity.y = jumpSpeed + inheritedVelocity.y;
         rb.linearVelocity = velocity;
+
         lastGroundedTime = float.NegativeInfinity;
     }
 
