@@ -4,7 +4,7 @@ using UnityEngine;
 [InitializeOnLoad]
 internal static class AnimatorUpdateModeWarning
 {
-    private const string SessionKey = "AnimatorUpdateModeWarning.Dismissed";
+    private const string WarningMessage = "Make sure to only use \"Fixed\" in case you are animating a moving platform.";
 
     static AnimatorUpdateModeWarning()
     {
@@ -17,14 +17,13 @@ internal static class AnimatorUpdateModeWarning
             return;
         if (animator.updateMode == AnimatorUpdateMode.Fixed)
             return;
-        if (SessionState.GetBool(SessionKey, false))
+
+        string key = $"AnimatorUpdateModeWarning_Dismissed_{animator.GetInstanceID()}";
+        if (SessionState.GetBool(key, false))
             return;
         
-        EditorGUILayout.HelpBox(
-            "Make sure to only use \"Fixed\" in case you are animating a moving platform.",
-            MessageType.Warning
-        );
+        EditorGUILayout.HelpBox(WarningMessage, MessageType.Warning);
         if (GUILayout.Button("Dismiss"))
-            SessionState.SetBool(SessionKey, true);
+            SessionState.SetBool(key, true);
     }
 }
