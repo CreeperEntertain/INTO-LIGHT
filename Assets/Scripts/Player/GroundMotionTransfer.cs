@@ -1,38 +1,62 @@
 using UnityEngine;
 
 [DefaultExecutionOrder(300)]
-[RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(Rigidbody), typeof(CapsuleCollider), typeof(GroundSpring))]
 public class GroundMotionTransfer : MonoBehaviour
 {
-    [Header("Platform Carry")]
+    [Header("Collision-safe carry")]
     [Min(0.0f)]
     public float collisionSkin = 0.002f;
+
     [Min(1)]
     public int maxSlideIterations = 4;
 
-
     private Rigidbody body;
-    private Transform support;
-    private Rigidbody supportBody;
+    private CapsuleCollider capsule;
+    private GroundSpring spring;
 
+    private Transform support;
     private Matrix4x4 previousSupportMatrix;
     private bool hasPreviousSample;
 
+    private readonly RaycastHit[] hitBuffer = new RaycastHit[32];
+
+    private static readonly Vector2[] probePattern =
+    {
+        new(0.0f, 0.0f),
+        new(1.0f, 0.0f),
+        new(-1.0f, 0.0f),
+        new(0.0f, 1.0f),
+        new(0.0f, -1.0f),
+        new(0.7071f, 0.7071f),
+        new(-0.7071f, 0.7071f),
+        new(0.7071f, -0.7071f),
+        new(-0.7071f, -0.7071f)
+    };
 
     private void Awake()
-        => body = GetComponent<Rigidbody>();
+    {
+        body = GetComponent<Rigidbody>();
+        capsule = GetComponent<CapsuleCollider>();
+        spring = GetComponent<GroundSpring>();
+    }
 
     private void FixedUpdate()
     {
-        if (support == null)
+        if (!TryFindSupport(out Collider supportCollider))
         {
+            support = null;
             hasPreviousSample = false;
             return;
         }
 
-        Matrix4x4 currentMatrix = support.localToWorldMatrix;
-        if (!hasPreviousSample)
+        Rigidbody supportBody = supportCollider.attachedRigidbody;
+        Transform candidate = supportBody != null
+            ? supportBody.transform : supportCollider.transform;
+        Matrix4x4 currentMatrix = candidate.localToWorldMatrix;
+        if (candidate != support || !hasPreviousSample)
         {
+            support = candidate;
             previousSupportMatrix = currentMatrix;
             hasPreviousSample = true;
             return;
@@ -42,60 +66,93 @@ public class GroundMotionTransfer : MonoBehaviour
         previousSupportMatrix = currentMatrix;
         Vector3 targetPosition = delta.MultiplyPoint3x4(body.position);
         Vector3 displacement = targetPosition - body.position;
-        if (displacement.sqrMagnitude < 1.0e-10f)
-            MoveCollision(displacement);
+        if (displacement.sqrMagnitude > 1.0e-10f)
+            MoveCollisionSafe(displacement);
     }
 
-    private void OnCollisionStay(Collision collision)
+    private bool TryFindSupport(out Collider bestCollider)
     {
-        Transform candidate = null;
-        Rigidbody candidateBody = null;
+        bestCollider = null;
+        if (spring.springOrigin == null)
+            return false;
 
-        foreach(ContactPoint contact in collision.contacts)
+        Vector3 gravity = Physics.gravity;
+        Vector3 up = gravity.sqrMagnitude > 0.0001f
+            ? -gravity.normalized : Vector3.up;
+        Vector3 right = Vector3.ProjectOnPlane(transform.right, up).normalized;
+        if (right.sqrMagnitude < 0.001f)
+            return false;
+
+        Vector3 forward = Vector3.Cross(right, up).normalized;
+        if (forward.sqrMagnitude < 0.001f)
+            return false;
+
+        Bounds capsuleBounds = capsule.bounds;
+        float radius = Mathf.Max(capsuleBounds.extents.x, capsuleBounds.extents.z);
+        float maxAngle = Mathf.Clamp(spring.maxGroundAngle, 0.0f, 80.0f);
+        float slopeRise = Mathf.Tan(maxAngle * Mathf.Deg2Rad);
+        float sideOffset = radius * 0.45f;
+        float farthestProbe = Mathf.Sqrt(
+            Mathf.Pow(radius + spring.stepProbeForward, 2.0f) +
+            sideOffset * sideOffset
+        );
+        float castStartHeight = spring.maxStepHeight + farthestProbe * slopeRise + 0.02f;
+
+        foreach (Vector2 sample in probePattern)
         {
-            if (Vector3.Dot(contact.normal, Vector3.up) < 0.5f)
-                continue;
-            
-            Collider other = contact.otherCollider;
-            if (other == null)
-                continue;
-            
-            candidateBody = other.attachedRigidbody;
-            candidate = candidateBody != null
-                ? candidateBody.transform : other.transform;
-            
-            break;
+            Vector3 offset =
+                spring.probeSpread * radius * sample.x * right +
+                spring.probeSpread * radius * sample.y * forward;
+            Vector3 sampleBase = spring.springOrigin.position + offset;
+            float maxRise = spring.maxStepHeight + offset.magnitude * slopeRise;
+            Vector3 rayOrigin = sampleBase + up * castStartHeight;
+            float rayLength = castStartHeight + spring.maxLength + 0.02f;
+            int hitCount = Physics.RaycastNonAlloc(
+                rayOrigin,
+                -up,
+                hitBuffer,
+                rayLength,
+                spring.groundMask,
+                QueryTriggerInteraction.Ignore
+            );
+
+            float closestDistance = float.PositiveInfinity;
+            Collider sampleBestCollider = null;
+
+            for (int i = 0; i < hitCount; i++)
+            {
+                RaycastHit hit = hitBuffer[i];
+                Collider other = hit.collider;
+                if (other == null)
+                    continue;
+                if (other.attachedRigidbody == body ||
+                    other.transform == transform ||
+                    other.transform.IsChildOf(transform)
+                )
+                    continue;
+                if (Vector3.Angle(hit.normal, up) > spring.maxGroundAngle)
+                    continue;
+
+                float separation = Vector3.Dot(sampleBase - hit.point, hit.normal);
+                if (separation < -maxRise || separation > spring.maxLength)
+                    continue;
+                if (hit.distance >= closestDistance)
+                    continue;
+
+                closestDistance = hit.distance;
+                sampleBestCollider = other;
+            }
+            if (sampleBestCollider != null)
+            {
+                bestCollider = sampleBestCollider;
+                return true;
+            }
         }
-        if (candidate == null)
-            return;
-        if (support != candidate)
-        {
-            support = candidate;
-            supportBody = candidateBody;
-            hasPreviousSample = false;
-        }
+
+        return false;
     }
 
-    private void OnCollisionExit(Collision collision)
-    {
-        if (support == null)
-            return;
-        
-        Transform other = collision.transform;
-        if (
-            other == support ||
-            other.IsChildOf(support) ||
-            (support != null && collision.rigidbody == supportBody)
-        )
-        {
-            support = null;
-            supportBody = null;
-            hasPreviousSample = false;
-        }
-    }
-
-
-    private void MoveCollision(Vector3 displacement)
+    private void MoveCollisionSafe(Vector3 displacement)
     {
         Vector3 remaining = displacement;
         for (int i = 0; i < maxSlideIterations; i++)
@@ -112,9 +169,7 @@ public class GroundMotionTransfer : MonoBehaviour
 
             foreach (RaycastHit hit in hits)
             {
-                if (hit.collider == null)
-                    continue;
-                if (IsSupportCollider(hit.collider))
+                if (hit.collider == null || IsSupportCollider(hit.collider))
                     continue;
                 if (hit.distance >= closestDistance)
                     continue;
@@ -143,12 +198,9 @@ public class GroundMotionTransfer : MonoBehaviour
         }
     }
 
-    private bool IsSupportCollider(Collider collider)
+    private bool IsSupportCollider(Collider other)
     {
-        if (supportBody != null && collider.attachedRigidbody == supportBody)
-            return true;
-        
-        Transform t = collider.transform;
+        Transform t = other.transform;
         return t == support || t.IsChildOf(support);
     }
 }
