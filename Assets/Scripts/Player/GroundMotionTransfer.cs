@@ -41,8 +41,9 @@ public class GroundMotionTransfer : MonoBehaviour
         spring = GetComponent<GroundSpring>();
     }
 
-    private void FixedUpdate()
+    private void Update()
     {
+        Physics.SyncTransforms();
         if (!TryFindSupport(out Collider supportCollider))
         {
             support = null;
