@@ -1,3 +1,8 @@
+using System;
+using System.Linq;
+using UnityEditor;
+using UnityEngine;
+
 [CustomEditor(typeof(Animator))]
 [CanEditMultipleObjects]
 public class AnimatorUpdateModeWarning : Editor
