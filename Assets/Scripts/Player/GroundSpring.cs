@@ -385,7 +385,7 @@ public class GroundSpring : MonoBehaviour
         return found;
     }
 
-    private void OGizmosSelected()
+    private void OnDrawGizmosSelected()
     {
         if (springOrigin == null)
             return;
