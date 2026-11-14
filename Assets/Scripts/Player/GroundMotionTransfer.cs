@@ -1,4 +1,3 @@
-using UnityEditor.Rendering;
 using UnityEngine;
 
 [DisallowMultipleComponent]
@@ -12,8 +11,9 @@ public class GroundMotionTransfer : MonoBehaviour
     public float dynamicFrictionCoefficient = 0.6f;
 
     [Header("Platform Carry")]
-    [Min(0.0f)]
-    public float fullCarryAcceleration = 2.5f;
+    [Tooltip("Acceleration range (m/s²) over which direct carry replaces friction carry.")]
+    public Vector2 carryAccelerationRange = new(0.5f, 2.5f);
+
     [Min(0.0f)]
     public float carryCollisionSkin = 0.002f;
 
@@ -54,7 +54,7 @@ public class GroundMotionTransfer : MonoBehaviour
         Rigidbody supportBody = groundSpring.SupportBody;
         Transform supportTransform = groundSpring.SupportTransform;
 
-        ApplyPlatformCarry(supportTransform, supportBody);
+        float carryWeight = ApplyPlatformCarry(supportTransform, supportBody);
 
         Vector3 point = groundSpring.SupportPoint;
         Vector3 normal = groundSpring.GroundNormal.normalized;
@@ -84,6 +84,7 @@ public class GroundMotionTransfer : MonoBehaviour
         float maxDynamicImpulse = dynamicFriction * normalForce * dt;
         float impulseMagnitude = requiredImpulse <= maxStaticImpulse
             ? requiredImpulse : Mathf.Min(requiredImpulse, maxDynamicImpulse);
+        impulseMagnitude *= 1.0f - carryWeight;
         if (impulseMagnitude <= 0.0f)
             return;
 
@@ -93,7 +94,7 @@ public class GroundMotionTransfer : MonoBehaviour
             supportBody.AddForceAtPosition(-impulse, point, ForceMode.Impulse);
     }
 
-    private void ApplyPlatformCarry(Transform supportTransform, Rigidbody supportBody)
+    private float ApplyPlatformCarry(Transform supportTransform, Rigidbody supportBody)
     {
         Matrix4x4 currentMatrix = supportTransform.localToWorldMatrix;
         Vector3 centerOfMass = playerBody.worldCenterOfMass;
@@ -108,13 +109,15 @@ public class GroundMotionTransfer : MonoBehaviour
             previousSupportMatrix = currentMatrix;
             previousSupportVelocity = supportVelocity;
             hasPreviousSupportSample = true;
-            return;
+            return 0.0f;
         }
 
         float dt = Mathf.Max(Time.fixedDeltaTime, 1.0e-6f);
         Vector3 supportDeltaVelocity = supportVelocity - previousSupportVelocity;
         float supportAcceleration = supportDeltaVelocity.magnitude / dt;
-        float carryWeight = Mathf.SmoothStep(0.0f, 1.0f, supportAcceleration / Mathf.Max(fullCarryAcceleration, 0.01f));
+        float minAcceleration = Mathf.Max(0.0f, carryAccelerationRange.x);
+        float maxAcceleration = Mathf.Max(minAcceleration + 0.01f, carryAccelerationRange.y);
+        float carryWeight = Mathf.SmoothStep(0.0f, 1.0f, Mathf.InverseLerp(minAcceleration, maxAcceleration, supportAcceleration));
         Matrix4x4 platformDelta = currentMatrix * previousSupportMatrix.inverse;
         Vector3 targetCenter = platformDelta.MultiplyPoint3x4(centerOfMass);
         Vector3 carryDisplacement = (targetCenter - centerOfMass) * carryWeight;
@@ -123,6 +126,8 @@ public class GroundMotionTransfer : MonoBehaviour
         previousSupportVelocity = supportVelocity;
         if (carryDisplacement.sqrMagnitude > 1.0e-10f)
             ApplyCollisionAwareCarry(carryDisplacement, supportTransform, supportBody);
+        
+        return carryWeight;
     }
 
     private void ApplyCollisionAwareCarry(
@@ -223,7 +228,7 @@ public class GroundMotionTransfer : MonoBehaviour
         hasPreviousSupportSample= false;
     }
 
-    private void Osable()
+    private void OnDisable()
     {
         ResetPlatformCarry();
     }
