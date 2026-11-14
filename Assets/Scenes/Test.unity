@@ -771,8 +771,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0d7b10106f0d6b4e80a6d2896ed0f31, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GroundMotionTransfer
-  staticFrictionCoefficient: 0.8
-  dynamicFrictionCoefficient: 0.6
+  collisionSkin: 0.002
+  maxSlideIterations: 4
 --- !u!1 &243413000
 GameObject:
   m_ObjectHideFlags: 0
@@ -3953,11 +3953,11 @@ Animator:
   m_Avatar: {fileID: 0}
   m_Controller: {fileID: 9100000, guid: e10d08c57432fd04f9932a088d1765f7, type: 2}
   m_CullingMode: 0
-  m_UpdateMode: 0
+  m_UpdateMode: 1
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
-  m_AnimatePhysics: 1
+  m_AnimatePhysics: 0
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1

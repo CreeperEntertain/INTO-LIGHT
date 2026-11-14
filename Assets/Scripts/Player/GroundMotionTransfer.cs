@@ -1,118 +1,207 @@
 using UnityEngine;
 
-[DisallowMultipleComponent]
-[RequireComponent(typeof(Rigidbody), typeof(GroundSpring))]
+[DefaultExecutionOrder(50)]
+[RequireComponent(typeof(Rigidbody), typeof(CapsuleCollider), typeof(GroundSpring))]
 public class GroundMotionTransfer : MonoBehaviour
 {
-    [Header("Surface Friction")]
+    [Header("Collision-safe carry")]
     [Min(0.0f)]
-    public float staticFrictionCoefficient = 0.8f;
-    [Min(0.0f)]
-    public float dynamicFrictionCoefficient = 0.6f;
+    public float collisionSkin = 0.002f;
 
-    private Rigidbody playerBody;
-    private GroundSpring groundSpring;
+    [Min(1)]
+    public int maxSlideIterations = 4;
 
+    private Rigidbody body;
+    private CapsuleCollider capsule;
+    private GroundSpring spring;
 
-    public bool HasSupport
-        => groundSpring.IsGrounded && groundSpring.SupportTransform != null;
-    
+    private Transform support;
+    private Matrix4x4 previousSupportMatrix;
+    private bool hasPreviousSample;
+
+    private readonly RaycastHit[] hitBuffer = new RaycastHit[32];
+
+    private static readonly Vector2[] probePattern =
+    {
+        new(0.0f, 0.0f),
+        new(1.0f, 0.0f),
+        new(-1.0f, 0.0f),
+        new(0.0f, 1.0f),
+        new(0.0f, -1.0f),
+        new(0.7071f, 0.7071f),
+        new(-0.7071f, 0.7071f),
+        new(0.7071f, -0.7071f),
+        new(-0.7071f, -0.7071f)
+    };
+
     private void Awake()
     {
-        playerBody = GetComponent<Rigidbody>();
-        groundSpring = GetComponent<GroundSpring>();
-    }
-    
-    public Vector3 GetSupportVelocity()
-        => HasSupport ? groundSpring.SupportVelocity : Vector3.zero;
-    
-    public void Apply()
-    {
-        if (!HasSupport)
-            return;
-
-        Rigidbody supportBody = groundSpring.SupportBody;
-        Transform supportTransform = groundSpring.SupportTransform;
-        Vector3 point = groundSpring.SupportPoint;
-        Vector3 normal = groundSpring.GroundNormal.normalized;
-        Vector3 supportVelocity = groundSpring.GetSupportVelocityAtPoint(point);
-
-        float normalForce = groundSpring.SupportNormalForce;
-        if (normalForce <= 0.0f)
-            return;
-
-        Vector3 relativeVelocity = Vector3.ProjectOnPlane(supportVelocity - playerBody.GetPointVelocity(point), normal);
-        float relativeSpeed = relativeVelocity.magnitude;
-        if (relativeSpeed < 0.0001f)
-            return;
-
-        Vector3 direction = relativeVelocity / relativeSpeed;
-        float inverseEffectiveMass = GetInverseEffectiveMass(playerBody, point, direction);
-        if (supportBody != null && !supportBody.isKinematic)
-            inverseEffectiveMass += GetInverseEffectiveMass(supportBody, point, direction);
-        if (inverseEffectiveMass <= 1.0e-6f)
-            return;
-
-        float requiredImpulse = relativeSpeed / inverseEffectiveMass;
-        float dt = Time.fixedDeltaTime;
-        float staticFriction = Mathf.Max(0.0f, staticFrictionCoefficient);
-        float dynamicFriction = Mathf.Clamp(dynamicFrictionCoefficient, 0.0f, staticFriction);
-        float maxStaticImpulse = staticFriction * normalForce * dt;
-        float maxDynamicImpulse = dynamicFriction * normalForce * dt;
-        float impulseMagnitude = requiredImpulse <= maxStaticImpulse
-            ? requiredImpulse : Mathf.Min(requiredImpulse, maxDynamicImpulse);
-        if (impulseMagnitude <= 0.0f)
-            return;
-
-        Vector3 impulse = direction * impulseMagnitude;
-        playerBody.AddForceAtPosition(impulse, point, ForceMode.Impulse);
-        if (supportBody != null && !supportBody.isKinematic)
-            supportBody.AddForceAtPosition(-impulse, point, ForceMode.Impulse);
+        body = GetComponent<Rigidbody>();
+        capsule = GetComponent<CapsuleCollider>();
+        spring = GetComponent<GroundSpring>();
     }
 
-    private static float GetInverseEffectiveMass(
-        Rigidbody body,
-        Vector3 point,
-        Vector3 direction
-    )
+    private void Update()
     {
-        if (body == null || body.isKinematic || body.mass <= 1.0e-6f)
-            return 0.0f;
-        
-        Vector3 allowedDirectionLocal = Quaternion.Inverse(body.rotation) * direction;
-        RigidbodyConstraints constraints = body.constraints;
-        if ((constraints & RigidbodyConstraints.FreezePositionX) != 0)
-            allowedDirectionLocal.x = 0.0f;
-        if ((constraints & RigidbodyConstraints.FreezePositionY) != 0)
-            allowedDirectionLocal.y = 0.0f;
-        if ((constraints & RigidbodyConstraints.FreezePositionZ) != 0)
-            allowedDirectionLocal.z = 0.0f;
-        
-        Vector3 allowedDirectionWorld = body.rotation * allowedDirectionLocal;
-        float inverseLinearMass = Vector3.Dot(direction, allowedDirectionWorld) / body.mass;
-        Vector3 torqueAxis = Vector3.Cross(point - body.worldCenterOfMass, direction);
-        if (torqueAxis.sqrMagnitude < 1.0e-6f)
-            return Mathf.Max(0.0f, inverseLinearMass);
-        
-        Quaternion inertiaFrame = body.rotation * body.inertiaTensorRotation;
-        Vector3 localTorque = Quaternion.Inverse(inertiaFrame) * torqueAxis;
-        Vector3 inertia = body.inertiaTensor;
-        Vector3 localAngularDelta = new(
-            inertia.x > 1.0e-6f ? localTorque.x / inertia.x : 0.0f,
-            inertia.y > 1.0e-6f ? localTorque.y / inertia.y : 0.0f,
-            inertia.z > 1.0e-6f ? localTorque.z / inertia.z : 0.0f
+        Physics.SyncTransforms();
+        if (!TryFindSupport(out Collider supportCollider))
+        {
+            support = null;
+            hasPreviousSample = false;
+            return;
+        }
+
+        Rigidbody supportBody = supportCollider.attachedRigidbody;
+        Transform candidate = supportBody != null
+            ? supportBody.transform : supportCollider.transform;
+        Matrix4x4 currentMatrix = candidate.localToWorldMatrix;
+        if (candidate != support || !hasPreviousSample)
+        {
+            support = candidate;
+            previousSupportMatrix = currentMatrix;
+            hasPreviousSample = true;
+            return;
+        }
+
+        Matrix4x4 delta = currentMatrix * previousSupportMatrix.inverse;
+        previousSupportMatrix = currentMatrix;
+        Vector3 targetPosition = delta.MultiplyPoint3x4(body.position);
+        Vector3 displacement = targetPosition - body.position;
+        if (displacement.sqrMagnitude > 1.0e-10f)
+            MoveCollisionSafe(displacement);
+    }
+
+    private bool TryFindSupport(out Collider bestCollider)
+    {
+        bestCollider = null;
+        if (spring.springOrigin == null)
+            return false;
+
+        Vector3 gravity = Physics.gravity;
+        Vector3 up = gravity.sqrMagnitude > 0.0001f
+            ? -gravity.normalized : Vector3.up;
+        Vector3 right = Vector3.ProjectOnPlane(transform.right, up).normalized;
+        if (right.sqrMagnitude < 0.001f)
+            return false;
+
+        Vector3 forward = Vector3.Cross(right, up).normalized;
+        if (forward.sqrMagnitude < 0.001f)
+            return false;
+
+        Bounds capsuleBounds = capsule.bounds;
+        float radius = Mathf.Max(capsuleBounds.extents.x, capsuleBounds.extents.z);
+        float maxAngle = Mathf.Clamp(spring.maxGroundAngle, 0.0f, 80.0f);
+        float slopeRise = Mathf.Tan(maxAngle * Mathf.Deg2Rad);
+        float sideOffset = radius * 0.45f;
+        float farthestProbe = Mathf.Sqrt(
+            Mathf.Pow(radius + spring.stepProbeForward, 2.0f) +
+            sideOffset * sideOffset
         );
-        Vector3 angularDeltaWorld = inertiaFrame * localAngularDelta;
-        Vector3 angularDeltaLocal = Quaternion.Inverse(body.rotation) * angularDeltaWorld;
-        if ((constraints & RigidbodyConstraints.FreezeRotationX) != 0)
-            angularDeltaLocal.x = 0.0f;
-        if ((constraints & RigidbodyConstraints.FreezeRotationY) != 0)
-            angularDeltaLocal.y = 0.0f;
-        if ((constraints & RigidbodyConstraints.FreezeRotationZ) != 0)
-            angularDeltaLocal.z = 0.0f;
+        float castStartHeight = spring.maxStepHeight + farthestProbe * slopeRise + 0.02f;
 
-        angularDeltaWorld = body.rotation * angularDeltaLocal;
-        float inverseRotationalMass = Vector3.Dot(torqueAxis, angularDeltaWorld);
-        return Mathf.Max(0.0f, inverseLinearMass) + Mathf.Max(0.0f, inverseRotationalMass);
+        foreach (Vector2 sample in probePattern)
+        {
+            Vector3 offset =
+                spring.probeSpread * radius * sample.x * right +
+                spring.probeSpread * radius * sample.y * forward;
+            Vector3 sampleBase = spring.springOrigin.position + offset;
+            float maxRise = spring.maxStepHeight + offset.magnitude * slopeRise;
+            Vector3 rayOrigin = sampleBase + up * castStartHeight;
+            float rayLength = castStartHeight + spring.maxLength + 0.02f;
+            int hitCount = Physics.RaycastNonAlloc(
+                rayOrigin,
+                -up,
+                hitBuffer,
+                rayLength,
+                spring.groundMask,
+                QueryTriggerInteraction.Ignore
+            );
+
+            float closestDistance = float.PositiveInfinity;
+            Collider sampleBestCollider = null;
+
+            for (int i = 0; i < hitCount; i++)
+            {
+                RaycastHit hit = hitBuffer[i];
+                Collider other = hit.collider;
+                if (other == null)
+                    continue;
+                if (other.attachedRigidbody == body ||
+                    other.transform == transform ||
+                    other.transform.IsChildOf(transform)
+                )
+                    continue;
+                if (Vector3.Angle(hit.normal, up) > spring.maxGroundAngle)
+                    continue;
+
+                float separation = Vector3.Dot(sampleBase - hit.point, hit.normal);
+                if (separation < -maxRise || separation > spring.maxLength)
+                    continue;
+                if (hit.distance >= closestDistance)
+                    continue;
+
+                closestDistance = hit.distance;
+                sampleBestCollider = other;
+            }
+            if (sampleBestCollider != null)
+            {
+                bestCollider = sampleBestCollider;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void MoveCollisionSafe(Vector3 displacement)
+    {
+        Vector3 remaining = displacement;
+        for (int i = 0; i < maxSlideIterations; i++)
+        {
+            float distance = remaining.magnitude;
+            if (distance < 1.0e-5f)
+                break;
+            
+            Vector3 direction = remaining / distance;
+            RaycastHit[] hits = body.SweepTestAll(direction, distance, QueryTriggerInteraction.Ignore);
+            bool blocked = false;
+            RaycastHit closestHit = default;
+            float closestDistance = distance;
+
+            foreach (RaycastHit hit in hits)
+            {
+                if (hit.collider == null || IsSupportCollider(hit.collider))
+                    continue;
+                if (hit.distance >= closestDistance)
+                    continue;
+                
+                closestDistance = hit.distance;
+                closestHit = hit;
+                blocked = true;
+            }
+            if (!blocked)
+            {
+                body.position += remaining;
+                break;
+            }
+
+            float allowedDistance = Mathf.Max(0.0f, closestDistance - collisionSkin);
+            Vector3 allowed = direction * allowedDistance;
+
+            body.position += allowed;
+            remaining -= allowed;
+            if (closestHit.normal.sqrMagnitude < 1.0e-6f)
+                break;
+            if (Vector3.Dot(remaining, closestHit.normal) >= 0.0f)
+                break;
+            
+            remaining = Vector3.ProjectOnPlane(remaining, closestHit.normal);
+        }
+    }
+
+    private bool IsSupportCollider(Collider other)
+    {
+        Transform t = other.transform;
+        return t == support || t.IsChildOf(support);
     }
 }
