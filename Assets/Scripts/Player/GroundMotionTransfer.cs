@@ -22,6 +22,8 @@ public class GroundMotionTransfer : MonoBehaviour
     private Matrix4x4 previousSupportMatrix;
     private Vector3 previousSupportVelocity;
     private bool hasPreviousSupportSample;
+    private float currentCarryWeight;
+    private Vector3 frictionVelocityChange;
 
     private static int lastCarrySyncFrame = -1;
     private static double lastCarrySyncFixedTime = -1.0;
@@ -43,8 +45,17 @@ public class GroundMotionTransfer : MonoBehaviour
     public Vector3 GetSupportVelocity()
         => HasSupport ? groundSpring.SupportVelocity : Vector3.zero;
     
+    public Vector3 GetSupportVelocityForMovement(Vector3 point)
+    {
+        if (!HasSupport)
+            return Vector3.zero;
+        Vector3 frictionCarryVelocity = groundSpring.GetSupportVelocityAtPoint(point) * (1.0f - currentCarryWeight);
+        return frictionCarryVelocity - frictionVelocityChange;
+    }
+    
     public void Apply()
     {
+        frictionVelocityChange = Vector3.zero;
         if (!HasSupport)
         {
             ResetPlatformCarry();
@@ -54,7 +65,7 @@ public class GroundMotionTransfer : MonoBehaviour
         Rigidbody supportBody = groundSpring.SupportBody;
         Transform supportTransform = groundSpring.SupportTransform;
 
-        float carryWeight = ApplyPlatformCarry(supportTransform, supportBody);
+        currentCarryWeight = ApplyPlatformCarry(supportTransform, supportBody);
 
         Vector3 point = groundSpring.SupportPoint;
         Vector3 normal = groundSpring.GroundNormal.normalized;
@@ -84,11 +95,12 @@ public class GroundMotionTransfer : MonoBehaviour
         float maxDynamicImpulse = dynamicFriction * normalForce * dt;
         float impulseMagnitude = requiredImpulse <= maxStaticImpulse
             ? requiredImpulse : Mathf.Min(requiredImpulse, maxDynamicImpulse);
-        impulseMagnitude *= 1.0f - carryWeight;
+        impulseMagnitude *= 1.0f - currentCarryWeight;
         if (impulseMagnitude <= 0.0f)
             return;
 
         Vector3 impulse = direction * impulseMagnitude;
+        frictionVelocityChange = impulse / Mathf.Max(playerBody.mass, 1.0e-6f);
         playerBody.AddForceAtPosition( impulse, point, ForceMode.Impulse);
         if (supportBody != null && !supportBody.isKinematic)
             supportBody.AddForceAtPosition(-impulse, point, ForceMode.Impulse);
@@ -223,6 +235,8 @@ public class GroundMotionTransfer : MonoBehaviour
     private void ResetPlatformCarry()
     {
         trackedSupport = null;
+        currentCarryWeight = 0.0f;
+        frictionVelocityChange = Vector3.zero;
         previousSupportMatrix = default;
         previousSupportVelocity = Vector3.zero;
         hasPreviousSupportSample= false;

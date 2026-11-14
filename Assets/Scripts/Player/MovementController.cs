@@ -121,9 +121,9 @@ public class MovementController : MonoBehaviour
     {
         if (groundSpring.IsGrounded)
             lastGroundedTime = Time.fixedTime;
-        HandleMovement();
         if (groundMotionTransfer != null)
             groundMotionTransfer.Apply();
+        HandleMovement();
         HandleJump();
     }
 
@@ -160,7 +160,7 @@ public class MovementController : MonoBehaviour
             groundMotionTransfer != null &&
             groundMotionTransfer.HasSupport
         )
-            currentVelocity -= groundSpring.GetSupportVelocityAtPoint(rb.worldCenterOfMass);
+            currentVelocity -= groundMotionTransfer.GetSupportVelocityForMovement(rb.worldCenterOfMass);
 
         currentVelocity.y = 0.0f;
         Vector3 velocityError = desiredVelocity - currentVelocity;
