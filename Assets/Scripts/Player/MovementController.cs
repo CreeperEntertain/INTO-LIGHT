@@ -52,7 +52,7 @@ public class MovementController : MonoBehaviour
         groundMotionTransfer = GetComponent<GroundMotionTransfer>();
 
         rb.constraints |= RigidbodyConstraints.FreezeRotation;
-        rb.interpolation = RigidbodyInterpolation.Interpolate;
+        rb.interpolation = RigidbodyInterpolation.None;
         if (yawPivot != null)
             yawPivot.localRotation = Quaternion.identity;
         if (viewPivot != null)
