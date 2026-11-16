@@ -22,6 +22,7 @@ public class GroundMotionTransfer : MonoBehaviour
     private bool hasDetachedSupportVelocity;
 
     private readonly RaycastHit[] hitBuffer = new RaycastHit[32];
+    private float lastSupportMotionTime;
 
     private static readonly Vector2[] probePattern =
     {
@@ -35,6 +36,7 @@ public class GroundMotionTransfer : MonoBehaviour
         new(0.7071f, -0.7071f),
         new(-0.7071f, -0.7071f)
     };
+
 
     private void Awake()
     {
@@ -52,36 +54,70 @@ public class GroundMotionTransfer : MonoBehaviour
             return;
         }
 
-        Rigidbody supportBody = supportCollider.attachedRigidbody;
-        Transform candidate = supportBody != null
-            ? supportBody.transform : supportCollider.transform;
+        Transform candidate = ResolveSupportTransform(supportCollider);
         if (candidate != support && hasPreviousSample)
             DetachAndTransferVelocity();
         
         hasDetachedSupportVelocity = false;
         detachedSupportVelocity = Vector3.zero;
 
-        Matrix4x4 currentMatrix = candidate.localToWorldMatrix;
         if (candidate != support || !hasPreviousSample)
         {
+            hasDetachedSupportVelocity = false;
+            detachedSupportVelocity = Vector3.zero;
+
             support = candidate;
-            previousSupportMatrix = currentMatrix;
+            previousSupportMatrix = candidate.localToWorldMatrix;
             hasPreviousSample = true;
             supportVelocity = Vector3.zero;
+            lastSupportMotionTime = Time.time;
+            return;
+        }
+
+        Matrix4x4 currentMatrix = support.localToWorldMatrix;
+        if (!HasMatrixChanged(currentMatrix, previousSupportMatrix))
+        {
+            if (Time.time - lastSupportMotionTime > Time.fixedDeltaTime * 2.5f)
+                supportVelocity = Vector3.zero;
             return;
         }
 
         Matrix4x4 delta = currentMatrix * previousSupportMatrix.inverse;
-        previousSupportMatrix = currentMatrix;
-        Vector3 positionBeforeCarry = body.position;
         Vector3 targetPosition = delta.MultiplyPoint3x4(body.position);
         Vector3 displacement = targetPosition - body.position;
-        if (displacement.sqrMagnitude > 1.0e-10f)
-            MoveCollisionSafe(displacement);
+        float elapsed = Time.time - lastSupportMotionTime;
+        previousSupportMatrix = currentMatrix;
+        lastSupportMotionTime = Time.time;
+        if (displacement.sqrMagnitude <= 1.0e-10f)
+        {
+            supportVelocity = Vector3.zero;
+            return;
+        }
 
-        float dt = Time.deltaTime;
-        supportVelocity = dt > 1.0e-5f
-            ? (body.position - positionBeforeCarry) / dt : Vector3.zero;
+        Vector3 positionBeforeCarry = body.position;
+        MoveCollisionSafe(displacement);
+        Vector3 appliedDisplacement = body.position - positionBeforeCarry;
+        supportVelocity = elapsed > 1.0e-5f
+            ? appliedDisplacement / elapsed : Vector3.zero;
+    }
+
+    private Transform ResolveSupportTransform(Collider supportCollider)
+    {
+        Rigidbody supportBody = supportCollider.attachedRigidbody;
+        if (supportBody != null)
+            return supportBody.transform;
+        
+        Animator animator = supportCollider.GetComponentInParent<Animator>();
+        return animator != null
+            ? animator.transform : supportCollider.transform;
+    }
+
+    private static bool HasMatrixChanged(Matrix4x4 current, Matrix4x4 previous)
+    {
+        for (int i = 0; i < 16; i++)
+            if (Mathf.Abs(current[i] - previous[i]) > 1.0e-6f)
+                return true;
+        return false;
     }
 
     private bool TryFindSupport(out Collider bestCollider)
@@ -260,6 +296,8 @@ public class GroundMotionTransfer : MonoBehaviour
 
     private bool IsSupportCollider(Collider other)
     {
+        if (other == null || support == null)
+            return false;
         Transform t = other.transform;
         return t == support || t.IsChildOf(support);
     }
