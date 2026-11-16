@@ -8,7 +8,7 @@ using UnityEngine;
 public class AnimatorUpdateModeWarning : Editor
 {
     private const string DismissKey = "INTO_LIGHT.AnimatorUpdateModeWarning.Dismissed";
-    private const string WarningText = "Make sure to only use \"Fixed\" in case you are animating a moving platform.";
+    private const string WarningText = "Make sure to only use \"Normal\" in case you are animating a moving platform.";
 
     private Editor builtInInspector;
 
@@ -38,7 +38,7 @@ public class AnimatorUpdateModeWarning : Editor
 
         bool needsWarning = targets
             .OfType<Animator>()
-            .Any(animator => animator.updateMode != AnimatorUpdateMode.Fixed);
+            .Any(animator => animator.updateMode != AnimatorUpdateMode.Normal);
         if (!needsWarning)
             return;
 
