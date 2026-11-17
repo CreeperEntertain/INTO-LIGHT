@@ -733,7 +733,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   yawPivot: {fileID: 999866635}
   viewPivot: {fileID: 2082971921}
-  moveSpeed: 5
+  moveSpeed: 4
   acceleration: 80
   airAcceleratonPercentage: 15
   braking: 80
@@ -742,7 +742,7 @@ MonoBehaviour:
   minPitch: -90
   maxPitch: 90
   coyoteTime: 0.25
-  jumpSpeed: 5.5
+  jumpSpeed: 6
   jumpBufferTime: 0.2
 --- !u!114 &232837890
 MonoBehaviour:
