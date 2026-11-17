@@ -1196,6 +1196,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 18efedf8f7a126d4a8bc57165e89a61c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HandBehavior
+  playerCamera: {fileID: 359519100}
+  offscreenOffset: {x: -1.5, y: -1}
+  lerpSpeed: 12
 --- !u!1 &400453687
 GameObject:
   m_ObjectHideFlags: 0

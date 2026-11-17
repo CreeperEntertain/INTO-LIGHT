@@ -95,6 +95,13 @@ public class MovementController : MonoBehaviour
 
     private void ReadMouseInput()
     {
+        Keyboard keyboard = Keyboard.current;
+        if (
+            keyboard != null &&
+            (keyboard.leftShiftKey.isPressed || keyboard.rightShiftKey.isPressed)
+        )
+            return;
+
         Mouse mouse = Mouse.current;
         if (mouse == null)
             return;
