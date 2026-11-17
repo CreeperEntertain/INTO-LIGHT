@@ -1197,8 +1197,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HandBehavior
   playerCamera: {fileID: 359519100}
-  offscreenOffset: {x: -1.5, y: -1}
-  lerpSpeed: 12
+  offscreenOffset: {x: 0.5, y: -0.5}
+  lerpSpeed: 20
 --- !u!1 &400453687
 GameObject:
   m_ObjectHideFlags: 0
