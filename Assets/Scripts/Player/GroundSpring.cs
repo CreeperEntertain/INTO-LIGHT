@@ -191,7 +191,7 @@ public class GroundSpring : MonoBehaviour
                         Vector3.Dot(sampleBase, up) -
                         Vector3.Dot(sampleBase - corePlanePoint, coreNormal) / normalUp;
                     float stepRise = Vector3.Dot(hit.point, up) - expectedHeight;
-                    if (stepRise <= 0.005f || stepRise > maxStepHeight)
+                    if (Mathf.Abs(stepRise) <= 0.005f || Mathf.Abs(stepRise) > maxStepHeight)
                         continue;
                     
                     supportSamples[supportCount++] = new SupportSample
@@ -240,13 +240,12 @@ public class GroundSpring : MonoBehaviour
         float compression = naturalLength - averageDistance;
         float normalSpeed = Vector3.Dot(rb.GetPointVelocity(averagePoint), supportNormal);
         float damping = 2.0f * dampingRatio * Mathf.Sqrt(springStrength * rb.mass);
-        float force = Mathf.Max(0.0f, springStrength * compression - damping * normalSpeed);
-        if (force > 0.0f)
-            rb.AddForceAtPosition(
-                supportNormal * force,
-                averagePoint,
-                ForceMode.Force
-            );
+        float force = springStrength * compression - damping * normalSpeed;
+        rb.AddForceAtPosition(
+            supportNormal * force,
+            averagePoint,
+            ForceMode.Force
+        );
         
         if (IsGrounded && moveDirection.sqrMagnitude < 0.001f)
         {
