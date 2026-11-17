@@ -739,8 +739,8 @@ MonoBehaviour:
   braking: 80
   velocityResponse: 10
   mouseSensitivity: 0.08
-  minPitch: -85
-  maxPitch: 85
+  minPitch: -90
+  maxPitch: 90
   coyoteTime: 0.25
   jumpSpeed: 5.5
   jumpBufferTime: 0.2
