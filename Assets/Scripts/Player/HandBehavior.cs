@@ -7,7 +7,7 @@ public class HandBehavior : MonoBehaviour
     [SerializeField] private Camera playerCamera;
 
     [Header("Movement")]
-    [SerializeField] private Vector2 offscreenOffset = new(-1.5f, -1.0f);
+    [SerializeField] private Vector2 offscreenOffset = new(0.5f, -0.5f);
     [SerializeField, Min(0.01f)] private float lerpSpeed = 120.0f;
 
     private bool handMode;
