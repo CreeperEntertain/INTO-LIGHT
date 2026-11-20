@@ -81,13 +81,13 @@ public class PlayerInput : ScriptableObject
     public InputAction Pose4 { get; private set; }
 
 
-    private void OEnable()
+    private void OnEnable()
     {
         BuildActions();
         EnableActions();
     }
 
-    private void Osable()
+    private void OnDisable()
         => DisableAndDisposeActions();
 
 
