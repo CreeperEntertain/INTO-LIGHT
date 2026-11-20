@@ -7,6 +7,7 @@ public class MovementController : MonoBehaviour
     [Header("References")]
     public Transform yawPivot;
     public Transform viewPivot;
+    public PlayerInput inputSettings;
 
     [Header("Movement")]
     public float moveSpeed = 5.0f;
@@ -65,47 +66,38 @@ public class MovementController : MonoBehaviour
     private void Update()
     {
         ReadMovementInput();
-        ReadMouseInput();
+        ReadCameraInput();
     }
 
     private void ReadMovementInput()
     {
-        Keyboard keyboard = Keyboard.current;
-        if (keyboard == null)
+        if (inputSettings == null)
         {
             moveInput = Vector2.zero;
             return;
         }
-        
-        Vector2 input = Vector2.zero;
-        if (keyboard.wKey.isPressed) input.y += 1.0f;
-        if (keyboard.sKey.isPressed) input.y -= 1.0f;
-        if (keyboard.dKey.isPressed) input.x += 1.0f;
-        if (keyboard.aKey.isPressed) input.x -= 1.0f;
 
-        moveInput = Vector2.ClampMagnitude(input, 1.0f);
-        if (keyboard.spaceKey.wasPressedThisFrame)
+        moveInput = Vector2.ClampMagnitude(inputSettings.Move.ReadValue<Vector2>(), 1.0f);
+        if (inputSettings.Jump.WasPressedThisFrame())
         {
             jumpQueued = true;
             jumpPressedTime = Time.fixedTime;
         }
-        if (keyboard.escapeKey.wasPressedThisFrame)
+        if (inputSettings.UnlockCursor.WasPressedThisFrame())
             UnlockCursor();
     }
 
-    private void ReadMouseInput()
+    private void ReadCameraInput()
     {
-        Keyboard keyboard = Keyboard.current;
-        if (
-            keyboard != null &&
-            (keyboard.leftShiftKey.isPressed || keyboard.rightShiftKey.isPressed)
-        )
+        if (inputSettings == null)
+            return;
+        if (inputSettings.HandMode.IsPressed())
             return;
 
         Mouse mouse = Mouse.current;
         if (mouse == null)
             return;
-        if (mouse.leftButton.wasPressedThisFrame)
+        if (inputSettings.LockCursor.WasPressedThisFrame())
             LockCursor();
         if (Cursor.lockState != CursorLockMode.Locked)
             return;
@@ -113,7 +105,6 @@ public class MovementController : MonoBehaviour
         Vector2 delta = mouse.delta.ReadValue();
 
         yaw += delta.x * mouseSensitivity;
-
         pitch -= delta.y * mouseSensitivity;
         pitch = Mathf.Clamp(pitch, minPitch, maxPitch);
         if (yawPivot != null)

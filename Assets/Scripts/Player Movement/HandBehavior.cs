@@ -5,6 +5,7 @@ public class HandBehavior : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private Camera playerCamera;
+    [SerializeField] private PlayerInput inputSettings;
 
     [Header("Movement")]
     [SerializeField] private Vector2 offscreenOffset = new(0.5f, -0.5f);
@@ -34,12 +35,10 @@ public class HandBehavior : MonoBehaviour
 
     private void Update()
     {
-        Keyboard keyboard = Keyboard.current;
         Mouse mouse = Mouse.current;
-        bool shiftHeld = keyboard != null &&
-            (keyboard.leftShiftKey.isPressed || keyboard.rightShiftKey.isPressed);
+        bool handModePressed = inputSettings != null && inputSettings.HandMode.IsPressed();
         bool justEnteredHandMode = false;
-        if (shiftHeld && !handMode)
+        if (handModePressed && !handMode)
         {
             previousLockState = Cursor.lockState;
 
@@ -53,7 +52,7 @@ public class HandBehavior : MonoBehaviour
             handMode = true;
             justEnteredHandMode = true;
         }
-        else if (!shiftHeld && handMode)
+        else if (!handModePressed && handMode)
         {
             handMode = false;
             Cursor.lockState = previousLockState;
