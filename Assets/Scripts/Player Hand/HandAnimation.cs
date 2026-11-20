@@ -21,6 +21,7 @@ public class HandAnimation : MonoBehaviour
     private const int PoseCount = 6;
 
     private Animator animator;
+    private Avatar runtimeAvatar;
     private PlayableGraph graph;
     private AnimationMixerPlayable mixer;
 
@@ -38,6 +39,18 @@ public class HandAnimation : MonoBehaviour
     private void Awake()
     {
         animator = GetComponent<Animator>();
+        if (animator.avatar == null || !animator.avatar.isValid)
+        {
+            runtimeAvatar = AvatarBuilder.BuildGenericAvatar(gameObject, "Base");
+            if (runtimeAvatar == null || !runtimeAvatar.isValid)
+            {
+                Debug.LogError("HandAnimation: Failed to create a valid Generic Avatar. Check the hand hierarchy and the Base root bone.", this);
+                enabled = false;
+                return;
+            }
+            animator.avatar = runtimeAvatar;
+            animator.Rebind();
+        }
 
         AnimationClip[] clips =
         {
@@ -92,6 +105,12 @@ public class HandAnimation : MonoBehaviour
     {
         if (graph.IsValid())
             graph.Destroy();
+        if (runtimeAvatar != null)
+        {
+            if (animator != null && animator.avatar == runtimeAvatar)
+                animator.avatar = null;
+            Destroy(runtimeAvatar);
+        }
     }
 
 
