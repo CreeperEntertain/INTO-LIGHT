@@ -95,8 +95,8 @@ public class PlayerInput : ScriptableObject
     {
         Move = new InputAction("Move", InputActionType.Value, expectedControlType: "Vector2");
         Move.AddCompositeBinding("2DVector")
-            .With("Forward", moveForward)
-            .With("Back", moveBack)
+            .With("Up", moveForward)
+            .With("Down", moveBack)
             .With("Left", moveLeft)
             .With("Right", moveRight);
         Move.AddBinding(moveStick);
