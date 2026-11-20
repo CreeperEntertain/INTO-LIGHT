@@ -66,6 +66,11 @@ public class HandAnimation : MonoBehaviour
             }
 
             clipPlayables[i] = AnimationClipPlayable.Create(graph, clips[i]);
+            clipPlayables[i].SetDuration(1.0);
+            clipPlayables[i].SetTime(0.0);
+            clipPlayables[i].SetSpeed(0.0);
+            clipPlayables[i].SetDone(false);
+
             graph.Connect(clipPlayables[i], 0, mixer, i);
             mixer.SetInputWeight(i, i == 0 ? 1.0f : 0.0f);
             currentWeights[i] = i == 0 ? 1.0f : 0.0f;
@@ -146,8 +151,6 @@ public class HandAnimation : MonoBehaviour
             return;
         
         currentPose = pose;
-        clipPlayables[pose].SetTime(0);
-        clipPlayables[pose].SetDone(false);
         for (int i = 0; i < PoseCount; i++)
         {
             blendStartWeights[i] = currentWeights[i];
