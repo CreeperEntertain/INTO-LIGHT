@@ -27,7 +27,6 @@ public class PlayerInput : ScriptableObject
     [SerializeField] private string[] lockCursorBindings =
     {
         "<Mouse>/leftButton",
-        "<Keyboard>/enter",
         "<Gamepad>/buttonSouth"
     };
     [SerializeField] private string[] handModeBindings =
@@ -47,26 +46,22 @@ public class PlayerInput : ScriptableObject
     [SerializeField] private string[] pose1Bindings =
     {
         "<Keyboard>/1",
-        "<Mouse>/middleButton",
-        "<Gamepad>/buttonWest"
+        "<Gamepad>/dpad/up"
     };
     [SerializeField] private string[] pose2Bindings =
     {
         "<Keyboard>/2",
-        "<Mouse>/rightButton",
-        "<Gamepad>/buttonNorth"
+        "<Gamepad>/dpad/right"
     };
     [SerializeField] private string[] pose3Bindings =
     {
         "<Keyboard>/3",
-        "<Mouse>/forwardButton",
-        "<Gamepad>/buttonEast"
+        "<Gamepad>/dpad/down"
     };
     [SerializeField] private string[] pose4Bindings =
     {
         "<Keyboard>/4",
-        "<Mouse>/backButton",
-        "<Gamepad>/buttonSouth"
+        "<Gamepad>/dpad/left"
     };
 
     public InputAction Move { get; private set; }
