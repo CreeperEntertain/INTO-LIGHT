@@ -279,6 +279,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HandBehavior
   playerCamera: {fileID: 2657291233693489984}
+  inputSettings: {fileID: 11400000, guid: 31fe7847487dfb3428a57071a68c7e21, type: 2}
   offscreenOffset: {x: 0.5, y: -0.5}
   lerpSpeed: 20
 --- !u!1 &4595744048418617498
@@ -646,6 +647,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   yawPivot: {fileID: 9041651844191914891}
   viewPivot: {fileID: 1847547349459043050}
+  inputSettings: {fileID: 11400000, guid: 31fe7847487dfb3428a57071a68c7e21, type: 2}
   moveSpeed: 4
   acceleration: 80
   airAcceleratonPercentage: 15
@@ -973,6 +975,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 18cac5648e284234f9dc4f132522c52b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HandAnimation
+  inputSettings: {fileID: 11400000, guid: 31fe7847487dfb3428a57071a68c7e21, type: 2}
   animIdle: {fileID: -2645021634625152684, guid: e29a3030f36d3d041a549f34cd87f70a, type: 3}
   animGrab: {fileID: 3997614985018663949, guid: e29a3030f36d3d041a549f34cd87f70a, type: 3}
   anim1: {fileID: 5034829986769603471, guid: e29a3030f36d3d041a549f34cd87f70a, type: 3}

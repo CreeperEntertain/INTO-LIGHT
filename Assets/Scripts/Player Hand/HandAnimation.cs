@@ -2,12 +2,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Animations;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.Controls;
 using UnityEngine.Playables;
 
 [RequireComponent(typeof(Animator))]
 public class HandAnimation : MonoBehaviour
 {
+    [Header("References")]
+    [SerializeField] private PlayerInput inputSettings;
+
     [Header("Animation Clips")]
     [SerializeField] private AnimationClip animIdle;
     [SerializeField] private AnimationClip animGrab;
@@ -117,27 +119,19 @@ public class HandAnimation : MonoBehaviour
 
     private void ReadInput()
     {
-        Keyboard keyboard = Keyboard.current;
-        Mouse mouse = Mouse.current;
+        if (inputSettings == null)
+        {
+            heldPoses.Clear();
+            SelectPose(0);
+            return;
+        }
 
-        if (mouse != null)
-            UpdatePoseInput(mouse.leftButton, 1);
-        else
-            ReleasePose(1);
-        if (keyboard != null)
-        {
-            UpdatePoseInput(keyboard.digit1Key, 2);
-            UpdatePoseInput(keyboard.digit2Key, 3);
-            UpdatePoseInput(keyboard.digit3Key, 4);
-            UpdatePoseInput(keyboard.digit4Key, 5);
-        }
-        else
-        {
-            ReleasePose(2);
-            ReleasePose(3);
-            ReleasePose(4);
-            ReleasePose(5);
-        }
+        UpdatePoseInput(inputSettings.Grab, 1);
+        UpdatePoseInput(inputSettings.Pose1, 2);
+        UpdatePoseInput(inputSettings.Pose2, 3);
+        UpdatePoseInput(inputSettings.Pose3, 4);
+        UpdatePoseInput(inputSettings.Pose4, 5);
+
         SelectPose(heldPoses.Count > 0 ? heldPoses[^1] : 0);
     }
 
@@ -150,19 +144,15 @@ public class HandAnimation : MonoBehaviour
     private void ReleasePose(int pose)
         => heldPoses.Remove(pose);
     
-    private void UpdatePoseInput(ButtonControl button, int pose)
+    private void UpdatePoseInput(InputAction action, int pose)
     {
-        if (button.wasPressedThisFrame)
-            PressPose(pose);
-        if (button.wasReleasedThisFrame)
-            ReleasePose(pose);
-        if (button.isPressed)
+        if (action == null || !action.IsPressed())
         {
-            if (!heldPoses.Contains(pose))
-                PressPose(pose);
-        }
-        else
             ReleasePose(pose);
+            return;
+        }
+        if (action.WasPressedThisFrame() || !heldPoses.Contains(pose))
+            PressPose(pose);
     }
 
     private void SelectPose(int pose)
