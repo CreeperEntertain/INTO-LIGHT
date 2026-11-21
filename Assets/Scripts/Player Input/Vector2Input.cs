@@ -20,84 +20,128 @@ public sealed class Vector2Input : IDisposable
         public SourceMode mode;
         public Vector2 center = new(0.5f, 0.5f);
         public float scale = 2.0f;
+
+        public bool useComposite;
+        public string up;
+        public string down;
+        public string left;
+        public string right;
     }
 
-    private readonly InputAction action;
-    private readonly List<Source> sources;
-    private readonly Dictionary<string, Source> sourceSettings = new();
-    private Vector2 value;
+    private sealed class RuntimeSource
+    {
+        public Source settings;
+        public InputAction action;
+    }
 
-    public Vector2 Value => value;
+    private readonly List<RuntimeSource> sources = new();
     public bool IsRelative { get; private set; }
+
+    public Vector2 Value {
+        get
+        {
+            foreach (RuntimeSource source in sources)
+            {
+                Vector2 raw = source.action.ReadValue<Vector2>();
+                if (raw == Vector2.zero)
+                    continue;
+                IsRelative = source.settings.mode == SourceMode.Relative;
+                return source.settings.mode switch
+                {
+                    SourceMode.Position =>
+                        Vector2.ClampMagnitude((raw - source.settings.center) * source.settings.scale, 1.0f),
+                    SourceMode.Direction =>
+                        Vector2.ClampMagnitude(raw, 1.0f),
+                    _ => raw
+                };
+            }
+            IsRelative = false;
+            return Vector2.zero;
+        }
+    }
+
 
     public Vector2Input(string name, Source[] bindings)
     {
-        sources = new List<Source>(bindings ?? Array.Empty<Source>());
-        action = new InputAction(name, InputActionType.Value, expectedControlType: "Vector2");
-        foreach (Source source in sources)
+        if (bindings == null)
+            return;
+        foreach (Source source in bindings)
         {
-            if (string.IsNullOrWhiteSpace(source.binding))
-                continue;
-            action.AddBinding(source.binding);
-            sourceSettings[source.binding] = source;
+            if (source == null)
+                return;
+            
+            InputAction action = new($"{name} {sources.Count}", InputActionType.Value, expectedControlType: "Vector2");
+            if (source.useComposite)
+            {
+                if (
+                    string.IsNullOrWhiteSpace(source.up) ||
+                    string.IsNullOrWhiteSpace(source.down) ||
+                    string.IsNullOrWhiteSpace(source.left) ||
+                    string.IsNullOrWhiteSpace(source.right)
+                )
+                {
+                    action.Dispose();
+                    continue;
+                }
+                action.AddCompositeBinding("2DVector")
+                    .With("Up", source.up)
+                    .With("Down", source.down)
+                    .With("Left", source.left)
+                    .With("Right", source.right);
+            }
+            else
+            {
+                if (string.IsNullOrWhiteSpace(source.binding))
+                {
+                    action.Dispose();
+                    continue;
+                }
+                action.AddBinding(source.binding);
+            }
+            sources.Add(new()
+            {
+                settings = source,
+                action = action
+            });
         }
-
-        action.performed += OnInput;
-        action.canceled += OnInput;
     }
 
+
     public void Enable()
-        => action.Enable();
+    {
+        foreach (RuntimeSource source in sources)
+            source.action.Enable();
+    }
+
     public void Disable()
-        => action.Disable();
+    {
+        foreach (RuntimeSource source in sources)
+            source.action.Disable();
+    }
 
     public bool WasPressedThisFrame()
-        => action.WasPressedThisFrame();
+    {
+        foreach (RuntimeSource source in sources)
+            if (source.action.WasPressedThisFrame())
+                return true;
+        return false;
+    }
+
     public bool IsPressed()
-        => action.IsPressed();
+    {
+        foreach (RuntimeSource source in sources)
+            if (source.action.IsPressed())
+                return true;
+        return false;
+    }
 
     public void Dispose()
     {
-        action.performed -= OnInput;
-        action.canceled -= OnInput;
-        action.Dispose();
-    }
-
-    private void OnInput(InputAction.CallbackContext context)
-    {
-        if (context.canceled)
+        foreach (RuntimeSource source in sources)
         {
-            value = Vector2.zero;
-            IsRelative = false;
-            return;
+            source.action.Disable();
+            source.action.Dispose();
         }
-
-        string path = context.control.path;
-        Source source = null;
-        foreach (Source candidate in sources)
-            if (
-                candidate.binding == path ||
-                context.control.path.EndsWith(candidate.binding.Replace("<Mouse>", "").Replace("<Gamepad>", ""))
-            )
-            {
-                source = candidate;
-                break;
-            }
-        if (source == null)
-        {
-            value = context.ReadValue<Vector2>();
-            IsRelative = false;
-            return;
-        }
-
-        Vector2 raw = context.ReadValue<Vector2>();
-        IsRelative = source.mode == SourceMode.Relative;
-
-        value = source.mode switch
-        {
-            SourceMode.Position => Vector2.ClampMagnitude((raw - source.center) * source.scale, 1.0f),
-            SourceMode.Direction => Vector2.ClampMagnitude(raw, 1.0f),
-            _ => raw
-        };
+        sources.Clear();
     }
 }

@@ -21,7 +21,16 @@ public class PlayerInput : ScriptableObject
     [SerializeField] private Vector2Input.Source[] moveCamera =
     {
         new() { binding = "<Mouse>/delta", mode = Vector2Input.SourceMode.Relative },
-        new() { binding = "<Gamepad>/rightStick", mode = Vector2Input.SourceMode.Direction }
+        new() { binding = "<Gamepad>/rightStick", mode = Vector2Input.SourceMode.Direction },
+        new()
+        {
+            useComposite = true,
+            mode = Vector2Input.SourceMode.Direction,
+            up = "<Keyboard>/upArrow",
+            down = "<Keyboard>/downArrow",
+            left = "<Keyboard>/leftArrow",
+            right = "<Keyboard>/rightArrow"
+        }
     };
     [SerializeField] private string[] unlockCursorBindings =
     {
