@@ -88,13 +88,19 @@ public class MovementController : MonoBehaviour
 
     private void ReadCameraInput()
     {
-        if (inputSettings == null || inputSettings.HandMode.IsPressed())
+        if (inputSettings == null)
             return;
         
         Vector2 lookInput = inputSettings.MoveCamera.Value;
         if (lookInput.sqrMagnitude < 0.0001f)
             return;
-        
+        if (inputSettings.HandMode.IsPressed())
+        {
+            _ = inputSettings.MoveHand.Value;
+            if (inputSettings.Move.SharesActiveControlWith(inputSettings.MoveCamera))
+                return;
+        }
+
         bool usingMouse = inputSettings.MoveCamera.IsRelative;
         if (usingMouse)
         {

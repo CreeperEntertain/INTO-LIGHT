@@ -9,10 +9,12 @@ public class HandBehavior : MonoBehaviour
 
     [Header("Movement")]
     [SerializeField] private Vector2 offscreenOffset = new(0.5f, -0.5f);
+    [SerializeField] private Vector2 handRange = new(0.3f, 0.2f);
+    [SerializeField, Min(0.0001f)] private float relativeInputSensitivity = 0.003f;
     [SerializeField, Min(0.01f)] private float lerpSpeed = 120.0f;
 
     private bool handMode;
-    private CursorLockMode previousLockState;
+    private Vector2 handOffset;
 
     private float pivotLocalZ;
     private float cameraDepth;
@@ -35,41 +37,35 @@ public class HandBehavior : MonoBehaviour
 
     private void Update()
     {
-        Mouse mouse = Mouse.current;
-        bool handModePressed = inputSettings != null && inputSettings.HandMode.IsPressed();
-        bool justEnteredHandMode = false;
-        if (handModePressed && !handMode)
-        {
-            previousLockState = Cursor.lockState;
-
-            Cursor.lockState = CursorLockMode.None;
-            if (mouse != null)
-            {
-                Vector2 center = new(Screen.width * 0.5f, Screen.height * 0.5f);
-                mouse.WarpCursorPosition(center);
-            }
-
-            handMode = true;
-            justEnteredHandMode = true;
-        }
-        else if (!handModePressed && handMode)
-        {
-            handMode = false;
-            Cursor.lockState = previousLockState;
-        }
-
+        bool handModeActive = inputSettings != null && inputSettings.HandMode.IsPressed();
+        if (handModeActive && !handMode)
+            handOffset = Vector2.zero;
+        
+        handMode = handModeActive;
         Vector3 target = new(offscreenOffset.x, offscreenOffset.y, pivotLocalZ);
         if (
             handMode &&
-            mouse != null &&
             playerCamera != null &&
             transform.parent != null
         )
         {
-            Vector2 mousePosition = justEnteredHandMode
-                ? new(Screen.width * 0.5f, Screen.height * 0.5f) : mouse.position.ReadValue();
-            Vector3 screenPosition = new(mousePosition.x, mousePosition.y, cameraDepth);
-            Vector3 worldPosition = playerCamera.ScreenToWorldPoint(screenPosition);
+            Vector2 input = inputSettings.MoveHand.Value;
+            if (inputSettings.MoveHand.HasInput)
+            {
+                if (inputSettings.MoveHand.ActiveMode == Vector2Input.SourceMode.Relative)
+                    handOffset += input * relativeInputSensitivity;
+                else
+                    handOffset = input;
+            }
+            else if (inputSettings.MoveHand.LastActiveMode != Vector2Input.SourceMode.Relative)
+                handOffset = Vector2.zero;
+            
+            handOffset.x = Mathf.Clamp(handOffset.x, -1.0f, 1.0f);
+            handOffset.y = Mathf.Clamp(handOffset.y, -1.0f, 1.0f);
+            Vector2 screenCenter = new(Screen.width * 0.5f, Screen.height * 0.5f);
+            Vector2 screenOffset = Vector2.Scale(handOffset, new(Screen.width * handRange.x, Screen.height * handRange.y));
+            Vector2 screenPosition = screenCenter + screenOffset;
+            Vector3 worldPosition = playerCamera.ScreenToWorldPoint(new(screenPosition.x, screenPosition.y, cameraDepth));
             target = transform.parent.InverseTransformPoint(worldPosition);
         }
 

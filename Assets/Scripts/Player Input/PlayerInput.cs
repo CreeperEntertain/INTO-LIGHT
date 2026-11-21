@@ -44,6 +44,20 @@ public class PlayerInput : ScriptableObject
         "<Mouse>/rightButton",
         "<Gamepad>/leftShoulder"
     };
+    [SerializeField] private Vector2Input.Source[] moveHand =
+    {
+        new() { binding = "<Mouse>/delta", mode = Vector2Input.SourceMode.Relative },
+        new() { binding = "<Gamepad>/rightStick", mode = Vector2Input.SourceMode.Direction },
+        new()
+        {
+            useComposite = true,
+            mode = Vector2Input.SourceMode.Direction,
+            up = "<Keyboard>/upArrow",
+            down = "<Keyboard>/downArrow",
+            left = "<Keyboard>/leftArrow",
+            right = "<Keyboard>/rightArrow"
+        }
+    };
 
     [Header("Hand pose bindings")]
     [SerializeField] private string[] grabBindings =
@@ -77,6 +91,7 @@ public class PlayerInput : ScriptableObject
     public InputAction Jump { get; private set; }
     public Vector2Input MoveCamera { get; private set; }
     public InputAction HandMode { get; private set; }
+    public Vector2Input MoveHand { get; private set; }
     public InputAction Grab { get; private set; }
     public InputAction Pose1 { get; private set; }
     public InputAction Pose2 { get; private set; }
@@ -96,13 +111,12 @@ public class PlayerInput : ScriptableObject
 
     private void BuildActions()
     {
-        Move = new Vector2Input("Move", moveBindings);
-
+        Move = new("Move", moveBindings);
         Jump = CreateButton("Jump", jumpBindings);
-
-        MoveCamera = new Vector2Input("Move Camera", moveCamera);
+        MoveCamera = new("Move Camera", moveCamera);
 
         HandMode = CreateButton("Hand Mode", handModeBindings);
+        MoveHand = new("Move Hand", moveHand);
         Grab = CreateButton("Grab", grabBindings);
         Pose1 = CreateButton("Pose 1", pose1Bindings);
         Pose2 = CreateButton("Pose 2", pose2Bindings);
@@ -126,6 +140,7 @@ public class PlayerInput : ScriptableObject
         Jump.Enable();
         MoveCamera.Enable();
         HandMode.Enable();
+        MoveHand.Enable();
         Grab.Enable();
         Pose1.Enable();
         Pose2.Enable();
@@ -139,6 +154,7 @@ public class PlayerInput : ScriptableObject
         DisposeAction(Jump);
         MoveCamera?.Dispose();
         DisposeAction(HandMode);
+        MoveHand?.Dispose();
         DisposeAction(Grab);
         DisposeAction(Pose1);
         DisposeAction(Pose2);

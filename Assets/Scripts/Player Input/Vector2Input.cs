@@ -40,11 +40,19 @@ public sealed class Vector2Input : IDisposable
     public Vector2 Value {
         get
         {
+            HasInput = false;
+            ActiveMode = null;
+            ActiveControl = null;
             foreach (RuntimeSource source in sources)
             {
                 Vector2 raw = source.action.ReadValue<Vector2>();
                 if (raw == Vector2.zero)
                     continue;
+                
+                HasInput = true;
+                ActiveMode = source.settings.mode;
+                LastActiveMode = source.settings.mode;
+                ActiveControl = source.action.activeControl;
                 IsRelative = source.settings.mode == SourceMode.Relative;
                 return source.settings.mode switch
                 {
@@ -59,6 +67,11 @@ public sealed class Vector2Input : IDisposable
             return Vector2.zero;
         }
     }
+
+    public bool HasInput { get; private set; }
+    public SourceMode? ActiveMode { get; private set; }
+    public SourceMode LastActiveMode { get; private set; }
+    public InputControl ActiveControl { get; private set; }
 
 
     public Vector2Input(string name, Source[] bindings)
@@ -134,6 +147,11 @@ public sealed class Vector2Input : IDisposable
                 return true;
         return false;
     }
+
+    public bool SharesActiveControlWith(Vector2Input other)
+        =>  other != null &&
+            ActiveControl != null &&
+            ActiveControl == other.ActiveControl;
 
     public void Dispose()
     {
