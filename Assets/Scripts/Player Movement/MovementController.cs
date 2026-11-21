@@ -97,7 +97,7 @@ public class MovementController : MonoBehaviour
         if (inputSettings.HandMode.IsPressed())
         {
             _ = inputSettings.MoveHand.Value;
-            if (inputSettings.Move.SharesActiveControlWith(inputSettings.MoveCamera))
+            if (inputSettings.MoveHand.SharesActiveControlWith(inputSettings.MoveCamera))
                 return;
         }
 
