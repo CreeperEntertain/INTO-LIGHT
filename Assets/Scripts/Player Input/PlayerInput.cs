@@ -38,17 +38,6 @@ public class PlayerInput : ScriptableObject
             right = "<Keyboard>/rightArrow"
         }
     };
-    [SerializeField] private string[] unlockCursorBindings =
-    {
-        "<Keyboard>/escape",
-        "<Mouse>/backButton",
-        "<Gamepad>/start"
-    };
-    [SerializeField] private string[] lockCursorBindings =
-    {
-        "<Mouse>/leftButton",
-        "<Gamepad>/buttonSouth"
-    };
     [SerializeField] private string[] handModeBindings =
     {
         "<Keyboard>/leftShift",
@@ -87,8 +76,6 @@ public class PlayerInput : ScriptableObject
     public Vector2Input Move { get; private set; }
     public InputAction Jump { get; private set; }
     public Vector2Input MoveCamera { get; private set; }
-    public InputAction UnlockCursor { get; private set; }
-    public InputAction LockCursor { get; private set; }
     public InputAction HandMode { get; private set; }
     public InputAction Grab { get; private set; }
     public InputAction Pose1 { get; private set; }
@@ -114,8 +101,6 @@ public class PlayerInput : ScriptableObject
         Jump = CreateButton("Jump", jumpBindings);
 
         MoveCamera = new Vector2Input("Move Camera", moveCamera);
-        UnlockCursor = CreateButton("Unlock Cursor", unlockCursorBindings);
-        LockCursor = CreateButton("Lock Cursor", lockCursorBindings);
 
         HandMode = CreateButton("Hand Mode", handModeBindings);
         Grab = CreateButton("Grab", grabBindings);
@@ -140,8 +125,6 @@ public class PlayerInput : ScriptableObject
         Move.Enable();
         Jump.Enable();
         MoveCamera.Enable();
-        UnlockCursor.Enable();
-        LockCursor.Enable();
         HandMode.Enable();
         Grab.Enable();
         Pose1.Enable();
@@ -154,8 +137,6 @@ public class PlayerInput : ScriptableObject
     {
         Move?.Dispose();
         DisposeAction(Jump);
-        DisposeAction(UnlockCursor);
-        DisposeAction(LockCursor);
         MoveCamera?.Dispose();
         DisposeAction(HandMode);
         DisposeAction(Grab);

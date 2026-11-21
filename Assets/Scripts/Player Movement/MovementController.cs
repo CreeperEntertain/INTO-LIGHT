@@ -84,16 +84,12 @@ public class MovementController : MonoBehaviour
             jumpQueued = true;
             jumpPressedTime = Time.fixedTime;
         }
-        if (inputSettings.UnlockCursor.WasPressedThisFrame())
-            UnlockCursor();
     }
 
     private void ReadCameraInput()
     {
         if (inputSettings == null || inputSettings.HandMode.IsPressed())
             return;
-        if (inputSettings.LockCursor.WasPressedThisFrame())
-            LockCursor();
         
         Vector2 lookInput = inputSettings.MoveCamera.Value;
         if (lookInput.sqrMagnitude < 0.0001f)
@@ -206,13 +202,13 @@ public class MovementController : MonoBehaviour
     }
 
 
-    private void LockCursor()
+    public static void LockCursor()
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
 
-    private void UnlockCursor()
+    public static void UnlockCursor()
     {
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
