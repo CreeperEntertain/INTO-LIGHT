@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class HandBehavior : MonoBehaviour
 {
@@ -9,8 +8,7 @@ public class HandBehavior : MonoBehaviour
 
     [Header("Movement")]
     [SerializeField] private Vector2 offscreenOffset = new(0.5f, -0.5f);
-    [SerializeField] private Vector2 handRange = new(0.3f, 0.2f);
-    [SerializeField, Min(0.0001f)] private float relativeInputSensitivity = 0.003f;
+    [SerializeField, Min(0.0001f)] private float relativeInputSensitivity = 1.0f;
     [SerializeField, Min(0.01f)] private float lerpSpeed = 120.0f;
 
     private bool handMode;
@@ -53,7 +51,10 @@ public class HandBehavior : MonoBehaviour
             if (inputSettings.MoveHand.HasInput)
             {
                 if (inputSettings.MoveHand.ActiveMode == Vector2Input.SourceMode.Relative)
-                    handOffset += input * relativeInputSensitivity;
+                    handOffset += new Vector2(
+                        input.x * 2.0f / Mathf.Max(1, Screen.width),
+                        input.y * 2.0f / Mathf.Max(1, Screen.height)
+                    ) * relativeInputSensitivity;
                 else
                     handOffset = input;
             }
@@ -62,9 +63,10 @@ public class HandBehavior : MonoBehaviour
             
             handOffset.x = Mathf.Clamp(handOffset.x, -1.0f, 1.0f);
             handOffset.y = Mathf.Clamp(handOffset.y, -1.0f, 1.0f);
-            Vector2 screenCenter = new(Screen.width * 0.5f, Screen.height * 0.5f);
-            Vector2 screenOffset = Vector2.Scale(handOffset, new(Screen.width * handRange.x, Screen.height * handRange.y));
-            Vector2 screenPosition = screenCenter + screenOffset;
+            Vector2 screenPosition =  new(
+                (handOffset.x + 1.0f) * 0.5f * Screen.width,
+                (handOffset.y + 1.0f) * 0.5f * Screen.height
+            );
             Vector3 worldPosition = playerCamera.ScreenToWorldPoint(new(screenPosition.x, screenPosition.y, cameraDepth));
             target = transform.parent.InverseTransformPoint(worldPosition);
         }
