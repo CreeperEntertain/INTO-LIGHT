@@ -95,11 +95,11 @@ public class MovementController : MonoBehaviour
         if (inputSettings.LockCursor.WasPressedThisFrame())
             LockCursor();
         
-        Vector2 lookInput = inputSettings.MoveCamera.ReadValue<Vector2>();
+        Vector2 lookInput = inputSettings.MoveCamera.Value;
         if (lookInput.sqrMagnitude < 0.0001f)
             return;
         
-        bool usingMouse = inputSettings.MoveCamera.activeControl?.device is Mouse;
+        bool usingMouse = inputSettings.MoveCamera.IsRelative;
         if (usingMouse)
         {
             if (Cursor.lockState != CursorLockMode.Locked)
