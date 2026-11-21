@@ -18,6 +18,11 @@ public class PlayerInput : ScriptableObject
         "<Mouse>/middleButton",
         "<Gamepad>/buttonSouth"
     };
+    [SerializeField] private string[] moveCamera =
+    {
+        "<Mouse>/delta",
+        "<Gamepad>/rightStick"
+    };
     [SerializeField] private string[] unlockCursorBindings =
     {
         "<Keyboard>/escape",
@@ -66,6 +71,7 @@ public class PlayerInput : ScriptableObject
 
     public InputAction Move { get; private set; }
     public InputAction Jump { get; private set; }
+    public InputAction MoveCamera { get; private set; }
     public InputAction UnlockCursor { get; private set; }
     public InputAction LockCursor { get; private set; }
     public InputAction HandMode { get; private set; }
@@ -97,8 +103,14 @@ public class PlayerInput : ScriptableObject
         Move.AddBinding(moveStick);
 
         Jump = CreateButton("Jump", jumpBindings);
+
+        MoveCamera = new InputAction("Move Camera", InputActionType.Value, expectedControlType: "Vector2");
+        foreach (string path in moveCamera)
+            if (!string.IsNullOrWhiteSpace(path))
+                MoveCamera.AddBinding(path);
         UnlockCursor = CreateButton("Unlock Cursor", unlockCursorBindings);
         LockCursor = CreateButton("Lock Cursor", lockCursorBindings);
+
         HandMode = CreateButton("Hand Mode", handModeBindings);
         Grab = CreateButton("Grab", grabBindings);
         Pose1 = CreateButton("Pose 1", pose1Bindings);
@@ -121,6 +133,7 @@ public class PlayerInput : ScriptableObject
     {
         Move.Enable();
         Jump.Enable();
+        MoveCamera.Enable();
         UnlockCursor.Enable();
         LockCursor.Enable();
         HandMode.Enable();
@@ -137,6 +150,7 @@ public class PlayerInput : ScriptableObject
         DisposeAction(Jump);
         DisposeAction(UnlockCursor);
         DisposeAction(LockCursor);
+        DisposeAction(MoveCamera);
         DisposeAction(HandMode);
         DisposeAction(Grab);
         DisposeAction(Pose1);

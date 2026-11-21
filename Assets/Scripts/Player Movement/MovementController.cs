@@ -17,10 +17,11 @@ public class MovementController : MonoBehaviour
     public float braking = 80.0f;
     public float velocityResponse = 10.0f;
 
-    [Header("Mouse Look")]
+    [Header("Camera Look")]
     public float mouseSensitivity = 0.08f;
-    public float minPitch = -85.0f;
-    public float maxPitch = 85.0f;
+    public float gamepadLookSensitivity = 90.0f;
+    public float minPitch = -90.0f;
+    public float maxPitch = 90.0f;
 
     [Header("Jump")]
     [Min(0.0f)]
@@ -89,23 +90,29 @@ public class MovementController : MonoBehaviour
 
     private void ReadCameraInput()
     {
-        if (inputSettings == null)
-            return;
-        if (inputSettings.HandMode.IsPressed())
-            return;
-
-        Mouse mouse = Mouse.current;
-        if (mouse == null)
+        if (inputSettings == null || inputSettings.HandMode.IsPressed())
             return;
         if (inputSettings.LockCursor.WasPressedThisFrame())
             LockCursor();
-        if (Cursor.lockState != CursorLockMode.Locked)
+        
+        Vector2 lookInput = inputSettings.MoveCamera.ReadValue<Vector2>();
+        if (lookInput.sqrMagnitude < 0.0001f)
             return;
         
-        Vector2 delta = mouse.delta.ReadValue();
+        bool usingMouse = inputSettings.MoveCamera.activeControl?.device is Mouse;
+        if (usingMouse)
+        {
+            if (Cursor.lockState != CursorLockMode.Locked)
+                return;
+            yaw += lookInput.x * mouseSensitivity;
+            pitch -= lookInput.y * mouseSensitivity;
+        }
+        else
+        {
+            yaw += lookInput.x * gamepadLookSensitivity * Time.deltaTime;
+            pitch -= lookInput.y * gamepadLookSensitivity * Time.deltaTime;
+        }
 
-        yaw += delta.x * mouseSensitivity;
-        pitch -= delta.y * mouseSensitivity;
         pitch = Mathf.Clamp(pitch, minPitch, maxPitch);
         if (yawPivot != null)
             yawPivot.localRotation = Quaternion.Euler(0.0f, yaw, 0.0f);
