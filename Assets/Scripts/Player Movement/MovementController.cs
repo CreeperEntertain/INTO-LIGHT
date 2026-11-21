@@ -78,7 +78,7 @@ public class MovementController : MonoBehaviour
             return;
         }
 
-        moveInput = Vector2.ClampMagnitude(inputSettings.Move.ReadValue<Vector2>(), 1.0f);
+        moveInput = inputSettings.Move.Value;
         if (inputSettings.Jump.WasPressedThisFrame())
         {
             jumpQueued = true;

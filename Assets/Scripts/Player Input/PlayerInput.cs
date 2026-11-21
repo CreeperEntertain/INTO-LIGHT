@@ -4,14 +4,20 @@ using UnityEngine.InputSystem;
 [CreateAssetMenu(fileName = "PlayerInput", menuName = "Scriptable Objects/Player Input")]
 public class PlayerInput : ScriptableObject
 {
-    [Header("Movement Bindings")]
-    [SerializeField] private string moveForward = "<Keyboard>/w";
-    [SerializeField] private string moveBack = "<Keyboard>/s";
-    [SerializeField] private string moveLeft = "<Keyboard>/a";
-    [SerializeField] private string moveRight = "<Keyboard>/d";
-    [SerializeField] private string moveStick = "<Gamepad>/leftStick";
-
     [Header("General Bindings")]
+    [SerializeField] private Vector2Input.Source[] moveBindings =
+    {
+        new() { binding = "<Gamepad>/leftStick", mode = Vector2Input.SourceMode.Direction },
+        new()
+        {
+            useComposite = true,
+            mode = Vector2Input.SourceMode.Direction,
+            up = "<Keyboard>/w",
+            down = "<Keyboard>/s",
+            left = "<Keyboard>/a",
+            right = "<Keyboard>/d"
+        }
+    };
     [SerializeField] private string[] jumpBindings =
     {
         "<Keyboard>/space",
@@ -78,7 +84,7 @@ public class PlayerInput : ScriptableObject
         "<Gamepad>/dpad/left"
     };
 
-    public InputAction Move { get; private set; }
+    public Vector2Input Move { get; private set; }
     public InputAction Jump { get; private set; }
     public Vector2Input MoveCamera { get; private set; }
     public InputAction UnlockCursor { get; private set; }
@@ -103,13 +109,7 @@ public class PlayerInput : ScriptableObject
 
     private void BuildActions()
     {
-        Move = new InputAction("Move", InputActionType.Value, expectedControlType: "Vector2");
-        Move.AddCompositeBinding("2DVector")
-            .With("Up", moveForward)
-            .With("Down", moveBack)
-            .With("Left", moveLeft)
-            .With("Right", moveRight);
-        Move.AddBinding(moveStick);
+        Move = new Vector2Input("Move", moveBindings);
 
         Jump = CreateButton("Jump", jumpBindings);
 
@@ -152,7 +152,7 @@ public class PlayerInput : ScriptableObject
 
     private void DisableAndDisposeActions()
     {
-        DisposeAction(Move);
+        Move?.Dispose();
         DisposeAction(Jump);
         DisposeAction(UnlockCursor);
         DisposeAction(LockCursor);
