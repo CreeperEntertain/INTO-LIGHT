@@ -58,8 +58,7 @@ public class PlayerInput : ScriptableObject
         },
         new()
         {
-            mode = Vector3Input.SourceMode.Tilt,
-            tiltSensitivity = 8.0f
+            mode = Vector3Input.SourceMode.Tilt
         }
     };
 

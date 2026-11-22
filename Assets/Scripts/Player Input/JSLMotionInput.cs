@@ -38,9 +38,6 @@ internal static class JSLMotionInput
     [DllImport("JoyShockLibrary", CallingConvention = CallingConvention.Cdecl)]
     private static extern void JslDisconnectAndDisposeAll();
 
-    [DllImport("JoyShockLibrary", CallingConvention = CallingConvention.Cdecl)]
-    private static extern void JslGetAndFlushAccumulatedGyro(int deviceId, out float gyroX, out float gyroY, out float gyroZ);
-
 
     private static int deviceId = -1;
     private static int lastFrame = -1;
@@ -48,13 +45,14 @@ internal static class JSLMotionInput
 
     private static bool libraryAvailable = true;
     private static bool available;
-    private static Vector3 gyroDelta;
+    private static Quaternion referenceRotation = Quaternion.identity;
+    private static Vector3 angles;
 
 
     public static bool TryGetAngles(out Vector3 result)
     {
         Update();
-        result = gyroDelta;
+        result = angles;
         return available;
     }
 
@@ -72,7 +70,8 @@ internal static class JSLMotionInput
             if (deviceId >= 0 && !JslStillConnected(deviceId))
             {
                 deviceId = -1;
-                ResetCalibration();
+                angles = Vector3.zero;
+                available = false;
             }
             if (deviceId < 0 && Time.unscaledTime >= nextScanTime)
             {
@@ -86,17 +85,21 @@ internal static class JSLMotionInput
                 return;
             }
 
-            JslGetAndFlushAccumulatedGyro(deviceId, out float gyroX, out float gyroY, out float gyroZ);
-            if (
-                float.IsNaN(gyroX) || float.IsInfinity(gyroX) ||
-                float.IsNaN(gyroY) || float.IsInfinity(gyroY) ||
-                float.IsNaN(gyroZ) || float.IsInfinity(gyroZ)
-            )
+            MotionState state = JslGetMotionState(deviceId);
+            Quaternion rotation = new(state.quatX, state.quatY, state.quatZ, state.quatW);
+            if (Quaternion.Dot(rotation, rotation) < 1.0e-6f)
             {
                 available = false;
                 return;
             }
-            gyroDelta = new Vector3(gyroY, -gyroX, gyroZ) * Time.unscaledDeltaTime;
+
+            rotation = rotation.normalized;
+            Vector3 relativeAngles = (Quaternion.Inverse(referenceRotation) * rotation).eulerAngles;
+            angles = new(
+                Mathf.DeltaAngle(0.0f, relativeAngles.x),
+                Mathf.DeltaAngle(0.0f, relativeAngles.y),
+                Mathf.DeltaAngle(0.0f, relativeAngles.z)
+            );
             available = true;
         }
         catch (DllNotFoundException)
@@ -137,14 +140,19 @@ internal static class JSLMotionInput
         if (deviceId >= 0)
         {
             JslSetAutomaticCalibration(deviceId, true);
-            ResetCalibration();
+            MotionState state = JslGetMotionState(deviceId);
+            referenceRotation = new(state.quatX, state.quatY, state.quatZ, state.quatW);
+            if (Quaternion.Dot(referenceRotation, referenceRotation) < 1.0e-6f)
+                referenceRotation = Quaternion.identity;
+            else
+                referenceRotation = referenceRotation.normalized;
+            angles = Vector3.zero;
+            available = true;
         }
     }
 
     private static void ResetCalibration()
     {
-        calibrated = false;
-        calibrationTime = 0.0f;
         referenceRotation = Quaternion.identity;
         angles = Vector3.zero;
         available = false;

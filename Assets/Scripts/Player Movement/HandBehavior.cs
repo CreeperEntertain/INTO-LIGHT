@@ -48,12 +48,7 @@ public class HandBehavior : MonoBehaviour
         bool hasInput = inputSettings.MoveHand.HasInput;
         Vector3Input.SourceMode? activeMode = inputSettings.MoveHand.ActiveMode;
         if (hasInput)
-        {
-            if (activeMode == Vector3Input.SourceMode.Tilt)
-                handRoll += input.z;
-            else
-                handRoll = input.z;
-        }
+            handRoll = input.z;
 
         Vector3 target = new(offscreenOffset.x, offscreenOffset.y, pivotLocalZ);
         if (
@@ -64,10 +59,7 @@ public class HandBehavior : MonoBehaviour
         {
             if (inputSettings.MoveHand.HasInput)
             {
-                if (
-                    activeMode == Vector3Input.SourceMode.Relative ||
-                    activeMode == Vector3Input.SourceMode.Tilt
-                )
+                if (activeMode == Vector3Input.SourceMode.Relative)
                     handOffset += new Vector2(
                         input.x * 2.0f / Mathf.Max(1, Screen.width),
                         input.y * 2.0f / Mathf.Max(1, Screen.height)

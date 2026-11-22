@@ -20,7 +20,6 @@ public class Vector3Input : IDisposable
         public SourceMode mode;
         public Vector3 center = new(0.5f, 0.5f, 0.5f);
         public float scale = 2.0f;
-        [Min(0.0f)] public float tiltSensitivity = 8.0f;
 
         public bool useComposite;
         public string up;
@@ -52,11 +51,7 @@ public class Vector3Input : IDisposable
             {
                 if (source.settings.mode == SourceMode.Tilt)
                 {
-                    if (!JSLMotionInput.TryGetAngles(out Vector3 delta))
-                        continue;
-                    
-                    Vector3 value = delta * source.settings.tiltSensitivity;
-                    if (value == Vector3.zero)
+                    if (!JSLMotionInput.TryGetAngles(out Vector3 value))
                         continue;
 
                     HasInput = true;
@@ -192,7 +187,7 @@ public class Vector3Input : IDisposable
     public bool WasPressedThisFrame()
     {
         foreach (RuntimeSource source in sources)
-            if (source.action.WasPressedThisFrame())
+            if (source.action != null && source.action.WasPressedThisFrame())
                 return true;
         return false;
     }
@@ -200,7 +195,7 @@ public class Vector3Input : IDisposable
     public bool IsPressed()
     {
         foreach (RuntimeSource source in sources)
-            if (source.action.IsPressed())
+            if (source.action != null && source.action.IsPressed())
                 return true;
         return false;
     }
