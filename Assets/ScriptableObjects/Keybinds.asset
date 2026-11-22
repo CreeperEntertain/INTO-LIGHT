@@ -12,27 +12,95 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f01b02315f8408741b35e1d188583c20, type: 3}
   m_Name: Keybinds
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInput
-  moveForward: <Keyboard>/w
-  moveBack: <Keyboard>/s
-  moveLeft: <Keyboard>/a
-  moveRight: <Keyboard>/d
-  moveStick: <Gamepad>/leftStick
+  moveBindings:
+  - binding: <Gamepad>/leftStick
+    mode: 0
+    center: {x: 0.5, y: 0.5}
+    scale: 2
+    useComposite: 0
+    up: 
+    down: 
+    left: 
+    right: 
+  - binding: 
+    mode: 0
+    center: {x: 0.5, y: 0.5}
+    scale: 2
+    useComposite: 1
+    up: <Keyboard>/w
+    down: <Keyboard>/s
+    left: <Keyboard>/a
+    right: <Keyboard>/d
   jumpBindings:
   - <Keyboard>/space
   - <Mouse>/middleButton
   - <Gamepad>/buttonSouth
-  unlockCursorBindings:
-  - <Keyboard>/escape
-  - <Mouse>/backButton
-  - <Gamepad>/start
-  lockCursorBindings:
-  - <Mouse>/leftButton
-  - <Keyboard>/enter
-  - <Gamepad>/buttonSouth
+  moveCamera:
+  - binding: <Mouse>/delta
+    mode: 1
+    center: {x: 0.5, y: 0.5}
+    scale: 2
+    useComposite: 0
+    up: 
+    down: 
+    left: 
+    right: 
+  - binding: <Gamepad>/rightStick
+    mode: 0
+    center: {x: 0.5, y: 0.5}
+    scale: 2
+    useComposite: 0
+    up: 
+    down: 
+    left: 
+    right: 
+  - binding: 
+    mode: 0
+    center: {x: 0.5, y: 0.5}
+    scale: 2
+    useComposite: 1
+    up: <Keyboard>/upArrow
+    down: <Keyboard>/downArrow
+    left: <Keyboard>/leftArrow
+    right: <Keyboard>/rightArrow
   handModeBindings:
   - <Keyboard>/leftShift
   - <Mouse>/rightButton
   - <Gamepad>/leftShoulder
+  moveHand:
+  - binding: <Mouse>/delta
+    mode: 1
+    center: {x: 0.5, y: 0.5, z: 0.5}
+    scale: 2
+    useComposite: 0
+    up: 
+    down: 
+    left: 
+    right: 
+    forward: 
+    backward: 
+  - binding: 
+    mode: 3
+    center: {x: 0.5, y: 0.5, z: 0.5}
+    scale: 2
+    useComposite: 0
+    up: 
+    down: 
+    left: 
+    right: 
+    forward: 
+    backward: 
+  - binding: 
+    mode: 0
+    center: {x: 0.5, y: 0.5, z: 0.5}
+    scale: 2
+    useComposite: 1
+    up: <Keyboard>/upArrow
+    down: <Keyboard>/downArrow
+    left: <Keyboard>/leftArrow
+    right: <Keyboard>/rightArrow
+    forward: 
+    backward: 
   grabBindings:
   - <Mouse>/leftButton
   - <Keyboard>/leftCtrl

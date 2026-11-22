@@ -4,36 +4,62 @@ using UnityEngine.InputSystem;
 [CreateAssetMenu(fileName = "PlayerInput", menuName = "Scriptable Objects/Player Input")]
 public class PlayerInput : ScriptableObject
 {
-    [Header("Movement Bindings")]
-    [SerializeField] private string moveForward = "<Keyboard>/w";
-    [SerializeField] private string moveBack = "<Keyboard>/s";
-    [SerializeField] private string moveLeft = "<Keyboard>/a";
-    [SerializeField] private string moveRight = "<Keyboard>/d";
-    [SerializeField] private string moveStick = "<Gamepad>/leftStick";
-
     [Header("General Bindings")]
+    [SerializeField] private Vector2Input.Source[] moveBindings =
+    {
+        new() { binding = "<Gamepad>/leftStick", mode = Vector2Input.SourceMode.Direction },
+        new()
+        {
+            useComposite = true,
+            mode = Vector2Input.SourceMode.Direction,
+            up = "<Keyboard>/w",
+            down = "<Keyboard>/s",
+            left = "<Keyboard>/a",
+            right = "<Keyboard>/d"
+        }
+    };
     [SerializeField] private string[] jumpBindings =
     {
         "<Keyboard>/space",
         "<Mouse>/middleButton",
         "<Gamepad>/buttonSouth"
     };
-    [SerializeField] private string[] unlockCursorBindings =
+    [SerializeField] private Vector2Input.Source[] moveCamera =
     {
-        "<Keyboard>/escape",
-        "<Mouse>/backButton",
-        "<Gamepad>/start"
-    };
-    [SerializeField] private string[] lockCursorBindings =
-    {
-        "<Mouse>/leftButton",
-        "<Gamepad>/buttonSouth"
+        new() { binding = "<Mouse>/delta", mode = Vector2Input.SourceMode.Relative },
+        new() { binding = "<Gamepad>/rightStick", mode = Vector2Input.SourceMode.Direction },
+        new()
+        {
+            useComposite = true,
+            mode = Vector2Input.SourceMode.Direction,
+            up = "<Keyboard>/upArrow",
+            down = "<Keyboard>/downArrow",
+            left = "<Keyboard>/leftArrow",
+            right = "<Keyboard>/rightArrow"
+        }
     };
     [SerializeField] private string[] handModeBindings =
     {
         "<Keyboard>/leftShift",
         "<Mouse>/rightButton",
         "<Gamepad>/leftShoulder"
+    };
+    [SerializeField] private Vector3Input.Source[] moveHand =
+    {
+        new() { binding = "<Mouse>/delta", mode = Vector3Input.SourceMode.Relative },
+        new()
+        {
+            useComposite = true,
+            mode = Vector3Input.SourceMode.Direction,
+            up = "<Keyboard>/upArrow",
+            down = "<Keyboard>/downArrow",
+            left = "<Keyboard>/leftArrow",
+            right = "<Keyboard>/rightArrow"
+        },
+        new()
+        {
+            mode = Vector3Input.SourceMode.Tilt
+        }
     };
 
     [Header("Hand pose bindings")]
@@ -64,11 +90,11 @@ public class PlayerInput : ScriptableObject
         "<Gamepad>/dpad/left"
     };
 
-    public InputAction Move { get; private set; }
+    public Vector2Input Move { get; private set; }
     public InputAction Jump { get; private set; }
-    public InputAction UnlockCursor { get; private set; }
-    public InputAction LockCursor { get; private set; }
+    public Vector2Input MoveCamera { get; private set; }
     public InputAction HandMode { get; private set; }
+    public Vector3Input MoveHand { get; private set; }
     public InputAction Grab { get; private set; }
     public InputAction Pose1 { get; private set; }
     public InputAction Pose2 { get; private set; }
@@ -88,18 +114,12 @@ public class PlayerInput : ScriptableObject
 
     private void BuildActions()
     {
-        Move = new InputAction("Move", InputActionType.Value, expectedControlType: "Vector2");
-        Move.AddCompositeBinding("2DVector")
-            .With("Up", moveForward)
-            .With("Down", moveBack)
-            .With("Left", moveLeft)
-            .With("Right", moveRight);
-        Move.AddBinding(moveStick);
-
+        Move = new("Move", moveBindings);
         Jump = CreateButton("Jump", jumpBindings);
-        UnlockCursor = CreateButton("Unlock Cursor", unlockCursorBindings);
-        LockCursor = CreateButton("Lock Cursor", lockCursorBindings);
+        MoveCamera = new("Move Camera", moveCamera);
+
         HandMode = CreateButton("Hand Mode", handModeBindings);
+        MoveHand = new("Move Hand", moveHand);
         Grab = CreateButton("Grab", grabBindings);
         Pose1 = CreateButton("Pose 1", pose1Bindings);
         Pose2 = CreateButton("Pose 2", pose2Bindings);
@@ -121,9 +141,9 @@ public class PlayerInput : ScriptableObject
     {
         Move.Enable();
         Jump.Enable();
-        UnlockCursor.Enable();
-        LockCursor.Enable();
+        MoveCamera.Enable();
         HandMode.Enable();
+        MoveHand.Enable();
         Grab.Enable();
         Pose1.Enable();
         Pose2.Enable();
@@ -133,11 +153,11 @@ public class PlayerInput : ScriptableObject
 
     private void DisableAndDisposeActions()
     {
-        DisposeAction(Move);
+        Move?.Dispose();
         DisposeAction(Jump);
-        DisposeAction(UnlockCursor);
-        DisposeAction(LockCursor);
+        MoveCamera?.Dispose();
         DisposeAction(HandMode);
+        MoveHand?.Dispose();
         DisposeAction(Grab);
         DisposeAction(Pose1);
         DisposeAction(Pose2);

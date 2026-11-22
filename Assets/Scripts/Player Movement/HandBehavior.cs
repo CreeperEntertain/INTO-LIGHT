@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class HandBehavior : MonoBehaviour
 {
@@ -9,12 +8,14 @@ public class HandBehavior : MonoBehaviour
 
     [Header("Movement")]
     [SerializeField] private Vector2 offscreenOffset = new(0.5f, -0.5f);
+    [SerializeField, Min(0.0001f)] private float relativeInputSensitivity = 1.0f;
     [SerializeField, Min(0.01f)] private float lerpSpeed = 120.0f;
 
     private bool handMode;
-    private CursorLockMode previousLockState;
+    private Vector2 handOffset;
 
     private float pivotLocalZ;
+    private float handRoll;
     private float cameraDepth;
 
 
@@ -31,48 +32,59 @@ public class HandBehavior : MonoBehaviour
             );
         else
             Debug.LogError("HandBehavior requires a camera.", this);
+        
+        handRoll = transform.localEulerAngles.z;
     }
 
     private void Update()
     {
-        Mouse mouse = Mouse.current;
-        bool handModePressed = inputSettings != null && inputSettings.HandMode.IsPressed();
-        bool justEnteredHandMode = false;
-        if (handModePressed && !handMode)
-        {
-            previousLockState = Cursor.lockState;
+        bool handModeActive = inputSettings != null && inputSettings.HandMode.IsPressed();
+        if (handModeActive && !handMode)
+            handOffset = Vector2.zero;
+        
+        handMode = handModeActive;
 
-            Cursor.lockState = CursorLockMode.None;
-            if (mouse != null)
-            {
-                Vector2 center = new(Screen.width * 0.5f, Screen.height * 0.5f);
-                mouse.WarpCursorPosition(center);
-            }
-
-            handMode = true;
-            justEnteredHandMode = true;
-        }
-        else if (!handModePressed && handMode)
-        {
-            handMode = false;
-            Cursor.lockState = previousLockState;
-        }
+        Vector3 input = inputSettings.MoveHand.Value;
+        bool hasInput = inputSettings.MoveHand.HasInput;
+        Vector3Input.SourceMode? activeMode = inputSettings.MoveHand.ActiveMode;
+        if (hasInput)
+            handRoll = input.z;
 
         Vector3 target = new(offscreenOffset.x, offscreenOffset.y, pivotLocalZ);
         if (
             handMode &&
-            mouse != null &&
             playerCamera != null &&
             transform.parent != null
         )
         {
-            Vector2 mousePosition = justEnteredHandMode
-                ? new(Screen.width * 0.5f, Screen.height * 0.5f) : mouse.position.ReadValue();
-            Vector3 screenPosition = new(mousePosition.x, mousePosition.y, cameraDepth);
-            Vector3 worldPosition = playerCamera.ScreenToWorldPoint(screenPosition);
+            if (inputSettings.MoveHand.HasInput)
+            {
+                if (activeMode == Vector3Input.SourceMode.Relative)
+                    handOffset += new Vector2(
+                        input.x * 2.0f / Mathf.Max(1, Screen.width),
+                        input.y * 2.0f / Mathf.Max(1, Screen.height)
+                    ) * relativeInputSensitivity;
+                else
+                    handOffset = input;
+            }
+            else if (inputSettings.MoveHand.LastActiveMode != Vector3Input.SourceMode.Relative)
+                handOffset = Vector2.zero;
+            
+            handOffset.x = Mathf.Clamp(handOffset.x, -1.0f, 1.0f);
+            handOffset.y = Mathf.Clamp(handOffset.y, -1.0f, 1.0f);
+            Vector2 screenPosition =  new(
+                (handOffset.x + 1.0f) * 0.5f * Screen.width,
+                (handOffset.y + 1.0f) * 0.5f * Screen.height
+            );
+            Vector3 worldPosition = playerCamera.ScreenToWorldPoint(new(screenPosition.x, screenPosition.y, cameraDepth));
             target = transform.parent.InverseTransformPoint(worldPosition);
         }
 
+        transform.localRotation = Quaternion.Euler(
+            transform.localEulerAngles.x,
+            transform.localEulerAngles.y,
+            handRoll
+        );
         float t = 1.0f - Mathf.Exp(-lerpSpeed * Time.deltaTime);
         transform.localPosition = Vector3.Lerp(transform.localPosition, target, t);
     }
