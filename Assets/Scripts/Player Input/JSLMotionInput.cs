@@ -99,9 +99,9 @@ internal static class JSLMotionInput
             Quaternion relativeRotation = Quaternion.Inverse(referenceRotation) * rotation;
             Matrix4x4 m = Matrix4x4.Rotate(relativeRotation);
 
-            float pitch = Mathf.Asin(Mathf.Clamp(-m.m01, -1.0f, 1.0f)) * Mathf.Rad2Deg;
-            float yaw = Mathf.Atan2(m.m02, m.m00) * Mathf.Rad2Deg;
-            float roll = Mathf.Atan2(m.m21, m.m11) * Mathf.Rad2Deg;
+            float pitch = Mathf.Asin(Mathf.Clamp(m.m21, -1.0f, 1.0f)) * Mathf.Rad2Deg;
+            float yaw = Mathf.Atan2(-m.m20, m.m22) * Mathf.Rad2Deg;
+            float roll = Mathf.Atan2(-m.m01, m.m11) * Mathf.Rad2Deg;
 
             angles = new(
                 Mathf.DeltaAngle(0.0f, -yaw) / 180.0f,
