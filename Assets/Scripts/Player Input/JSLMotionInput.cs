@@ -11,12 +11,6 @@ internal static class JSLMotionInput
         public float accelX, accelY, accelZ;
         public float gravX, gravY, gravZ;
     }
-    [StructLayout(LayoutKind.Sequential)]
-    private struct IMUState
-    {
-        public float accelX, accelY, accelZ;
-        public float gyroX, gyroY, gyroZ;
-    }
 
     private const int DualShock4 = 4;
     private const int DualSense = 5;
