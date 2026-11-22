@@ -11,6 +11,12 @@ internal static class JSLMotionInput
         public float accelX, accelY, accelZ;
         public float gravX, gravY, gravZ;
     }
+    [StructLayout(LayoutKind.Sequential)]
+    private struct IMUState
+    {
+        public float accelX, accelY, accelZ;
+        public float gyroX, gyroY, gyroZ;
+    }
 
     private const int DualShock4 = 4;
     private const int DualSense = 5;
@@ -34,6 +40,9 @@ internal static class JSLMotionInput
 
     [DllImport("JoyShockLibrary", CallingConvention = CallingConvention.Cdecl)]
     private static extern MotionState JslGetMotionState(int deviceId);
+
+    [DllImport("JoyShockLibrary", CallingConvention = CallingConvention.Cdecl)]
+    private static extern IMUState JslGetIMUState(int deviceId);
 
     [DllImport("JoyShockLibrary", CallingConvention = CallingConvention.Cdecl)]
     private static extern void JslDisconnectAndDisposeAll();
@@ -89,6 +98,7 @@ internal static class JSLMotionInput
             }
 
             MotionState state = JslGetMotionState(deviceId);
+            IMUState imu = JslGetIMUState(deviceId);
             Quaternion rotation = new(state.quatX, state.quatY, state.quatZ, state.quatW);
             if (Quaternion.Dot(rotation, rotation) < 1.0e-6f)
             {
@@ -106,7 +116,13 @@ internal static class JSLMotionInput
             if (Time.unscaledTime >= nextAngleLogTime)
             {
                 nextAngleLogTime = Time.unscaledTime + 0.5f;
-                Debug.Log($"JSL relative angles (x, y, z): {angles}");
+                Debug.Log(
+                    $"JSL quaternion: W={state.quatW:F3}, X={state.quatX:F3}, Y={state.quatY:F3}, Z={state.quatZ:F3} | " +
+                    $"Gravity: X={state.gravX:F3}, Y={state.gravY:F3}, Z={state.gravZ:F3} | " +
+                    $"Gyro: X={imu.gyroX:F2}, Y={imu.gyroY:F2}, Z={imu.gyroZ:F2} | " +
+                    $"Accel: X={imu.accelX:F2}, Y={imu.accelY:F2}, Z={imu.accelZ:F2} | " +
+                    $"Relative: {angles}"
+                );
             }
             available = true;
         }
