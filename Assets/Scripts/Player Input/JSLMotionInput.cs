@@ -11,6 +11,12 @@ internal static class JSLMotionInput
         public float accelX, accelY, accelZ;
         public float gravX, gravY, gravZ;
     }
+    [StructLayout(LayoutKind.Sequential)]
+    private struct IMUState
+    {
+        public float accelX, accelY, accelZ;
+        public float gyroX, gyroY, gyroZ;
+    }
 
     private const int DualShock4 = 4;
     private const int DualSense = 5;
@@ -49,7 +55,6 @@ internal static class JSLMotionInput
     private static Vector3 angles;
 
     private static bool loggedNoSupportedController;
-    private static float nextAngleLogTime;
 
 
     public static bool TryGetAngles(out Vector3 result)
@@ -99,15 +104,10 @@ internal static class JSLMotionInput
             rotation = rotation.normalized;
             Vector3 relativeAngles = (Quaternion.Inverse(referenceRotation) * rotation).eulerAngles;
             angles = new(
-                Mathf.DeltaAngle(0.0f, relativeAngles.x),
-                Mathf.DeltaAngle(0.0f, relativeAngles.y),
-                Mathf.DeltaAngle(0.0f, relativeAngles.z)
+                Mathf.DeltaAngle(0.0f, -relativeAngles.y),
+                Mathf.DeltaAngle(0.0f, -relativeAngles.z),
+                Mathf.DeltaAngle(0.0f, relativeAngles.x)
             );
-            if (Time.unscaledTime >= nextAngleLogTime)
-            {
-                nextAngleLogTime = Time.unscaledTime + 0.5f;
-                Debug.Log($"JSL relative angles (x, y, z): {angles}");
-            }
             available = true;
         }
         catch (DllNotFoundException)

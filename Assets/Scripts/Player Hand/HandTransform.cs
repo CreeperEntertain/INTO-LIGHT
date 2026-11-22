@@ -5,6 +5,7 @@ public class HandTransform : MonoBehaviour
     [SerializeField] private Transform cameraTransform;
 
     private Quaternion rotationOffset;
+    private HandBehavior handBehavior;
 
 
     private void Start()
@@ -16,6 +17,7 @@ public class HandTransform : MonoBehaviour
             return;
         }
 
+        handBehavior = GetComponentInParent<HandBehavior>();
         Vector3 directionToCamera = cameraTransform.position - transform.position;
         if (directionToCamera.sqrMagnitude < 1.0e-6f)
         {
@@ -35,6 +37,7 @@ public class HandTransform : MonoBehaviour
             return;
         
         Quaternion lookRotation = Quaternion.LookRotation(directionToCamera, cameraTransform.up);
-        transform.rotation = lookRotation * rotationOffset;
+        float roll = handBehavior != null ? handBehavior.MoveHandInput.z : 0.0f;
+        transform.rotation = lookRotation * Quaternion.AngleAxis(roll, Vector3.forward) * rotationOffset;
     }
 }
