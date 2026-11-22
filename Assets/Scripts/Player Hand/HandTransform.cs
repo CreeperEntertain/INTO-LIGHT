@@ -37,7 +37,7 @@ public class HandTransform : MonoBehaviour
             return;
         
         Quaternion lookRotation = Quaternion.LookRotation(directionToCamera, cameraTransform.up);
-        float roll = handBehavior != null ? handBehavior.MoveHandInput.z : 0.0f;
+        float roll = handBehavior != null ? handBehavior.MoveHandInput.z * 180.0f : 0.0f;
         transform.rotation = lookRotation * Quaternion.AngleAxis(roll, Vector3.forward) * rotationOffset;
     }
 }
