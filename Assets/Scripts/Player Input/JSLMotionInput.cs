@@ -46,6 +46,7 @@ internal static class JSLMotionInput
     private static bool libraryAvailable = true;
     private static bool available;
     private static Quaternion referenceRotation = Quaternion.identity;
+    private static bool referenceReady;
     private static Vector3 angles;
 
     private static bool loggedNoSupportedController;
@@ -72,6 +73,7 @@ internal static class JSLMotionInput
             if (deviceId >= 0 && !JslStillConnected(deviceId))
             {
                 deviceId = -1;
+                referenceReady = false;
                 angles = Vector3.zero;
                 available = false;
             }
@@ -96,6 +98,23 @@ internal static class JSLMotionInput
             }
 
             rotation = rotation.normalized;
+            if (!referenceReady)
+            {
+                Vector3 gravity = new(state.gravX, state.gravY, state.gravZ);
+                if (gravity.sqrMagnitude < 1.0e-6f)
+                {
+                    angles = Vector3.zero;
+                    available = false;
+                    return;
+                }
+
+                referenceRotation = rotation;
+                referenceReady = true;
+                angles = Vector3.zero;
+                available = true;
+                return;
+            }
+
             Quaternion relativeRotation = Quaternion.Inverse(referenceRotation) * rotation;
             Matrix4x4 m = Matrix4x4.Rotate(relativeRotation);
 
@@ -158,23 +177,16 @@ internal static class JSLMotionInput
             return;
         }
 
-        loggedNoSupportedController = false;
-        Debug.Log($"JSL selected controller handle={deviceId}.");
-
         JslSetAutomaticCalibration(deviceId, true);
-        MotionState state = JslGetMotionState(deviceId);
-        referenceRotation = new(state.quatX, state.quatY, state.quatZ, state.quatW);
-        if (Quaternion.Dot(referenceRotation, referenceRotation) < 1.0e-6f)
-            referenceRotation = Quaternion.identity;
-        else
-            referenceRotation = referenceRotation.normalized;
+        referenceReady = false;
         angles = Vector3.zero;
-        available = true;
+        available = false;
     }
 
     private static void ResetCalibration()
     {
         referenceRotation = Quaternion.identity;
+        referenceReady = false;
         angles = Vector3.zero;
         available = false;
     }
