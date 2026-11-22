@@ -45,8 +45,9 @@ internal static class JSLMotionInput
 
     private static bool libraryAvailable = true;
     private static bool available;
-    private static Quaternion referenceRotation = Quaternion.identity;
+    private static Quaternion previousRotation = Quaternion.identity;
     private static bool referenceReady;
+    private static Vector3 accumulatedAnglesDegrees;
     private static Vector3 angles;
 
     private static bool loggedNoSupportedController;
@@ -74,6 +75,7 @@ internal static class JSLMotionInput
             {
                 deviceId = -1;
                 referenceReady = false;
+                accumulatedAnglesDegrees = Vector3.zero;
                 angles = Vector3.zero;
                 available = false;
             }
@@ -108,26 +110,35 @@ internal static class JSLMotionInput
                     return;
                 }
 
-                referenceRotation = rotation;
+                previousRotation = rotation;
+                accumulatedAnglesDegrees = Vector3.zero;
                 referenceReady = true;
                 angles = Vector3.zero;
                 available = true;
                 return;
             }
 
-            Quaternion relativeRotation = Quaternion.Inverse(referenceRotation) * rotation;
-            Matrix4x4 m = Matrix4x4.Rotate(relativeRotation);
+            Quaternion delta = Quaternion.Inverse(previousRotation) * rotation;
+            previousRotation = rotation;
+            delta.Normalize();
+            if (delta.w < 0.0f)
+                delta = new(-delta.x, -delta.y, -delta.z, -delta.w);
 
-            float pitch = Mathf.Asin(Mathf.Clamp(m.m21, -1.0f, 1.0f)) * Mathf.Rad2Deg;
-            float yaw = Mathf.Atan2(-m.m20, m.m22) * Mathf.Rad2Deg;
-            float roll = Mathf.Atan2(-m.m01, m.m11) * Mathf.Rad2Deg;
+            float sinHalfAngle = Mathf.Sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
+            if (sinHalfAngle > 1.0e-7f)
+            {
+                float angleDegrees = 2.0f * Mathf.Atan2(sinHalfAngle, delta.w) * Mathf.Rad2Deg;
+                Vector3 localDelta = new(
+                    delta.x * angleDegrees / sinHalfAngle,
+                    delta.y * angleDegrees / sinHalfAngle,
+                    delta.z * angleDegrees / sinHalfAngle
+                );
+                accumulatedAnglesDegrees.x = Mathf.DeltaAngle(0.0f, accumulatedAnglesDegrees.x - localDelta.y);
+                accumulatedAnglesDegrees.y = Mathf.DeltaAngle(0.0f, accumulatedAnglesDegrees.y - localDelta.x);
+                accumulatedAnglesDegrees.z =  Mathf.DeltaAngle(0.0f, accumulatedAnglesDegrees.z + localDelta.z);
+            }
 
-            angles = new(
-                Mathf.DeltaAngle(0.0f, -yaw) / 180.0f,
-                Mathf.DeltaAngle(0.0f, -pitch) / 180.0f,
-                Mathf.DeltaAngle(0.0f, roll) / 180.0f
-            );
-
+            angles = accumulatedAnglesDegrees / 180.0f;
             available = true;
         }
         catch (DllNotFoundException)
@@ -179,14 +190,17 @@ internal static class JSLMotionInput
 
         JslSetAutomaticCalibration(deviceId, true);
         referenceReady = false;
+        previousRotation = Quaternion.identity;
+        accumulatedAnglesDegrees = Vector3.zero;
         angles = Vector3.zero;
         available = false;
     }
 
     private static void ResetCalibration()
     {
-        referenceRotation = Quaternion.identity;
+        previousRotation = Quaternion.identity;
         referenceReady = false;
+        accumulatedAnglesDegrees = Vector3.zero;
         angles = Vector3.zero;
         available = false;
     }
