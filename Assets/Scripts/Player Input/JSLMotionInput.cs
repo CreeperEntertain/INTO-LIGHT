@@ -42,9 +42,6 @@ internal static class JSLMotionInput
     private static extern MotionState JslGetMotionState(int deviceId);
 
     [DllImport("JoyShockLibrary", CallingConvention = CallingConvention.Cdecl)]
-    private static extern IMUState JslGetIMUState(int deviceId);
-
-    [DllImport("JoyShockLibrary", CallingConvention = CallingConvention.Cdecl)]
     private static extern void JslDisconnectAndDisposeAll();
 
 
@@ -58,7 +55,6 @@ internal static class JSLMotionInput
     private static Vector3 angles;
 
     private static bool loggedNoSupportedController;
-    private static float nextAngleLogTime;
 
 
     public static bool TryGetAngles(out Vector3 result)
@@ -98,7 +94,6 @@ internal static class JSLMotionInput
             }
 
             MotionState state = JslGetMotionState(deviceId);
-            IMUState imu = JslGetIMUState(deviceId);
             Quaternion rotation = new(state.quatX, state.quatY, state.quatZ, state.quatW);
             if (Quaternion.Dot(rotation, rotation) < 1.0e-6f)
             {
@@ -113,17 +108,6 @@ internal static class JSLMotionInput
                 Mathf.DeltaAngle(0.0f, relativeAngles.y),
                 Mathf.DeltaAngle(0.0f, relativeAngles.z)
             );
-            if (Time.unscaledTime >= nextAngleLogTime)
-            {
-                nextAngleLogTime = Time.unscaledTime + 0.5f;
-                Debug.Log(
-                    $"JSL quaternion: W={state.quatW:F3}, X={state.quatX:F3}, Y={state.quatY:F3}, Z={state.quatZ:F3} | " +
-                    $"Gravity: X={state.gravX:F3}, Y={state.gravY:F3}, Z={state.gravZ:F3} | " +
-                    $"Gyro: X={imu.gyroX:F2}, Y={imu.gyroY:F2}, Z={imu.gyroZ:F2} | " +
-                    $"Accel: X={imu.accelX:F2}, Y={imu.accelY:F2}, Z={imu.accelZ:F2} | " +
-                    $"Relative: {angles}"
-                );
-            }
             available = true;
         }
         catch (DllNotFoundException)
