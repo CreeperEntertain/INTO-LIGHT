@@ -96,12 +96,19 @@ internal static class JSLMotionInput
             }
 
             rotation = rotation.normalized;
-            Vector3 relativeAngles = (Quaternion.Inverse(referenceRotation) * rotation).eulerAngles;
+            Quaternion relativeRotation = Quaternion.Inverse(referenceRotation) * rotation;
+            Matrix4x4 m = Matrix4x4.Rotate(relativeRotation);
+
+            float pitch = Mathf.Asin(Mathf.Clamp(-m.m01, -1.0f, 1.0f)) * Mathf.Rad2Deg;
+            float yaw = Mathf.Atan2(m.m02, m.m00) * Mathf.Rad2Deg;
+            float roll = Mathf.Atan2(m.m21, m.m11) * Mathf.Rad2Deg;
+
             angles = new(
-                Mathf.DeltaAngle(0.0f, -relativeAngles.y) / 180.0f,
-                Mathf.DeltaAngle(0.0f, -relativeAngles.z) / 180.0f,
-                Mathf.DeltaAngle(0.0f, relativeAngles.x) / 180.0f
+                Mathf.DeltaAngle(0.0f, -yaw) / 180.0f,
+                Mathf.DeltaAngle(0.0f, -pitch) / 180.0f,
+                Mathf.DeltaAngle(0.0f, roll) / 180.0f
             );
+
             available = true;
         }
         catch (DllNotFoundException)
