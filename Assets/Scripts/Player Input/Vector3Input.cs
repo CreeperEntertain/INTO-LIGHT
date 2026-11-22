@@ -9,7 +9,8 @@ public class Vector3Input : IDisposable
     {
         Direction,
         Relative,
-        Position
+        Position,
+        Tilt
     }
 
     [Serializable]
@@ -19,6 +20,7 @@ public class Vector3Input : IDisposable
         public SourceMode mode;
         public Vector3 center = new(0.5f, 0.5f, 0.5f);
         public float scale = 2.0f;
+        [Min(1.0f)] public float tiltDegreesForFullscreen = 30.0f;
 
         public bool useComposite;
         public string up;
@@ -48,6 +50,29 @@ public class Vector3Input : IDisposable
             ActiveControl = null;
             foreach (RuntimeSource source in sources)
             {
+                if (source.settings.mode == SourceMode.Tilt)
+                {
+                    if (!JSLMotionInput.TryGetAngles(out Vector3 angles))
+                        continue;
+                    if (Mathf.Abs(angles.x) < 0.5f && Mathf.Abs(angles.y) < 0.5f)
+                        continue;
+                    
+                    float range = Mathf.Max(1.0f, source.settings.tiltDegreesForFullscreen);
+                    Vector3 value = new(
+                        Mathf.Clamp(angles.x / range, -1.0f, 1.0f),
+                        Mathf.Clamp(angles.y / range, -1.0f, 1.0f),
+                        angles.z
+                    );
+
+                    HasInput = true;
+                    ActiveMode = SourceMode.Tilt;
+                    LastActiveMode = SourceMode.Tilt;
+                    ActiveControl = null;
+                    IsRelative = false;
+
+                    return value;
+                }
+
                 object rawValue = source.action.ReadValueAsObject();
                 Vector3 raw = rawValue switch
                 {
@@ -91,6 +116,11 @@ public class Vector3Input : IDisposable
         {
             if (source == null)
                 continue;
+            if (source.mode == SourceMode.Tilt)
+            {
+                sources.Add(new() { settings = source });
+                continue;
+            }
             
             InputAction action = new($"{name} {sources.Count}", InputActionType.Value);
             if (source.useComposite)
@@ -155,13 +185,13 @@ public class Vector3Input : IDisposable
     public void Enable()
     {
         foreach (RuntimeSource source in sources)
-            source.action.Enable();
+            source.action?.Enable();
     }
 
     public void Disable()
     {
         foreach (RuntimeSource source in sources)
-            source.action.Disable();
+            source.action?.Disable();
     }
 
     public bool WasPressedThisFrame()
