@@ -15,8 +15,9 @@ public class HandBehavior : MonoBehaviour
     private Vector2 handOffset;
 
     private float pivotLocalZ;
-    private float handRoll;
     private float cameraDepth;
+
+    public Vector3 MoveHandInput { get; private set; }
 
 
     private void Awake()
@@ -32,8 +33,6 @@ public class HandBehavior : MonoBehaviour
             );
         else
             Debug.LogError("HandBehavior requires a camera.", this);
-        
-        handRoll = transform.localEulerAngles.z;
     }
 
     private void Update()
@@ -45,10 +44,9 @@ public class HandBehavior : MonoBehaviour
         handMode = handModeActive;
 
         Vector3 input = inputSettings.MoveHand.Value;
+        MoveHandInput = input;
         bool hasInput = inputSettings.MoveHand.HasInput;
         Vector3Input.SourceMode? activeMode = inputSettings.MoveHand.ActiveMode;
-        if (hasInput)
-            handRoll = input.z;
 
         Vector3 target = new(offscreenOffset.x, offscreenOffset.y, pivotLocalZ);
         if (
@@ -80,11 +78,6 @@ public class HandBehavior : MonoBehaviour
             target = transform.parent.InverseTransformPoint(worldPosition);
         }
 
-        transform.localRotation = Quaternion.Euler(
-            transform.localEulerAngles.x,
-            transform.localEulerAngles.y,
-            handRoll
-        );
         float t = 1.0f - Mathf.Exp(-lerpSpeed * Time.deltaTime);
         transform.localPosition = Vector3.Lerp(transform.localPosition, target, t);
     }
