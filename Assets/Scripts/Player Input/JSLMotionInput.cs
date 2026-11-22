@@ -104,9 +104,9 @@ internal static class JSLMotionInput
             rotation = rotation.normalized;
             Vector3 relativeAngles = (Quaternion.Inverse(referenceRotation) * rotation).eulerAngles;
             angles = new(
-                Mathf.DeltaAngle(0.0f, -relativeAngles.y),
-                Mathf.DeltaAngle(0.0f, -relativeAngles.z),
-                Mathf.DeltaAngle(0.0f, relativeAngles.x)
+                Mathf.DeltaAngle(0.0f, -relativeAngles.y) / 180.0f,
+                Mathf.DeltaAngle(0.0f, -relativeAngles.z) / 180.0f,
+                Mathf.DeltaAngle(0.0f, relativeAngles.x) / 180.0f
             );
             available = true;
         }
