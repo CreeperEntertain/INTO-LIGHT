@@ -20,7 +20,7 @@ public class Vector3Input : IDisposable
         public SourceMode mode;
         public Vector3 center = new(0.5f, 0.5f, 0.5f);
         public float scale = 2.0f;
-        [Min(1.0f)] public float tiltDegreesForFullscreen = 30.0f;
+        [Min(0.0f)] public float tiltSensitivity = 8.0f;
 
         public bool useComposite;
         public string up;
@@ -52,17 +52,12 @@ public class Vector3Input : IDisposable
             {
                 if (source.settings.mode == SourceMode.Tilt)
                 {
-                    if (!JSLMotionInput.TryGetAngles(out Vector3 angles))
-                        continue;
-                    if (Mathf.Abs(angles.x) < 0.5f && Mathf.Abs(angles.y) < 0.5f)
+                    if (!JSLMotionInput.TryGetAngles(out Vector3 delta))
                         continue;
                     
-                    float range = Mathf.Max(1.0f, source.settings.tiltDegreesForFullscreen);
-                    Vector3 value = new(
-                        Mathf.Clamp(angles.x / range, -1.0f, 1.0f),
-                        Mathf.Clamp(angles.y / range, -1.0f, 1.0f),
-                        angles.z
-                    );
+                    Vector3 value = delta * source.settings.tiltSensitivity;
+                    if (value == Vector3.zero)
+                        continue;
 
                     HasInput = true;
                     ActiveMode = SourceMode.Tilt;
@@ -223,8 +218,8 @@ public class Vector3Input : IDisposable
     {
         foreach (RuntimeSource source in sources)
         {
-            source.action.Disable();
-            source.action.Dispose();
+            source.action?.Disable();
+            source.action?.Dispose();
         }
         sources.Clear();
     }

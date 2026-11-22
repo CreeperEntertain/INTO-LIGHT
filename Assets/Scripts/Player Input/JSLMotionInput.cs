@@ -38,6 +38,9 @@ internal static class JSLMotionInput
     [DllImport("JoyShockLibrary", CallingConvention = CallingConvention.Cdecl)]
     private static extern void JslDisconnectAndDisposeAll();
 
+    [DllImport("JoyShockLibrary", CallingConvention = CallingConvention.Cdecl)]
+    private static extern void JslGetAndFlushAccumulatedGyro(int deviceId, out float gyroX, out float gyroY, out float gyroZ);
+
 
     private static int deviceId = -1;
     private static int lastFrame = -1;
@@ -45,18 +48,14 @@ internal static class JSLMotionInput
 
     private static bool libraryAvailable = true;
     private static bool available;
-    private static bool calibrated;
-    private static float calibrationTime;
-
-    private static Quaternion referenceRotation;
-    private static Vector3 angles;
+    private static Vector3 gyroDelta;
 
 
     public static bool TryGetAngles(out Vector3 result)
     {
         Update();
-        result = angles;
-        return available && calibrated;
+        result = gyroDelta;
+        return available;
     }
 
     private static void Update()
@@ -87,35 +86,18 @@ internal static class JSLMotionInput
                 return;
             }
 
-            MotionState state = JslGetMotionState(deviceId);
-            Quaternion current = new(state.quatX, state.quatY, state.quatZ, state.quatW);
-            if (current.sqrMagnitude < 0.5f) // TODO
+            JslGetAndFlushAccumulatedGyro(deviceId, out float gyroX, out float gyroY, out float gyroZ);
+            if (
+                float.IsNaN(gyroX) || float.IsInfinity(gyroX) ||
+                float.IsNaN(gyroY) || float.IsInfinity(gyroY) ||
+                float.IsNaN(gyroZ) || float.IsInfinity(gyroZ)
+            )
             {
                 available = false;
                 return;
             }
-
-            current = Quaternion.Normalize(current);
+            gyroDelta = new Vector3(gyroY, -gyroX, gyroZ) * Time.unscaledDeltaTime;
             available = true;
-            if (!calibrated)
-            {
-                calibrationTime += Time.unscaledDeltaTime;
-                if (calibrationTime >= 0.5f)
-                {
-                    referenceRotation = current;
-                    calibrated = true;
-                }
-                angles = Vector3.zero;
-                return;
-            }
-
-            Quaternion relative = Quaternion.Inverse(referenceRotation) * current;
-            Vector3 euler = relative.eulerAngles;
-            angles = new(
-                Mathf.DeltaAngle(0.0f, euler.y),
-                -Mathf.DeltaAngle(0.0f, euler.x),
-                Mathf.DeltaAngle(0.0f, euler.z)
-            );
         }
         catch (DllNotFoundException)
         {

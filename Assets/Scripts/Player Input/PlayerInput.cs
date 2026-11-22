@@ -47,7 +47,6 @@ public class PlayerInput : ScriptableObject
     [SerializeField] private Vector3Input.Source[] moveHand =
     {
         new() { binding = "<Mouse>/delta", mode = Vector3Input.SourceMode.Relative },
-        new() { binding = "<Gamepad>/rightStick", mode = Vector3Input.SourceMode.Direction },
         new()
         {
             useComposite = true,
@@ -56,6 +55,11 @@ public class PlayerInput : ScriptableObject
             down = "<Keyboard>/downArrow",
             left = "<Keyboard>/leftArrow",
             right = "<Keyboard>/rightArrow"
+        },
+        new()
+        {
+            mode = Vector3Input.SourceMode.Tilt,
+            tiltSensitivity = 8.0f
         }
     };
 

@@ -15,6 +15,7 @@ public class HandBehavior : MonoBehaviour
     private Vector2 handOffset;
 
     private float pivotLocalZ;
+    private float handRoll;
     private float cameraDepth;
 
 
@@ -31,6 +32,8 @@ public class HandBehavior : MonoBehaviour
             );
         else
             Debug.LogError("HandBehavior requires a camera.", this);
+        
+        handRoll = transform.localEulerAngles.z;
     }
 
     private void Update()
@@ -40,6 +43,18 @@ public class HandBehavior : MonoBehaviour
             handOffset = Vector2.zero;
         
         handMode = handModeActive;
+
+        Vector3 input = inputSettings.MoveHand.Value;
+        bool hasInput = inputSettings.MoveHand.HasInput;
+        Vector3Input.SourceMode? activeMode = inputSettings.MoveHand.ActiveMode;
+        if (hasInput)
+        {
+            if (activeMode == Vector3Input.SourceMode.Tilt)
+                handRoll += input.z;
+            else
+                handRoll = input.z;
+        }
+
         Vector3 target = new(offscreenOffset.x, offscreenOffset.y, pivotLocalZ);
         if (
             handMode &&
@@ -47,10 +62,12 @@ public class HandBehavior : MonoBehaviour
             transform.parent != null
         )
         {
-            Vector2 input = inputSettings.MoveHand.Value;
             if (inputSettings.MoveHand.HasInput)
             {
-                if (inputSettings.MoveHand.ActiveMode == Vector3Input.SourceMode.Relative)
+                if (
+                    activeMode == Vector3Input.SourceMode.Relative ||
+                    activeMode == Vector3Input.SourceMode.Tilt
+                )
                     handOffset += new Vector2(
                         input.x * 2.0f / Mathf.Max(1, Screen.width),
                         input.y * 2.0f / Mathf.Max(1, Screen.height)
@@ -74,7 +91,7 @@ public class HandBehavior : MonoBehaviour
         transform.localRotation = Quaternion.Euler(
             transform.localEulerAngles.x,
             transform.localEulerAngles.y,
-            inputSettings.MoveHand.Value.z
+            handRoll
         );
         float t = 1.0f - Mathf.Exp(-lerpSpeed * Time.deltaTime);
         transform.localPosition = Vector3.Lerp(transform.localPosition, target, t);
