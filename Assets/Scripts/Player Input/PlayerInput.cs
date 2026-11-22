@@ -44,14 +44,14 @@ public class PlayerInput : ScriptableObject
         "<Mouse>/rightButton",
         "<Gamepad>/leftShoulder"
     };
-    [SerializeField] private Vector2Input.Source[] moveHand =
+    [SerializeField] private Vector3Input.Source[] moveHand =
     {
-        new() { binding = "<Mouse>/delta", mode = Vector2Input.SourceMode.Relative },
-        new() { binding = "<Gamepad>/rightStick", mode = Vector2Input.SourceMode.Direction },
+        new() { binding = "<Mouse>/delta", mode = Vector3Input.SourceMode.Relative },
+        new() { binding = "<Gamepad>/rightStick", mode = Vector3Input.SourceMode.Direction },
         new()
         {
             useComposite = true,
-            mode = Vector2Input.SourceMode.Direction,
+            mode = Vector3Input.SourceMode.Direction,
             up = "<Keyboard>/upArrow",
             down = "<Keyboard>/downArrow",
             left = "<Keyboard>/leftArrow",
@@ -91,7 +91,7 @@ public class PlayerInput : ScriptableObject
     public InputAction Jump { get; private set; }
     public Vector2Input MoveCamera { get; private set; }
     public InputAction HandMode { get; private set; }
-    public Vector2Input MoveHand { get; private set; }
+    public Vector3Input MoveHand { get; private set; }
     public InputAction Grab { get; private set; }
     public InputAction Pose1 { get; private set; }
     public InputAction Pose2 { get; private set; }

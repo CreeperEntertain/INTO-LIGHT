@@ -50,7 +50,7 @@ public class HandBehavior : MonoBehaviour
             Vector2 input = inputSettings.MoveHand.Value;
             if (inputSettings.MoveHand.HasInput)
             {
-                if (inputSettings.MoveHand.ActiveMode == Vector2Input.SourceMode.Relative)
+                if (inputSettings.MoveHand.ActiveMode == Vector3Input.SourceMode.Relative)
                     handOffset += new Vector2(
                         input.x * 2.0f / Mathf.Max(1, Screen.width),
                         input.y * 2.0f / Mathf.Max(1, Screen.height)
@@ -58,7 +58,7 @@ public class HandBehavior : MonoBehaviour
                 else
                     handOffset = input;
             }
-            else if (inputSettings.MoveHand.LastActiveMode != Vector2Input.SourceMode.Relative)
+            else if (inputSettings.MoveHand.LastActiveMode != Vector3Input.SourceMode.Relative)
                 handOffset = Vector2.zero;
             
             handOffset.x = Mathf.Clamp(handOffset.x, -1.0f, 1.0f);
