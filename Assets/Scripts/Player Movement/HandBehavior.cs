@@ -71,6 +71,11 @@ public class HandBehavior : MonoBehaviour
             target = transform.parent.InverseTransformPoint(worldPosition);
         }
 
+        transform.localRotation = Quaternion.Euler(
+            transform.localEulerAngles.x,
+            transform.localEulerAngles.y,
+            inputSettings.MoveHand.Value.z
+        );
         float t = 1.0f - Mathf.Exp(-lerpSpeed * Time.deltaTime);
         transform.localPosition = Vector3.Lerp(transform.localPosition, target, t);
     }
