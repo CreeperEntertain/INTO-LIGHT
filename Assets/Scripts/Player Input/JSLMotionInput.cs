@@ -48,6 +48,9 @@ internal static class JSLMotionInput
     private static Quaternion referenceRotation = Quaternion.identity;
     private static Vector3 angles;
 
+    private static bool loggedNoSupportedController;
+    private static float nextAngleLogTime;
+
 
     public static bool TryGetAngles(out Vector3 result)
     {
@@ -100,6 +103,11 @@ internal static class JSLMotionInput
                 Mathf.DeltaAngle(0.0f, relativeAngles.y),
                 Mathf.DeltaAngle(0.0f, relativeAngles.z)
             );
+            if (Time.unscaledTime >= nextAngleLogTime)
+            {
+                nextAngleLogTime = Time.unscaledTime + 0.5f;
+                Debug.Log($"JSL relative angles (x, y, z): {angles}");
+            }
             available = true;
         }
         catch (DllNotFoundException)
@@ -118,7 +126,7 @@ internal static class JSLMotionInput
 
     private static void Connect()
     {
-        JslConnectDevices();
+        int newlyConnected = JslConnectDevices();
 
         int[] handles = new int[16];
         int count = Mathf.Clamp(JslGetConnectedDeviceHandles(handles, handles.Length), 0, handles.Length);
@@ -127,6 +135,8 @@ internal static class JSLMotionInput
         {
             int handle = handles[i];
             int type = JslGetControllerType(handle);
+            if (!loggedNoSupportedController)
+                Debug.Log($"JSL: handle={handle}, type={type}");
             if (type == DualShock4)
             {
                 deviceId = handle;
@@ -137,18 +147,28 @@ internal static class JSLMotionInput
         }
         if (deviceId < 0)
             deviceId = dualSenseFallback;
-        if (deviceId >= 0)
+        if (deviceId < 0)
         {
-            JslSetAutomaticCalibration(deviceId, true);
-            MotionState state = JslGetMotionState(deviceId);
-            referenceRotation = new(state.quatX, state.quatY, state.quatZ, state.quatW);
-            if (Quaternion.Dot(referenceRotation, referenceRotation) < 1.0e-6f)
-                referenceRotation = Quaternion.identity;
-            else
-                referenceRotation = referenceRotation.normalized;
-            angles = Vector3.zero;
-            available = true;
+            if (!loggedNoSupportedController)
+            {
+                Debug.LogWarning($"JSL did not select a supported DualShock 4/DualSense. New connections={newlyConnected}; handles found={count}.");
+                loggedNoSupportedController = true;
+            }
+            return;
         }
+
+        loggedNoSupportedController = false;
+        Debug.Log($"JSL selected controller handle={deviceId}.");
+
+        JslSetAutomaticCalibration(deviceId, true);
+        MotionState state = JslGetMotionState(deviceId);
+        referenceRotation = new(state.quatX, state.quatY, state.quatZ, state.quatW);
+        if (Quaternion.Dot(referenceRotation, referenceRotation) < 1.0e-6f)
+            referenceRotation = Quaternion.identity;
+        else
+            referenceRotation = referenceRotation.normalized;
+        angles = Vector3.zero;
+        available = true;
     }
 
     private static void ResetCalibration()
