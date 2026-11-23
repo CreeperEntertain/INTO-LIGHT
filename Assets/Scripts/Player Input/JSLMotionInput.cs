@@ -11,12 +11,6 @@ internal static class JSLMotionInput
         public float accelX, accelY, accelZ;
         public float gravX, gravY, gravZ;
     }
-    [StructLayout(LayoutKind.Sequential)]
-    private struct IMUState
-    {
-        public float accelX, accelY, accelZ;
-        public float gyroX, gyroY, gyroZ;
-    }
 
     private const int DualShock4 = 4;
     private const int DualSense = 5;
@@ -39,7 +33,7 @@ internal static class JSLMotionInput
     private static extern void JslSetAutomaticCalibration(int deviceId, [MarshalAs(UnmanagedType.I1)] bool enabled);
 
     [DllImport("JoyShockLibrary", CallingConvention = CallingConvention.Cdecl)]
-    private static extern MotionState JslGetMotionState(int deviceId);
+    private static extern void JslGetAndFlushAccumulatedGyro(int deviceId, out float gyroX, out float gyroY, out float gyroZ);
 
     [DllImport("JoyShockLibrary", CallingConvention = CallingConvention.Cdecl)]
     private static extern void JslDisconnectAndDisposeAll();
@@ -51,7 +45,7 @@ internal static class JSLMotionInput
 
     private static bool libraryAvailable = true;
     private static bool available;
-    private static Quaternion referenceRotation = Quaternion.identity;
+    private static Vector3 accumulatedAnglesDegrees;
     private static Vector3 angles;
 
     private static bool loggedNoSupportedController;
@@ -78,13 +72,15 @@ internal static class JSLMotionInput
             if (deviceId >= 0 && !JslStillConnected(deviceId))
             {
                 deviceId = -1;
+                accumulatedAnglesDegrees = Vector3.zero;
                 angles = Vector3.zero;
-                available = false;
             }
             if (deviceId < 0 && Time.unscaledTime >= nextScanTime)
             {
                 nextScanTime = Time.unscaledTime + 1.0f;
                 Connect();
+                if (deviceId >= 0)
+                    return;
             }
             if (deviceId < 0)
             {
@@ -93,21 +89,14 @@ internal static class JSLMotionInput
                 return;
             }
 
-            MotionState state = JslGetMotionState(deviceId);
-            Quaternion rotation = new(state.quatX, state.quatY, state.quatZ, state.quatW);
-            if (Quaternion.Dot(rotation, rotation) < 1.0e-6f)
-            {
-                available = false;
-                return;
-            }
+            JslGetAndFlushAccumulatedGyro(deviceId, out float gyroX, out float gyroY, out float gyroZ);
 
-            rotation = rotation.normalized;
-            Vector3 relativeAngles = (Quaternion.Inverse(referenceRotation) * rotation).eulerAngles;
-            angles = new(
-                Mathf.DeltaAngle(0.0f, -relativeAngles.y),
-                Mathf.DeltaAngle(0.0f, -relativeAngles.z),
-                Mathf.DeltaAngle(0.0f, relativeAngles.x)
-            );
+            float dt = Time.unscaledDeltaTime;
+            accumulatedAnglesDegrees.x = Mathf.DeltaAngle(0.0f, accumulatedAnglesDegrees.x - gyroY * dt);
+            accumulatedAnglesDegrees.y = Mathf.DeltaAngle(0.0f, accumulatedAnglesDegrees.y + gyroX * dt);
+            accumulatedAnglesDegrees.z = Mathf.DeltaAngle(0.0f, accumulatedAnglesDegrees.z + gyroZ * dt);
+
+            angles = accumulatedAnglesDegrees / 180.0f;
             available = true;
         }
         catch (DllNotFoundException)
@@ -157,23 +146,17 @@ internal static class JSLMotionInput
             return;
         }
 
-        loggedNoSupportedController = false;
-        Debug.Log($"JSL selected controller handle={deviceId}.");
-
         JslSetAutomaticCalibration(deviceId, true);
-        MotionState state = JslGetMotionState(deviceId);
-        referenceRotation = new(state.quatX, state.quatY, state.quatZ, state.quatW);
-        if (Quaternion.Dot(referenceRotation, referenceRotation) < 1.0e-6f)
-            referenceRotation = Quaternion.identity;
-        else
-            referenceRotation = referenceRotation.normalized;
+        JslGetAndFlushAccumulatedGyro(deviceId, out _, out _, out _);
+
+        accumulatedAnglesDegrees = Vector3.zero;
         angles = Vector3.zero;
         available = true;
     }
 
     private static void ResetCalibration()
     {
-        referenceRotation = Quaternion.identity;
+        accumulatedAnglesDegrees = Vector3.zero;
         angles = Vector3.zero;
         available = false;
     }
