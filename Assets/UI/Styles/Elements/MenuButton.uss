@@ -1,22 +1,19 @@
+
 .menu-button {
     width: 85%;
     min-height: 64px;
 
     background-color: rgba(0, 0, 0, 0.75);
+    background-image: none;
     color: white;
 
-    border-width: 0;
+    border-top-width: 0;
+    border-right-width: 0;
+    border-bottom-width: 0;
+    border-left-width: 0;
     border-radius: 0;
 
     -unity-text-align: middle-center;
-
-    transition-property: width;
-    transition-duration: 0.5s;
-    transition-timing-function: ease;
-}
-
-.menu-button:hover {
-    width: 100%;
 }
 
 .menu-button__stripe {
