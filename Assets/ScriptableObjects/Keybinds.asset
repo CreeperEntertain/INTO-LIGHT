@@ -12,6 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f01b02315f8408741b35e1d188583c20, type: 3}
   m_Name: Keybinds
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInput
+  pauseBindings:
+  - binding: <Keyboard>/escape
+  - binding: <Gamepad>/start
   moveBindings:
   - binding: <Gamepad>/leftStick
     mode: 0
@@ -64,25 +67,19 @@ MonoBehaviour:
     left: <Keyboard>/leftArrow
     right: <Keyboard>/rightArrow
   handModeBindings:
-  - <Keyboard>/leftShift
+  - <Keyboard>/leftAlt
   - <Mouse>/rightButton
   - <Gamepad>/leftShoulder
+  resetMotionCalibration:
+  - binding: <Gamepad>/start
+    pressTime: 1
   moveHand:
   - binding: <Mouse>/delta
     mode: 1
     center: {x: 0.5, y: 0.5, z: 0.5}
     scale: 2
-    useComposite: 0
-    up: 
-    down: 
-    left: 
-    right: 
-    forward: 
-    backward: 
-  - binding: 
-    mode: 3
-    center: {x: 0.5, y: 0.5, z: 0.5}
-    scale: 2
+    cullMotionBounds: 0
+    motionSensitivity: 1
     useComposite: 0
     up: 
     down: 
@@ -94,11 +91,26 @@ MonoBehaviour:
     mode: 0
     center: {x: 0.5, y: 0.5, z: 0.5}
     scale: 2
+    cullMotionBounds: 0
+    motionSensitivity: 1
     useComposite: 1
     up: <Keyboard>/upArrow
     down: <Keyboard>/downArrow
     left: <Keyboard>/leftArrow
     right: <Keyboard>/rightArrow
+    forward: 
+    backward: 
+  - binding: 
+    mode: 3
+    center: {x: 0.5, y: 0.5, z: 0.5}
+    scale: 2
+    cullMotionBounds: 1
+    motionSensitivity: 10
+    useComposite: 0
+    up: 
+    down: 
+    left: 
+    right: 
     forward: 
     backward: 
   grabBindings:

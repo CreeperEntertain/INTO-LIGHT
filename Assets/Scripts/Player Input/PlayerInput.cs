@@ -5,6 +5,11 @@ using UnityEngine.InputSystem;
 public class PlayerInput : ScriptableObject
 {
     [Header("General Bindings")]
+    [SerializeField] private ReleasableButtonInput[] pauseBindings =
+    {
+        new() { binding = "<Keyboard>/escape" },
+        new() { binding = "<Gamepad>/start" }
+    };
     [SerializeField] private Vector2Input.Source[] moveBindings =
     {
         new() { binding = "<Gamepad>/leftStick", mode = Vector2Input.SourceMode.Direction },
@@ -40,9 +45,19 @@ public class PlayerInput : ScriptableObject
     };
     [SerializeField] private string[] handModeBindings =
     {
-        "<Keyboard>/leftShift",
+        "<Keyboard>/leftAlt",
         "<Mouse>/rightButton",
         "<Gamepad>/leftShoulder"
+    };
+
+    [Header("Motion controls")]
+    [SerializeField] private HoldableButtonInput[] resetMotionCalibration =
+    {
+        new()
+        {
+            binding = "<Gamepad>/start",
+            pressTime = 1.0f
+        }
     };
     [SerializeField] private Vector3Input.Source[] moveHand =
     {
@@ -56,9 +71,10 @@ public class PlayerInput : ScriptableObject
             left = "<Keyboard>/leftArrow",
             right = "<Keyboard>/rightArrow"
         },
-        new()
-        {
-            mode = Vector3Input.SourceMode.Tilt
+        new() {
+            mode = Vector3Input.SourceMode.Tilt,
+            motionSensitivity = new(10.0f, 10.0f, 1.0f),
+            cullMotionBounds = true
         }
     };
 
@@ -90,10 +106,12 @@ public class PlayerInput : ScriptableObject
         "<Gamepad>/dpad/left"
     };
 
+    public ReleasableButtonInput Pause { get; private set;}
     public Vector2Input Move { get; private set; }
     public InputAction Jump { get; private set; }
     public Vector2Input MoveCamera { get; private set; }
     public InputAction HandMode { get; private set; }
+    public HoldableButtonInput ResetMotionCalibration { get; private set; }
     public Vector3Input MoveHand { get; private set; }
     public InputAction Grab { get; private set; }
     public InputAction Pose1 { get; private set; }
@@ -114,12 +132,15 @@ public class PlayerInput : ScriptableObject
 
     private void BuildActions()
     {
+        Pause = new("Pause", pauseBindings);
         Move = new("Move", moveBindings);
         Jump = CreateButton("Jump", jumpBindings);
         MoveCamera = new("Move Camera", moveCamera);
-
         HandMode = CreateButton("Hand Mode", handModeBindings);
+        
         MoveHand = new("Move Hand", moveHand);
+        ResetMotionCalibration = new("Reset Motion Calibration", resetMotionCalibration);
+
         Grab = CreateButton("Grab", grabBindings);
         Pose1 = CreateButton("Pose 1", pose1Bindings);
         Pose2 = CreateButton("Pose 2", pose2Bindings);
@@ -139,11 +160,13 @@ public class PlayerInput : ScriptableObject
 
     private void EnableActions()
     {
+        Pause.Enable();
         Move.Enable();
         Jump.Enable();
         MoveCamera.Enable();
         HandMode.Enable();
         MoveHand.Enable();
+        ResetMotionCalibration.Enable();
         Grab.Enable();
         Pose1.Enable();
         Pose2.Enable();
@@ -153,11 +176,13 @@ public class PlayerInput : ScriptableObject
 
     private void DisableAndDisposeActions()
     {
+        Pause?.Dispose();
         Move?.Dispose();
         DisposeAction(Jump);
         MoveCamera?.Dispose();
         DisposeAction(HandMode);
         MoveHand?.Dispose();
+        ResetMotionCalibration?.Dispose();
         DisposeAction(Grab);
         DisposeAction(Pose1);
         DisposeAction(Pose2);
