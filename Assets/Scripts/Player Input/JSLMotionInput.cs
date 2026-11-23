@@ -104,7 +104,7 @@ internal static class JSLMotionInput
             float dt = Time.unscaledDeltaTime;
             accumulatedAnglesDegrees.x = Mathf.DeltaAngle(0.0f, accumulatedAnglesDegrees.x - gyroY * dt);
             accumulatedAnglesDegrees.y = Mathf.DeltaAngle(0.0f, accumulatedAnglesDegrees.y + gyroX * dt);
-            accumulatedAnglesDegrees.z = Mathf.DeltaAngle(0.0f, accumulatedAnglesDegrees.z + gyroZ * dt);
+            accumulatedAnglesDegrees.z = Mathf.DeltaAngle(0.0f, accumulatedAnglesDegrees.z - gyroZ * dt);
 
             angles = accumulatedAnglesDegrees / 180.0f;
             available = true;
