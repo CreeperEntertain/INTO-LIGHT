@@ -64,9 +64,12 @@ MonoBehaviour:
     left: <Keyboard>/leftArrow
     right: <Keyboard>/rightArrow
   handModeBindings:
-  - <Keyboard>/leftShift
+  - <Keyboard>/leftAlt
   - <Mouse>/rightButton
   - <Gamepad>/leftShoulder
+  resetMotionCalibration:
+  - binding: <Gamepad>/start
+    pressTime: 2
   moveHand:
   - binding: <Mouse>/delta
     mode: 1
