@@ -62,6 +62,16 @@ public class HandBehavior : MonoBehaviour
                         input.x * 2.0f / Mathf.Max(1, Screen.width),
                         input.y * 2.0f / Mathf.Max(1, Screen.height)
                     ) * relativeInputSensitivity;
+                else if (activeMode == Vector3Input.SourceMode.Tilt)
+                {
+                    float angle = -input.z * 180.0f * Mathf.Deg2Rad;
+                    float cos = Mathf.Cos(angle);
+                    float sin = Mathf.Sin(angle);
+                    handOffset = new Vector2(
+                        input.x * cos - input.y * sin,
+                        input.x * sin + input.y * cos
+                    );
+                }
                 else
                     handOffset = input;
             }
