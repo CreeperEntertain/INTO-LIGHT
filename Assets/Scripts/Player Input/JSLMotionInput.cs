@@ -169,6 +169,9 @@ internal static class JSLMotionInput
         accumulatedAnglesDegrees = Vector3.zero;
         angles = Vector3.zero;
         available = false;
+
+        discardNextGyroSample = true;
+        lastFrame = Time.frameCount;
     }
 
     private static void DisableLibrary()
