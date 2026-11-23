@@ -164,7 +164,7 @@ internal static class JSLMotionInput
         available = true;
     }
 
-    private static void ResetCalibration()
+    internal static void ResetCalibration()
     {
         accumulatedAnglesDegrees = Vector3.zero;
         angles = Vector3.zero;
