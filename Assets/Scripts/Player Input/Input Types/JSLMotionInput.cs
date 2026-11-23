@@ -51,6 +51,9 @@ internal static class JSLMotionInput
 
     private static bool loggedNoSupportedController;
 
+    public static Vector3 sensitivity = new(1.0f, 1.0f, 1.0f);
+    public static bool cullAtBounds;
+
 
     public static bool TryGetAngles(out Vector3 result)
     {
@@ -102,9 +105,28 @@ internal static class JSLMotionInput
             }
 
             float dt = Time.unscaledDeltaTime;
-            accumulatedAnglesDegrees.x = Mathf.DeltaAngle(0.0f, accumulatedAnglesDegrees.x - gyroY * dt);
-            accumulatedAnglesDegrees.y = Mathf.DeltaAngle(0.0f, accumulatedAnglesDegrees.y + gyroX * dt);
-            accumulatedAnglesDegrees.z = Mathf.DeltaAngle(0.0f, accumulatedAnglesDegrees.z - gyroZ * dt);
+            Vector3 scale = new(
+                dt * sensitivity.x,
+                dt * sensitivity.y,
+                dt * sensitivity.z
+            );
+            Vector3 delta = new(
+                -gyroY * scale.x,
+                gyroX * scale.y,
+                -gyroZ * scale.z
+            );
+            if (cullAtBounds)
+                accumulatedAnglesDegrees = new(
+                    Mathf.Clamp(accumulatedAnglesDegrees.x + delta.x, -180.0f, 180.0f),
+                    Mathf.Clamp(accumulatedAnglesDegrees.y + delta.y, -180.0f, 180.0f),
+                    Mathf.Clamp(accumulatedAnglesDegrees.z + delta.z, -180.0f, 180.0f)
+                );
+            else
+            {
+                accumulatedAnglesDegrees.x = Mathf.DeltaAngle(0.0f, accumulatedAnglesDegrees.x + delta.x);
+                accumulatedAnglesDegrees.y = Mathf.DeltaAngle(0.0f, accumulatedAnglesDegrees.y + delta.y);
+                accumulatedAnglesDegrees.z = Mathf.DeltaAngle(0.0f, accumulatedAnglesDegrees.z + delta.z);
+            }
 
             angles = accumulatedAnglesDegrees / 180.0f;
             available = true;

@@ -21,6 +21,9 @@ public class Vector3Input : IDisposable
         public Vector3 center = new(0.5f, 0.5f, 0.5f);
         public float scale = 2.0f;
 
+        public bool cullMotionBounds;
+        [Min(0.0f)] public Vector3 motionSensitivity = new(1.0f, 1.0f, 1.0f);
+
         public bool useComposite;
         public string up;
         public string down;
@@ -51,6 +54,8 @@ public class Vector3Input : IDisposable
             {
                 if (source.settings.mode == SourceMode.Tilt)
                 {
+                    JSLMotionInput.sensitivity = source.settings.motionSensitivity;
+                    JSLMotionInput.cullAtBounds = source.settings.cullMotionBounds;
                     if (!JSLMotionInput.TryGetAngles(out Vector3 value))
                         continue;
 
