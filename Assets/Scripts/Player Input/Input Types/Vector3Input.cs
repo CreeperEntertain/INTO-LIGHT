@@ -37,6 +37,9 @@ public class Vector3Input : IDisposable
     {
         public Source settings;
         public InputAction action;
+        public Vector3 accumulatedAngleDegrees;
+        public int lastMotionFrame = -1;
+        public int motionStateVersion = -1;
     }
 
     private readonly List<RuntimeSource> sources = new();
@@ -54,18 +57,40 @@ public class Vector3Input : IDisposable
             {
                 if (source.settings.mode == SourceMode.Tilt)
                 {
-                    JSLMotionInput.sensitivity = source.settings.motionSensitivity;
-                    JSLMotionInput.cullAtBounds = source.settings.cullMotionBounds;
-                    if (!JSLMotionInput.TryGetAngles(out Vector3 value))
+                    if (!JSLMotionInput.TryGetGyroDelta(out Vector3 delta))
                         continue;
+                    if (source.lastMotionFrame != Time.frameCount)
+                    {
+                        source.lastMotionFrame = Time.frameCount;
+                        if (source.motionStateVersion != JSLMotionInput.MotionStateVersion)
+                        {
+                            source.accumulatedAngleDegrees = Vector3.zero;
+                            source.motionStateVersion = JSLMotionInput.MotionStateVersion;
+                        }
 
+                        delta = Vector3.Scale(delta, source.settings.motionSensitivity);
+                        source.accumulatedAngleDegrees += delta;
+                        if (source.settings.cullMotionBounds)
+                            source.accumulatedAngleDegrees = new(
+                                Mathf.Clamp(source.accumulatedAngleDegrees.x, -180.0f, 180.0f),
+                                Mathf.Clamp(source.accumulatedAngleDegrees.y, -180.0f, 180.0f),
+                                Mathf.Clamp(source.accumulatedAngleDegrees.z, -180.0f, 180.0f)
+                            );
+                        else
+                            source.accumulatedAngleDegrees = new(
+                                Mathf.DeltaAngle(0.0f, source.accumulatedAngleDegrees.x),
+                                Mathf.DeltaAngle(0.0f, source.accumulatedAngleDegrees.y),
+                                Mathf.DeltaAngle(0.0f, source.accumulatedAngleDegrees.z)
+                            );
+                    }
+                    
                     HasInput = true;
                     ActiveMode = SourceMode.Tilt;
                     LastActiveMode = SourceMode.Tilt;
                     ActiveControl = null;
                     IsRelative = false;
 
-                    return value;
+                    return source.accumulatedAngleDegrees / 180.0f;
                 }
 
                 object rawValue = source.action.ReadValueAsObject();

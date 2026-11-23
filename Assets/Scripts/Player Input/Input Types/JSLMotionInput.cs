@@ -49,16 +49,29 @@ internal static class JSLMotionInput
     private static Vector3 accumulatedAnglesDegrees;
     private static Vector3 angles;
 
+    private static Vector3 gyroDelta;
+    private static int motionStateVersion;
+
     private static bool loggedNoSupportedController;
 
     public static Vector3 sensitivity = new(1.0f, 1.0f, 1.0f);
     public static bool cullAtBounds;
 
 
+    public static int MotionStateVersion
+        => motionStateVersion;
+
     public static bool TryGetAngles(out Vector3 result)
     {
         Update();
         result = angles;
+        return available;
+    }
+
+    public static bool TryGetGyroDelta(out Vector3 result)
+    {
+        Update();
+        result = gyroDelta;
         return available;
     }
 
@@ -68,6 +81,7 @@ internal static class JSLMotionInput
             return;
         
         lastFrame = Time.frameCount;
+        gyroDelta = Vector3.zero;
         if (!libraryAvailable)
             return;
 
@@ -79,6 +93,7 @@ internal static class JSLMotionInput
                 accumulatedAnglesDegrees = Vector3.zero;
                 angles = Vector3.zero;
                 available = false;
+                motionStateVersion++;
             }
             if (deviceId < 0 && Time.unscaledTime >= nextScanTime)
             {
@@ -109,6 +124,11 @@ internal static class JSLMotionInput
                 dt * sensitivity.x,
                 dt * sensitivity.y,
                 dt * sensitivity.z
+            );
+            gyroDelta = new(
+                -gyroX * dt,
+                gyroY * dt,
+                -gyroZ * dt
             );
             Vector3 delta = new(
                 -gyroY * scale.x,
@@ -182,6 +202,7 @@ internal static class JSLMotionInput
 
         accumulatedAnglesDegrees = Vector3.zero;
         angles = Vector3.zero;
+        motionStateVersion++;
         discardNextGyroSample = true;
         available = true;
     }
@@ -194,6 +215,7 @@ internal static class JSLMotionInput
 
         discardNextGyroSample = true;
         lastFrame = Time.frameCount;
+        motionStateVersion++;
     }
 
     private static void DisableLibrary()
