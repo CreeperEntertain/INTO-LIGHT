@@ -126,8 +126,8 @@ internal static class JSLMotionInput
                 dt * sensitivity.z
             );
             gyroDelta = new(
-                -gyroX * dt,
-                gyroY * dt,
+                -gyroY * dt,
+                gyroX * dt,
                 -gyroZ * dt
             );
             Vector3 delta = new(
