@@ -5,6 +5,11 @@ using UnityEngine.InputSystem;
 public class PlayerInput : ScriptableObject
 {
     [Header("General Bindings")]
+    [SerializeField] private ReleasableButtonInput[] pauseBindings =
+    {
+        new() { binding = "<Keyboard>/escape" },
+        new() { binding = "<Gamepad>/start" }
+    };
     [SerializeField] private Vector2Input.Source[] moveBindings =
     {
         new() { binding = "<Gamepad>/leftStick", mode = Vector2Input.SourceMode.Direction },
@@ -97,6 +102,7 @@ public class PlayerInput : ScriptableObject
         "<Gamepad>/dpad/left"
     };
 
+    public ReleasableButtonInput Pause { get; private set;}
     public Vector2Input Move { get; private set; }
     public InputAction Jump { get; private set; }
     public Vector2Input MoveCamera { get; private set; }
@@ -122,6 +128,7 @@ public class PlayerInput : ScriptableObject
 
     private void BuildActions()
     {
+        Pause = new("Pause", pauseBindings);
         Move = new("Move", moveBindings);
         Jump = CreateButton("Jump", jumpBindings);
         MoveCamera = new("Move Camera", moveCamera);
@@ -149,6 +156,7 @@ public class PlayerInput : ScriptableObject
 
     private void EnableActions()
     {
+        Pause.Enable();
         Move.Enable();
         Jump.Enable();
         MoveCamera.Enable();
@@ -164,6 +172,7 @@ public class PlayerInput : ScriptableObject
 
     private void DisableAndDisposeActions()
     {
+        Pause?.Dispose();
         Move?.Dispose();
         DisposeAction(Jump);
         MoveCamera?.Dispose();

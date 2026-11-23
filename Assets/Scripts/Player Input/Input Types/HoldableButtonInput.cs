@@ -24,6 +24,7 @@ public class HoldableButtonInput : IDisposable
     private int lastUpdateFrame = -1;
 
     private readonly List<float> sourceTimes = new();
+    private readonly List<int> holdTimeRegistrationIds = new();
 
     private bool releasedBeforePressTime;
     public bool WasReleasedBeforePressTime
@@ -61,6 +62,7 @@ public class HoldableButtonInput : IDisposable
                 pressedThisFrame = false
             });
             sourceTimes.Add(source.pressTime);
+            holdTimeRegistrationIds.Add(ButtonHoldTimeRegistry.Register(source.binding, source.pressTime));
         }
     }
 
@@ -170,5 +172,9 @@ public class HoldableButtonInput : IDisposable
         }
         bindings.Clear();
         sourceTimes.Clear();
+        
+        foreach (int id in holdTimeRegistrationIds)
+            ButtonHoldTimeRegistry.Unregister(id);
+        holdTimeRegistrationIds.Clear();
     }
 }
