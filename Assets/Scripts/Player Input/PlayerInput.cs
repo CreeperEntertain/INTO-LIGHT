@@ -44,6 +44,9 @@ public class PlayerInput : ScriptableObject
         "<Mouse>/rightButton",
         "<Gamepad>/leftShoulder"
     };
+
+    [Header("Motion controls")]
+    [SerializeField] private ButtonInput resetMotionCalibration = new();
     [SerializeField] private Vector3Input.Source[] moveHand =
     {
         new() { binding = "<Mouse>/delta", mode = Vector3Input.SourceMode.Relative },
@@ -91,6 +94,7 @@ public class PlayerInput : ScriptableObject
     public InputAction Jump { get; private set; }
     public Vector2Input MoveCamera { get; private set; }
     public InputAction HandMode { get; private set; }
+    public ButtonInput ResetMotionCalibration => resetMotionCalibration;
     public Vector3Input MoveHand { get; private set; }
     public InputAction Grab { get; private set; }
     public InputAction Pose1 { get; private set; }
@@ -114,9 +118,12 @@ public class PlayerInput : ScriptableObject
         Move = new("Move", moveBindings);
         Jump = CreateButton("Jump", jumpBindings);
         MoveCamera = new("Move Camera", moveCamera);
-
         HandMode = CreateButton("Hand Mode", handModeBindings);
+        
         MoveHand = new("Move Hand", moveHand);
+        resetMotionCalibration ??= new();
+        resetMotionCalibration.SetAction(CreateButton("Reset Motion Calibration", new[] { "<Gamepad>/start" }));
+
         Grab = CreateButton("Grab", grabBindings);
         Pose1 = CreateButton("Pose 1", pose1Bindings);
         Pose2 = CreateButton("Pose 2", pose2Bindings);
@@ -141,6 +148,7 @@ public class PlayerInput : ScriptableObject
         MoveCamera.Enable();
         HandMode.Enable();
         MoveHand.Enable();
+        resetMotionCalibration.Action.Enable();
         Grab.Enable();
         Pose1.Enable();
         Pose2.Enable();
@@ -155,6 +163,11 @@ public class PlayerInput : ScriptableObject
         MoveCamera?.Dispose();
         DisposeAction(HandMode);
         MoveHand?.Dispose();
+        if (resetMotionCalibration != null)
+        {
+            DisposeAction(resetMotionCalibration.Action);
+            resetMotionCalibration.SetAction(null);
+        }
         DisposeAction(Grab);
         DisposeAction(Pose1);
         DisposeAction(Pose2);
