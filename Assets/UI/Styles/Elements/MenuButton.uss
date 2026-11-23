@@ -1,0 +1,30 @@
+.menu-button {
+    width: 85%;
+    min-height: 64px;
+
+    background-color: rgba(0, 0, 0, 0.75);
+    color: white;
+
+    border-width: 0;
+    border-radius: 0;
+
+    -unity-text-align: middle-center;
+
+    transition-property: width;
+    transition-duration: 0.5s;
+    transition-timing-function: ease;
+}
+
+.menu-button:hover {
+    width: 100%;
+}
+
+.menu-button__stripe {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+
+    background-color: white;
+}
