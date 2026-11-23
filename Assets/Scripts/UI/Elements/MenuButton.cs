@@ -1,7 +1,7 @@
-using UnityEngine;
 using UnityEngine.UIElements;
 
-public class MenuButton : Button
+[UxmlElement]
+public partial class MenuButton : Button
 {
     public MenuButton()
     {
