@@ -56,10 +56,7 @@ public class PlayerInput : ScriptableObject
             left = "<Keyboard>/leftArrow",
             right = "<Keyboard>/rightArrow"
         },
-        new()
-        {
-            mode = Vector3Input.SourceMode.Tilt
-        }
+        new() { mode = Vector3Input.SourceMode.Tilt }
     };
 
     [Header("Hand pose bindings")]
