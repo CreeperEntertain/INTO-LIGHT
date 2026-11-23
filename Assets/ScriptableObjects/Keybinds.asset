@@ -69,7 +69,7 @@ MonoBehaviour:
   - <Gamepad>/leftShoulder
   resetMotionCalibration:
   - binding: <Gamepad>/start
-    pressTime: 2
+    pressTime: 1
   moveHand:
   - binding: <Mouse>/delta
     mode: 1
