@@ -1,17 +1,15 @@
-
 .menu-button {
-    width: 85%;
-    min-height: 64px;
+    width: 100%;
+    min-height: 60px;
 
     background-color: rgba(0, 0, 0, 0.75);
     background-image: none;
     color: white;
 
-    border-top-width: 0;
-    border-right-width: 0;
-    border-bottom-width: 0;
-    border-left-width: 0;
+    border-width: 0;
     border-radius: 0;
+    padding: 0px;
+    margin: 0px;
 
     -unity-text-align: middle-center;
 }
@@ -22,6 +20,5 @@
     top: 0;
     bottom: 0;
     width: 2px;
-
     background-color: white;
 }
