@@ -69,6 +69,8 @@ public class ReleasableButtonInput : IDisposable
     }
 
 
+    public bool IsRuntimeInput => isRuntimeInput;
+
     public bool IsPressed()
     {
         foreach (RuntimeBinding binding in bindings)
