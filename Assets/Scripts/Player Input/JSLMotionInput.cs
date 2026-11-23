@@ -45,6 +45,7 @@ internal static class JSLMotionInput
 
     private static bool libraryAvailable = true;
     private static bool available;
+    private static bool discardNextGyroSample;
     private static Vector3 accumulatedAnglesDegrees;
     private static Vector3 angles;
 
@@ -74,10 +75,11 @@ internal static class JSLMotionInput
                 deviceId = -1;
                 accumulatedAnglesDegrees = Vector3.zero;
                 angles = Vector3.zero;
+                available = false;
             }
             if (deviceId < 0 && Time.unscaledTime >= nextScanTime)
             {
-                nextScanTime = Time.unscaledTime + 1.0f;
+                nextScanTime = Time.unscaledTime + 0.1f;
                 Connect();
                 if (deviceId >= 0)
                     return;
@@ -90,6 +92,14 @@ internal static class JSLMotionInput
             }
 
             JslGetAndFlushAccumulatedGyro(deviceId, out float gyroX, out float gyroY, out float gyroZ);
+            if (discardNextGyroSample)
+            {
+                discardNextGyroSample = false;
+                accumulatedAnglesDegrees = Vector3.zero;
+                angles = Vector3.zero;
+                available = true;
+                return;
+            }
 
             float dt = Time.unscaledDeltaTime;
             accumulatedAnglesDegrees.x = Mathf.DeltaAngle(0.0f, accumulatedAnglesDegrees.x - gyroY * dt);
@@ -147,14 +157,14 @@ internal static class JSLMotionInput
         }
 
         JslSetAutomaticCalibration(deviceId, true);
-        JslGetAndFlushAccumulatedGyro(deviceId, out _, out _, out _);
 
         accumulatedAnglesDegrees = Vector3.zero;
         angles = Vector3.zero;
+        discardNextGyroSample = true;
         available = true;
     }
 
-    private static void ResetCalibration()
+    internal static void ResetCalibration()
     {
         accumulatedAnglesDegrees = Vector3.zero;
         angles = Vector3.zero;

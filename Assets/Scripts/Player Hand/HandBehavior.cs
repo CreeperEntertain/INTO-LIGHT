@@ -39,7 +39,10 @@ public class HandBehavior : MonoBehaviour
     {
         bool handModeActive = inputSettings != null && inputSettings.HandMode.IsPressed();
         if (handModeActive && !handMode)
+        {
             handOffset = Vector2.zero;
+            JSLMotionInput.ResetCalibration();
+        }
         
         handMode = handModeActive;
 
