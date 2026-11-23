@@ -25,6 +25,17 @@ public class HoldableButtonInput : IDisposable
 
     private readonly List<float> sourceTimes = new();
 
+    private bool releasedBeforePressTime;
+    public bool WasReleasedBeforePressTime
+    {
+        get
+        {
+            UpdateState();
+            return releasedBeforePressTime;
+        }
+    }
+    public event Action<float> ReleasedBeforePressTime;
+
 
     public HoldableButtonInput() {}
 
@@ -56,7 +67,7 @@ public class HoldableButtonInput : IDisposable
 
     public bool IsPressed()
     {
-        UpdateSate();
+        UpdateState();
         foreach (RuntimeBinding binding in bindings)
             if (binding.pressed)
                 return true;
@@ -65,7 +76,7 @@ public class HoldableButtonInput : IDisposable
 
     public bool WasPressedThisFrame()
     {
-        UpdateSate();
+        UpdateState();
         foreach (RuntimeBinding binding in bindings)
             if (binding.pressedThisFrame)
                 return true;
@@ -85,7 +96,7 @@ public class HoldableButtonInput : IDisposable
         ResetState();
     }
 
-    private void UpdateSate()
+    private void UpdateState()
     {
         if (
             !isRuntimeInput ||
@@ -95,13 +106,29 @@ public class HoldableButtonInput : IDisposable
 
         stateUpdatedThisFrame = true;
         lastUpdateFrame = Time.frameCount;
+        releasedBeforePressTime = false;
         float currentTime = Time.unscaledTime;
         for (int i = 0; i < bindings.Count; i++)
         {
             RuntimeBinding binding = bindings[i];
             binding.pressedThisFrame = false;
-            if (!binding.action.enabled || !binding.action.IsPressed())
+            if (!binding.action.enabled)
             {
+                binding.wasHeld = false;
+                binding.pressed = false;
+                continue;
+            }
+            if (!binding.action.IsPressed())
+            {
+                if (binding.wasHeld && !binding.pressed)
+                {
+                    float heldDuration = currentTime - binding.pressedAt;
+                    if (heldDuration < sourceTimes[i])
+                    {
+                        releasedBeforePressTime = true;
+                        ReleasedBeforePressTime?.Invoke(heldDuration);
+                    }
+                }
                 binding.wasHeld = false;
                 binding.pressed = false;
                 continue;
@@ -124,6 +151,7 @@ public class HoldableButtonInput : IDisposable
     {
         stateUpdatedThisFrame = false;
         lastUpdateFrame = -1;
+        releasedBeforePressTime = false;
         foreach (RuntimeBinding binding in bindings)
         {
             binding.pressedAt = 0.0f;
