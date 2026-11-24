@@ -30,40 +30,42 @@ Shader "INTO LIGHT/Effects/Pause Background Blur"
 
             float _Radius;
 
-            float GaussianWeight(int offset)
-            {
-                if (offset == 0)
-                    return 0.402619946;
-                if (offset == 1 || offset == -1)
-                    return 0.244201342;
-                return 0.054488685;
-            }
-
             float4 Frag(Varyings input) : SV_Target
             {
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
 
-                float2 texelStep = _BlitTexture_TexelSize.xy * max(_Radius, 0.1);
-                float4 result = 0.0;
+                float sigma = max(_Radius, 0.1);
+                float invTwoSigmaSquared = 0.5 / (sigma * sigma);
+                float2 texel = _BlitTexture_TexelSize.xy;
 
-                for (int y = -2; y <= 2; y++)
+                float4 colorSum = 0.0;
+                float weightSum = 0.0;
+
+                int radius = min((int)ceil(3.0 * sigma), 16);
+
+                for (int y = -16; y <= 16; y++)
                 {
-                    float weightY = GaussianWeight(y);
+                    if (abs(y) > radius)
+                        continue;
 
-                    for (int x = -2; x <= 2; x++)
+                    for (int x = -16; x <= 16; x++)
                     {
-                        float weight = GaussianWeight(x) * weightY;
-                        float2 offset = float2((float)x, (float)y) * texelStep;
+                        if (abs(x) > radius)
+                            continue;
 
-                        result += SAMPLE_TEXTURE2D_X(
-                            _BlitTexture,
-                            sampler_LinearClamp,
-                            input.texcoord + offset
-                        ) * weight;
+                        float2 d = float2((float)x, (float)y);
+                        float weight = exp(-dot(d, d) * invTwoSigmaSquared);
+
+                        float2 uv = input.texcoord + d * texel;
+
+                        float4 pixel = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_LinearClamp, uv);
+
+                        colorSum += pixel * weight;
+                        weightSum += weight;
                     }
                 }
 
-                return result;
+                return colorSum / max(weightSum, 1e-6);
             }
 
             ENDHLSL
