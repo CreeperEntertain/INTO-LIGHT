@@ -25,6 +25,7 @@
     width: 1%;
 
     background-color: white;
+    overflow: hidden;
 
     transition-property: width;
     transition-duration: 0.2s;
@@ -32,4 +33,14 @@
 
 .menu-button:hover .menu-button__stripe {
     width: 100%;
+}
+
+.menu-button__inverted-text {
+    positon: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+
+    color: black;
+    -unity-text-align: middle-right;
 }
