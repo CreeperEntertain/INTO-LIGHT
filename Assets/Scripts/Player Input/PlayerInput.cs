@@ -162,6 +162,9 @@ public class PlayerInput : ScriptableObject
 
     public ReleasableButtonInput Pause { get; private set;}
     public Vector2Input MoveCursor { get; private set; }
+    public ReleasableButtonInput MenuSelect { get; private set; }
+    public ReleasableButtonInput MenuBack { get; private set; }
+    public ReleasableButtonInput MenuContext { get; private set; }
     public Vector2Input Move { get; private set; }
     public InputAction Jump { get; private set; }
     public Vector2Input MoveCamera { get; private set; }
@@ -189,6 +192,10 @@ public class PlayerInput : ScriptableObject
     {
         Pause = new("Pause", pauseBindings);
         MoveCursor = new("Move Cursor", moveCursorBindings);
+        MenuSelect = new("Menu Select", menuSelectBindings);
+        MenuBack = new("Menu Back", menuBackBindings);
+        MenuContext = new("Menu Context", menuContextBindings);
+
         Move = new("Move", moveBindings);
         Jump = CreateButton("Jump", jumpBindings);
         MoveCamera = new("Move Camera", moveCamera);
@@ -218,12 +225,18 @@ public class PlayerInput : ScriptableObject
     {
         Pause.Enable();
         MoveCursor.Enable();
+        MenuSelect.Enable();
+        MenuBack.Enable();
+        MenuContext.Enable();
+
         Move.Enable();
         Jump.Enable();
         MoveCamera.Enable();
         HandMode.Enable();
+
         MoveHand.Enable();
         ResetMotionCalibration.Enable();
+
         Grab.Enable();
         Pose1.Enable();
         Pose2.Enable();
@@ -235,12 +248,18 @@ public class PlayerInput : ScriptableObject
     {
         Pause?.Dispose();
         MoveCursor?.Dispose();
+        MenuSelect?.Dispose();
+        MenuBack?.Dispose();
+        MenuContext?.Dispose();
+
         Move?.Dispose();
         DisposeAction(Jump);
         MoveCamera?.Dispose();
         DisposeAction(HandMode);
+
         MoveHand?.Dispose();
         ResetMotionCalibration?.Dispose();
+
         DisposeAction(Grab);
         DisposeAction(Pose1);
         DisposeAction(Pose2);

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -8,6 +9,9 @@ public class GlobalUIOverlay : MonoBehaviour
 
     private VisualElement marker;
     private Vector2 cursorPosition;
+    private IPanel activePanel;
+
+    private readonly List<(IPanel panel, float sortingOrder)> targetPanels = new();
 
 
     private void OnEnable()
@@ -56,6 +60,25 @@ public class GlobalUIOverlay : MonoBehaviour
         root.Add(marker);
         marker.BringToFront();
     }
+    
+    private void Start()
+    {
+        UIDocument overlay = GetComponent<UIDocument>();
+        HashSet<IPanel> seenPanels = new();
+        foreach (UIDocument document in FindObjectsByType<UIDocument>(FindObjectsSortMode.None))
+        {
+            if (document == overlay)
+                continue;
+            
+            IPanel panel = document.rootVisualElement.panel;
+            if (panel == null || !seenPanels.Add(panel))
+                continue;
+
+            targetPanels.Add((panel, document.panelSettings.sortingOrder));
+        }
+
+        targetPanels.Sort((a, b) => b.sortingOrder.CompareTo(a.sortingOrder));
+    }
 
     private void Update()
     {
@@ -65,24 +88,93 @@ public class GlobalUIOverlay : MonoBehaviour
         Vector2 movement = playerInput.MoveCursor.Value;
         if (playerInput.MoveCursor.ActiveMode == Vector2Input.SourceMode.Tilt)
             cursorPosition = new(
-                (movement.x + 1f) * 0.5f * Screen.width,
-                (movement.y + 1f) * 0.5f * Screen.height
+                (movement.x + 1.0f) * 0.5f * Screen.width,
+                (movement.y + 1.0f) * 0.5f * Screen.height
             );
         else if (playerInput.MoveCursor.IsRelative)
             cursorPosition += movement;
 
-        cursorPosition.x = Mathf.Clamp(cursorPosition.x, 0f, Screen.width);
-        cursorPosition.y = Mathf.Clamp(cursorPosition.y, 0f, Screen.height);
+        cursorPosition.x = Mathf.Clamp(cursorPosition.x, 0.0f, Screen.width);
+        cursorPosition.y = Mathf.Clamp(cursorPosition.y, 0.0f, Screen.height);
 
-        Vector2 panelPosition = RuntimePanelUtils.ScreenToPanel(marker.panel, new(cursorPosition.x, Screen.height - cursorPosition.y));
+        Vector2 screenPosition = new(cursorPosition.x, Screen.height - cursorPosition.y);
+        Vector2 markerPosition = RuntimePanelUtils.ScreenToPanel(marker.panel, screenPosition);
 
-        marker.style.left = panelPosition.x - 12f;
-        marker.style.top = panelPosition.y - 12f;
+        marker.style.left = markerPosition.x - 12.0f;
+        marker.style.top = markerPosition.y - 12.0f;
+
+        IPanel targetPanel = FindTargetPanel(screenPosition, out Vector2 panelPosition);
+        if (activePanel != targetPanel)
+        {
+            if (activePanel != null)
+                SendPointerMove(activePanel, new(-1.0f, -1.0f));
+            activePanel = targetPanel;
+        }
+        if (activePanel == null)
+            return;
+        
+        SendPointerMove(activePanel, panelPosition);
+        if (playerInput.MenuSelect?.WasPressedThisFrame() == true)
+            SendPointerClick(activePanel, panelPosition);
     }
 
     private void OnDisable()
     {
+        if (activePanel != null)
+            SendPointerMove(activePanel, new(-1.0f, -1.0f));
+        activePanel = null;
         marker?.RemoveFromHierarchy();
         marker = null;
+    }
+
+
+    private IPanel FindTargetPanel(Vector2 screenPosition, out Vector2 panelPosition)
+    {
+        foreach (var target in targetPanels)
+        {
+            Vector2 position = RuntimePanelUtils.ScreenToPanel(target.panel, screenPosition);
+            if (target.panel.Pick(position) == null)
+                continue;
+
+            panelPosition = position;
+            return target.panel;
+        }
+
+        panelPosition = default;
+        return null;
+    }
+
+    private static void SendPointerMove(IPanel panel, Vector2 position)
+    {
+        Event mouseEvent = new()
+        {
+            type = EventType.MouseMove,
+            mousePosition = position
+        };
+        using (PointerMoveEvent pointerEvent = PointerMoveEvent.GetPooled(mouseEvent))
+            panel.visualTree.SendEvent(pointerEvent);
+    }
+
+    private static void SendPointerClick(IPanel panel, Vector2 position)
+    {
+        Event mouseDown = new()
+        {
+            type = EventType.MouseDown,
+            mousePosition = position,
+            button = 0,
+            clickCount = 1
+        };
+        using (PointerDownEvent pointerEvent = PointerDownEvent.GetPooled(mouseDown))
+            panel.visualTree.SendEvent(pointerEvent);
+        
+        Event mouseUp = new()
+        {
+            type = EventType.MouseUp,
+            mousePosition = position,
+            button = 0,
+            clickCount = 1
+        };
+        using (PointerUpEvent pointerEvent = PointerUpEvent.GetPooled(mouseUp))
+            panel.visualTree.SendEvent(pointerEvent);
     }
 }
