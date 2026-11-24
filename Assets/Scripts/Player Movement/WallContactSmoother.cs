@@ -100,36 +100,40 @@ public class WallContactSmoother : MonoBehaviour
 
     private void ModifyContacts(PhysicsScene scene, NativeArray<ModifiableContactPair> pairs)
     {
+        Vector3 normalSum = Vector3.zero;
+
+        for (int p = 0; p < pairs.Length; p++)
+        {
+            var pair = pairs[p];
+            bool playerIsFirst = pair.colliderInstanceID == playerColliderId;
+            bool playerIsSecond = pair.otherColliderInstanceID == playerColliderId;
+            if (!playerIsFirst && !playerIsSecond)
+                continue;
+
+            for (int i = 0; i < pair.contactCount; i++)
+            {
+                Vector3 normal = pair.GetNormal(i);
+                if (playerIsSecond)
+                    normal = -normal;
+                    
+                float playerY = playerIsFirst
+                    ? pair.position.y : pair.otherPosition.y;
+                if (!IsSideContact(pair.GetPoint(i).y, playerY))
+                    continue;
+
+                normal = Vector3.ProjectOnPlane(normal, Vector3.up);
+                if (normal.sqrMagnitude < 0.0001f)
+                    continue;
+
+                normalSum += normal.normalized;
+            }
+        }
+
+        Vector3 replacementNormal;
+        bool shouldReplace;
+
         lock (sync)
         {
-            Vector3 normalSum = Vector3.zero;
-            for (int p = 0; p < pairs.Length; p++)
-            {
-                var pair = pairs[p];
-                bool playerIsFirst = pair.colliderInstanceID == playerColliderId;
-                bool playerIsSecond = pair.otherColliderInstanceID == playerColliderId;
-                if (!playerIsFirst && !playerIsSecond)
-                    continue;
-                
-                for (int i = 0; i < pair.contactCount; i++)
-                {
-                    Vector3 normal = pair.GetNormal(i);
-                    if (playerIsSecond)
-                        normal = -normal;
-                    float playerY = playerIsFirst
-                        ? pair.position.y
-                        : pair.otherPosition.y;
-                    if (!IsSideContact(pair.GetPoint(i).y, playerY))
-                        continue;
-
-                    normal = Vector3.ProjectOnPlane(normal, Vector3.up);
-                    if (normal.sqrMagnitude < 0.0001f)
-                        continue;
-                    
-                    normalSum += normal.normalized;
-                }
-            }
-
             if (normalSum.sqrMagnitude > 0.000f)
             {
                 Vector3 candidate = normalSum.normalized;
@@ -142,38 +146,37 @@ public class WallContactSmoother : MonoBehaviour
                 {
                     if (Vector3.Dot(candidate, stableWallNormal) < 0.0f)
                         candidate = -candidate;
-                    stableWallNormal = Vector3.Slerp(
-                        stableWallNormal,
-                        candidate,
-                        normalResponse
-                    ).normalized;
+                    stableWallNormal = Vector3.Slerp(stableWallNormal, candidate, normalResponse).normalized;
                 }
             }
-            if (!hasStableNormal)
-                return;
-            
-            for (int p = 0; p < pairs.Length; p++)
-            {
-                var pair = pairs[p];
-                bool playerIsFirst = pair.colliderInstanceID == playerColliderId;
-                bool playerIsSecond = pair.otherColliderInstanceID == playerColliderId;
-                if (!playerIsFirst && !playerIsSecond)
-                    continue;
-                
-                Vector3 replacementNormal = playerIsFirst
-                    ? stableWallNormal : -stableWallNormal;
-                for (int i = 0; i < pair.contactCount; i++)
-                {
-                    Vector3 originalNormal = pair.GetNormal(i);
-                    if (playerIsSecond)
-                        originalNormal = -originalNormal;
-                    float playerY = playerIsFirst
-                        ? pair.position.y : pair.otherPosition.y;
-                    if (!IsSideContact(pair.GetPoint(i).y, playerY))
-                        continue;
 
-                    pair.SetNormal(i, replacementNormal);
-                }
+            shouldReplace = hasStableNormal;
+            replacementNormal = stableWallNormal;
+        }
+        if (!shouldReplace)
+            return;
+        for (int p = 0; p < pairs.Length; p++)
+        {
+            var pair = pairs[p];
+            bool playerIsFirst = pair.colliderInstanceID == playerColliderId;
+            bool playerIsSecond = pair.otherColliderInstanceID == playerColliderId;
+            if (!playerIsFirst && !playerIsSecond)
+                continue;
+
+            Vector3 pairNormal = playerIsFirst
+                ? replacementNormal : -replacementNormal;
+            for (int i = 0; i < pair.contactCount; i++)
+            {
+                Vector3 originalNormal = pair.GetNormal(i);
+                if (playerIsSecond)
+                    originalNormal = -originalNormal;
+
+                float playerY = playerIsFirst
+                    ? pair.position.y : pair.otherPosition.y;
+                if (!IsSideContact(pair.GetPoint(i).y, playerY))
+                    continue;
+
+                pair.SetNormal(i, pairNormal);
             }
         }
     }
