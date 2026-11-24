@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -9,28 +8,19 @@ public class GlobalUIOverlay : MonoBehaviour
 
 
     private void OnEnable()
-        => StartCoroutine(InitializeOverlay());
-
-    private IEnumerator InitializeOverlay()
     {
-        yield return null;
-
         UIDocument document = GetComponent<UIDocument>();
+
+        document.panelSettings.sortingOrder = 10000f;
+        document.sortingOrder = 10000f;
+
         VisualElement root = document.rootVisualElement;
-        if (root.panel == null)
-        {
-            Debug.LogError("Global UI Overlay: UIDocument has no runtime panel.", this);
-            yield break;
-        }
-
-        document.panelSettings.sortingOrder = float.MaxValue;
-        document.sortingOrder = float.MaxValue;
-
         root.pickingMode = PickingMode.Ignore;
+
         root.style.width = Length.Percent(100);
         root.style.height = Length.Percent(100);
 
-        marker = new()
+        marker = new VisualElement
         {
             name = "OverlayMarker",
             pickingMode = PickingMode.Ignore
@@ -39,16 +29,16 @@ public class GlobalUIOverlay : MonoBehaviour
         marker.style.position = Position.Absolute;
         marker.style.left = 0;
         marker.style.top = 0;
-
         marker.style.width = 24;
         marker.style.height = 24;
+        marker.style.flexShrink = 0;
 
-        marker.style.backgroundColor = new Color(0.0f, 0.0f, 0.0f, 0.85f);
+        marker.style.backgroundColor = new Color(0f, 0f, 0f, 0.85f);
 
-        marker.style.borderTopWidth = 5;
-        marker.style.borderBottomWidth = 5;
-        marker.style.borderLeftWidth = 5;
-        marker.style.borderRightWidth = 5;
+        marker.style.borderTopWidth = 1;
+        marker.style.borderBottomWidth = 1;
+        marker.style.borderLeftWidth = 1;
+        marker.style.borderRightWidth = 1;
 
         marker.style.borderTopColor = Color.white;
         marker.style.borderBottomColor = Color.white;
@@ -61,6 +51,7 @@ public class GlobalUIOverlay : MonoBehaviour
         marker.style.borderBottomRightRadius = 12;
 
         root.Add(marker);
+        marker.BringToFront();
     }
 
     private void OnDisable()
