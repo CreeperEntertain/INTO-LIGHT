@@ -32,13 +32,23 @@ Shader "INTO LIGHT/Effects/Pause Background Blur"
             #include "Packages/com.unity.render-pipelines.core/Runtime/Utilities/Blit.hlsl"
 
             float _Radius;
+            float _MinBrightness;
+            float _MaxBrightness;
+
+            float3 RemapBrightness(float3 color)
+            {
+                return lerp(_MinBrightness.xxx, _MaxBrightness.xxx, color);
+            }
 
             float4 Frag(Varyings input) : SV_Target
             {
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
 
+                float4 sourcePixel = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_LinearClamp, input.texcoord);
+                sourcePixel.rgb = RemapBrightness(sourcePixel.rgb);
+
                 if (_Radius <= 1.0e-6f)
-                    return SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_LinearClamp, input.texcoord);
+                    return sourcePixel;
 
                 float sigma = max(_Radius, 0.1);
                 float invTwoSigmaSquared = 0.5 / (sigma * sigma);
@@ -61,10 +71,10 @@ Shader "INTO LIGHT/Effects/Pause Background Blur"
 
                         float2 d = float2((float)x, (float)y);
                         float weight = exp(-dot(d, d) * invTwoSigmaSquared);
-
                         float2 uv = input.texcoord + d * texel;
 
                         float4 pixel = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_LinearClamp, uv);
+                        pixel.rgb = RemapBrightness(pixel.rgb);
 
                         colorSum += pixel * weight;
                         weightSum += weight;
