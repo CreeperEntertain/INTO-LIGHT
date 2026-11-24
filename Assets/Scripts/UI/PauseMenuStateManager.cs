@@ -1,7 +1,9 @@
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering.HighDefinition;
 using UnityEngine.UIElements;
 
+[RequireComponent(typeof(UIDocument))]
 public class PauseMenuStateManager : MonoBehaviour
 {
     [Header("References")]
@@ -51,6 +53,40 @@ public class PauseMenuStateManager : MonoBehaviour
         
         float t = Mathf.Clamp01((Time.unscaledTime - transitionStart) / transitionDuration);
         blurPass.Blend = Mathf.Lerp(blendStart, blendTarget, t);
+    }
+
+    private void OnEnable()
+    {
+        VisualElement root = GetComponent<UIDocument>().rootVisualElement;
+
+        MenuButton resumeButton = root.Q<MenuButton>("ResumeButton");
+        MenuButton optionsButton = root.Q<MenuButton>("OptionsButton");
+        MenuButton controlsButton = root.Q<MenuButton>("ControlsButton");
+        MenuButton exitGameButton = root.Q<MenuButton>("ExitGameButton");
+
+        resumeButton.clicked += Resume;
+        optionsButton.clicked += OpenOptions;
+        controlsButton.clicked += OpenControls;
+        exitGameButton.clicked += ExitGame;
+    }
+
+
+    private void Resume()
+        => SetOpen(false);
+
+    private void OpenOptions()
+    {
+        
+    }
+
+    private void OpenControls()
+    {
+        
+    }
+
+    private void ExitGame()
+    {
+        
     }
 
     private void SetOpen(bool open)
