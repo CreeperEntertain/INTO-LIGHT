@@ -131,18 +131,6 @@ public class MovementController : MonoBehaviour
         HandleJump();
     }
 
-    private void OnCollisionStay(Collision collision)
-    {
-        foreach (ContactPoint contact in collision.contacts)
-        {
-            if (Mathf.Abs(contact.normal.y) > 0.3f)
-                continue;
-            Vector3 normal = Vector3.ProjectOnPlane(contact.normal, Vector3.up);
-            if (normal.sqrMagnitude < 0.001f)
-                continue;
-        }
-    }
-
     private void HandleMovement()
     {
         Transform movementFrame = yawPivot != null ? yawPivot : transform;
