@@ -3,6 +3,9 @@ Shader "INTO LIGHT/Effects/Pause Background Blur"
     Properties
     {
         _Radius ("Blur Radius", Range(0.0, 16.0)) = 2.0
+        _MinBrightness ("Minimum Brightness", Range(0.0, 1.0)) = 0
+        _MaxBrightness ("Maximum Brightness", Range(0.0, 1.0)) = 1
+        _Blend ("Blend", Range(0.0, 1.0)) = 1
     }
 
     SubShader
@@ -33,6 +36,9 @@ Shader "INTO LIGHT/Effects/Pause Background Blur"
             float4 Frag(Varyings input) : SV_Target
             {
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+
+                if (_Radius <= 1.0e-6f)
+                    return SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_LinearClamp, input.texcoord);
 
                 float sigma = max(_Radius, 0.1);
                 float invTwoSigmaSquared = 0.5 / (sigma * sigma);
