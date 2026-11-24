@@ -173,6 +173,7 @@ public class PlayerInput : ScriptableObject
     private void EnableActions()
     {
         Pause.Enable();
+        MoveCursor.Enable();
         Move.Enable();
         Jump.Enable();
         MoveCamera.Enable();
@@ -189,6 +190,7 @@ public class PlayerInput : ScriptableObject
     private void DisableAndDisposeActions()
     {
         Pause?.Dispose();
+        MoveCursor?.Dispose();
         Move?.Dispose();
         DisposeAction(Jump);
         MoveCamera?.Dispose();
