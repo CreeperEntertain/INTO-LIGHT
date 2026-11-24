@@ -1,4 +1,3 @@
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering.HighDefinition;
 using UnityEngine.UIElements;
@@ -19,6 +18,9 @@ public class PauseMenuStateManager : MonoBehaviour
     private float blendStart;
     private float blendTarget;
     private float transitionStart;
+
+    private float previousTimeScale = 1.0f;
+    private bool previousAudioPause;
 
 
     private void Awake()
@@ -70,6 +72,16 @@ public class PauseMenuStateManager : MonoBehaviour
         exitGameButton.clicked += ExitGame;
     }
 
+    private void OnDisable()
+    {
+        if (!isOpen)
+            return;
+        
+        Time.timeScale = previousTimeScale;
+        AudioListener.pause = previousAudioPause;
+        isOpen = false;
+    }
+
 
     private void Resume()
         => SetOpen(false);
@@ -91,7 +103,23 @@ public class PauseMenuStateManager : MonoBehaviour
 
     private void SetOpen(bool open)
     {
+        if (isOpen == open)
+            return;
+
         isOpen = open;
+        if (open)
+        {
+            previousTimeScale = Time.timeScale;
+            previousAudioPause = AudioListener.pause;
+
+            Time.timeScale = 0.0f;
+            AudioListener.pause = true;
+        }
+        else
+        {
+            Time.timeScale = previousTimeScale;
+            AudioListener.pause = previousAudioPause;
+        }
 
         blendStart = blurPass.Blend;
         blendTarget = open ? 1.0f : 0.0f;
