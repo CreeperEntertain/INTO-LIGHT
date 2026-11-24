@@ -34,23 +34,30 @@ Shader "INTO LIGHT/Effects/Pause Background Blur"
             float _Radius;
             float _MinBrightness;
             float _MaxBrightness;
+            float _Blend;
 
-            float3 RemapBrightness(float3 color)
+            float3 RemapBrightness(float3 color, float minBrightness, float maxBrightness)
             {
-                return lerp(_MinBrightness.xxx, _MaxBrightness.xxx, color);
+                return lerp(minBrightness.xxx, maxBrightness.xxx, color);
             }
 
             float4 Frag(Varyings input) : SV_Target
             {
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
 
-                float4 sourcePixel = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_LinearClamp, input.texcoord);
-                sourcePixel.rgb = RemapBrightness(sourcePixel.rgb);
+                float blend = saturate(_Blend);
 
-                if (_Radius <= 1.0e-6f)
+                float effectiveRadius = lerp(0.0, _Radius, blend);
+                float effectiveMinBrightness = lerp(0.0, _MinBrightness, blend);
+                float effectiveMaxBrightness = lerp(1.0, _MaxBrightness, blend);
+
+                float4 sourcePixel = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_LinearClamp, input.texcoord);
+                sourcePixel.rgb = RemapBrightness(sourcePixel.rgb, effectiveMinBrightness, effectiveMaxBrightness);
+
+                if (effectiveRadius <= 1.0e-6f)
                     return sourcePixel;
 
-                float sigma = max(_Radius, 0.1);
+                float sigma = max(effectiveRadius, 0.1);
                 float invTwoSigmaSquared = 0.5 / (sigma * sigma);
                 float2 texel = _BlitTexture_TexelSize.xy;
 
@@ -74,7 +81,7 @@ Shader "INTO LIGHT/Effects/Pause Background Blur"
                         float2 uv = input.texcoord + d * texel;
 
                         float4 pixel = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_LinearClamp, uv);
-                        pixel.rgb = RemapBrightness(pixel.rgb);
+                        pixel.rgb = RemapBrightness(pixel.rgb, effectiveMinBrightness, effectiveMaxBrightness);
 
                         colorSum += pixel * weight;
                         weightSum += weight;

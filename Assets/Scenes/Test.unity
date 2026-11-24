@@ -2492,6 +2492,9 @@ MonoBehaviour:
         m_Version: 0
         blurMaterial: {fileID: 2100000, guid: 497d97bc13fc4ae4dbb4da5b9e94422b, type: 2}
         radius: 16
+        minimumBrightness: 0.02
+        maximumBrightness: 0.98
+        blend: 1
 --- !u!1 &1109078626
 GameObject:
   m_ObjectHideFlags: 0
