@@ -4,8 +4,9 @@
     <ui:GroupBox name="Main" style="height: 100%; width: 100%; top: auto; left: auto; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;">
         <ui:GroupBox name="LeftGroup" style="margin-bottom: 0; margin-top: 0; margin-right: 0; margin-left: 0; padding-top: 70px; padding-right: 70px; padding-bottom: 70px; padding-left: 70px; width: 33%; height: 100%; position: absolute; left: 0; justify-content: center; aspect-ratio: auto; flex-basis: auto;">
             <MenuButton text="Resume" name="ResumeButton" class="menu-button" style="margin-bottom: 20px;"/>
+            <MenuButton name="OptionsButton" text="Options" style="margin-bottom: 20px;"/>
             <MenuButton name="ControlsButton" text="Controls" style="margin-bottom: 20px;"/>
-            <MenuButton name="ExitButton" text="Exit Game" enable-rich-text="true"/>
+            <MenuButton name="ExitGameButton" text="Exit Game" enable-rich-text="true"/>
         </ui:GroupBox>
         <ui:GroupBox name="RightGroup" style="margin-bottom: 0; margin-top: 0; margin-right: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; width: 67%; height: 100%; position: absolute; right: 0;"/>
     </ui:GroupBox>

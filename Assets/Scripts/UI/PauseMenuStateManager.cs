@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.Rendering.HighDefinition;
 using UnityEngine.UIElements;
 
+[RequireComponent(typeof(UIDocument))]
 public class PauseMenuStateManager : MonoBehaviour
 {
     [Header("References")]
@@ -17,6 +18,9 @@ public class PauseMenuStateManager : MonoBehaviour
     private float blendStart;
     private float blendTarget;
     private float transitionStart;
+
+    private float previousTimeScale = 1.0f;
+    private bool previousAudioPause;
 
 
     private void Awake()
@@ -53,9 +57,69 @@ public class PauseMenuStateManager : MonoBehaviour
         blurPass.Blend = Mathf.Lerp(blendStart, blendTarget, t);
     }
 
+    private void OnEnable()
+    {
+        VisualElement root = GetComponent<UIDocument>().rootVisualElement;
+
+        MenuButton resumeButton = root.Q<MenuButton>("ResumeButton");
+        MenuButton optionsButton = root.Q<MenuButton>("OptionsButton");
+        MenuButton controlsButton = root.Q<MenuButton>("ControlsButton");
+        MenuButton exitGameButton = root.Q<MenuButton>("ExitGameButton");
+
+        resumeButton.clicked += Resume;
+        optionsButton.clicked += OpenOptions;
+        controlsButton.clicked += OpenControls;
+        exitGameButton.clicked += ExitGame;
+    }
+
+    private void OnDisable()
+    {
+        if (!isOpen)
+            return;
+        
+        Time.timeScale = previousTimeScale;
+        AudioListener.pause = previousAudioPause;
+        isOpen = false;
+    }
+
+
+    private void Resume()
+        => SetOpen(false);
+
+    private void OpenOptions()
+    {
+        
+    }
+
+    private void OpenControls()
+    {
+        
+    }
+
+    private void ExitGame()
+    {
+        
+    }
+
     private void SetOpen(bool open)
     {
+        if (isOpen == open)
+            return;
+
         isOpen = open;
+        if (open)
+        {
+            previousTimeScale = Time.timeScale;
+            previousAudioPause = AudioListener.pause;
+
+            Time.timeScale = 0.0f;
+            AudioListener.pause = true;
+        }
+        else
+        {
+            Time.timeScale = previousTimeScale;
+            AudioListener.pause = previousAudioPause;
+        }
 
         blendStart = blurPass.Blend;
         blendTarget = open ? 1.0f : 0.0f;
