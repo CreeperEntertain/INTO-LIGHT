@@ -31,14 +31,14 @@ public partial class MenuButton : Button
         if (evt.target != this)
             return;
         SyncText();
-        SyncTextLayout(resolvedStyle.width);
+        SyncTextLayout(resolvedStyle.width, resolvedStyle.height);
     }
 
     private void OnGeometryChanged(GeometryChangedEvent evt)
     {
         if (evt.target != this)
             return;
-        SyncTextLayout(evt.newRect.width);
+        SyncTextLayout(evt.newRect.width, evt.newRect.height);
     }
 
     private void OnTextChanged(ChangeEvent<string> evt)
@@ -56,9 +56,12 @@ public partial class MenuButton : Button
         invertedText.parseEscapeSequences = parseEscapeSequences;
     }
 
-    private void SyncTextLayout(float width)
+    private void SyncTextLayout(float width, float height)
     {
+        invertedText.style.left = 0;
+        invertedText.style.top = 0;
         invertedText.style.width = width;
+        invertedText.style.height = height;
 
         invertedText.style.paddingLeft = resolvedStyle.paddingLeft;
         invertedText.style.paddingRight = resolvedStyle.paddingRight;
