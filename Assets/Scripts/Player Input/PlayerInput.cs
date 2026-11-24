@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 [CreateAssetMenu(fileName = "PlayerInput", menuName = "Scriptable Objects/Player Input")]
 public class PlayerInput : ScriptableObject
 {
-    [Header("General Bindings")]
+    [Header("UI Bindings")]
     [SerializeField] private ReleasableButtonInput[] pauseBindings =
     {
         new() { binding = "<Keyboard>/escape" },
@@ -18,8 +18,52 @@ public class PlayerInput : ScriptableObject
             mode = Vector2Input.SourceMode.Tilt,
             motionSensitivity = new(10.0f, 10.0f),
             cullMotionBounds = true
+        },
+        new()
+        {
+            useComposite = true,
+            mode = Vector2Input.SourceMode.Direction,
+            up = "<Keyboard>/w",
+            down = "<Keyboard>/s",
+            left = "<Keyboard>/a",
+            right = "<Keyboard>/d"
+        },
+        new()
+        {
+            useComposite = true,
+            mode = Vector2Input.SourceMode.Direction,
+            up = "<Keyboard>/upArrow",
+            down = "<Keyboard>/downArrow",
+            left = "<Keyboard>/leftArrow",
+            right = "<Keyboard>/rightArrow"
         }
     };
+    [SerializeField] private ReleasableButtonInput[] menuSelectBindings =
+    {
+        new() { binding = "<Keyboard>/e" },
+        new() { binding = "<Keyboard>/enter" },
+        new() { binding = "<Keyboard>/space" },
+        new() { binding = "<Mouse>/leftButton" },
+        new() { binding = "<Gamepad>/buttonSouth" }
+    };
+    [SerializeField] private ReleasableButtonInput[] menuBackBindings =
+    {
+        new() { binding = "<Keyboard>/tab" },
+        new() { binding = "<Keyboard>/backspace" },
+        new() { binding = "<Keyboard>/leftAlt" },
+        new() { binding = "<Mouse>/backButton" },
+        new() { binding = "<Gamepad>/buttonEast" }
+    };
+    [SerializeField] private ReleasableButtonInput[] menuContextBindings =
+    {
+        new() { binding = "<Keyboard>/q" },
+        new() { binding = "<Keyboard>/rightShift" },
+        new() { binding = "<Keyboard>/leftControl" },
+        new() { binding = "<Mouse>/rightButton" },
+        new() { binding = "<Gamepad>/buttonWest" }
+    };
+
+    [Header("General Bindings")]
     [SerializeField] private Vector2Input.Source[] moveBindings =
     {
         new() { binding = "<Gamepad>/leftStick", mode = Vector2Input.SourceMode.Direction },
