@@ -23,5 +23,13 @@
     top: 0;
     bottom: 0;
     width: 1%;
+
     background-color: white;
+
+    transition-property: width;
+    transition-duration: 0.2s;
+}
+
+.menu-button:hover .menu-button__stripe {
+    width: 100%;
 }
