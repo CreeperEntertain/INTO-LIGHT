@@ -6,6 +6,8 @@ public partial class MenuButton : Button
     private readonly VisualElement stripe;
     private readonly TextElement invertedText;
 
+    private bool textLayoutSyncQueued;
+
     public MenuButton()
     {
         AddToClassList("menu-button");
@@ -31,14 +33,14 @@ public partial class MenuButton : Button
         if (evt.target != this)
             return;
         SyncText();
-        SyncTextLayout(resolvedStyle.width, resolvedStyle.height);
+        QueueTextLayoutSync();
     }
 
     private void OnGeometryChanged(GeometryChangedEvent evt)
     {
         if (evt.target != this)
             return;
-        SyncTextLayout(evt.newRect.width, evt.newRect.height);
+        QueueTextLayoutSync();
     }
 
     private void OnTextChanged(ChangeEvent<string> evt)
@@ -46,6 +48,22 @@ public partial class MenuButton : Button
         if (evt.target != this)
             return;
         invertedText.text = evt.newValue;
+    }
+
+    private void QueueTextLayoutSync()
+    {
+        if (textLayoutSyncQueued)
+            return;
+
+        textLayoutSyncQueued = true;
+        schedule.Execute(() =>
+        {
+            textLayoutSyncQueued = false;
+            if (panel == null)
+                return;
+
+            SyncTextLayout(resolvedStyle.width, resolvedStyle.height);
+        }).ExecuteLater(0);
     }
 
     private void SyncText()
