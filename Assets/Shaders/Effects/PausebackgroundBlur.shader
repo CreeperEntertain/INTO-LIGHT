@@ -31,28 +31,28 @@ Shader "INTO LIGHT/Effects/Pause Background Blur"
                     _BlitTexture,
                     sampler_LinearClamp,
                     uv
-                ) * 0.25;
+                ) * 0.5;
 
                 color += SAMPLE_TEXTURE2D_X(
                     _BlitTexture,
                     sampler_LinearClamp,
                     uv + float2(texel.x, texel.y)
-                ) * 0.25;
+                ) * 0.125;
                 color += SAMPLE_TEXTURE2D_X(
                     _BlitTexture,
                     sampler_LinearClamp,
                     uv + float2(-texel.x, texel.y)
-                ) * 0.25;
+                ) * 0.125;
                 color += SAMPLE_TEXTURE2D_X(
                     _BlitTexture,
                     sampler_LinearClamp,
                     uv + float2(texel.x, -texel.y)
-                ) * 0.25;
+                ) * 0.125;
                 color += SAMPLE_TEXTURE2D_X(
                     _BlitTexture,
                     sampler_LinearClamp,
                     uv + float2(-texel.x, -texel.y)
-                ) * 0.25;
+                ) * 0.125;
 
                 return color;
             }

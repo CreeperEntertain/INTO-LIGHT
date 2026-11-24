@@ -1,7 +1,9 @@
+using System;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.HighDefinition;
 
+[Serializable]
 public class PauseBackgroundBlur : CustomPass
 {
     [SerializeField] private Material blurMaterial;
@@ -14,7 +16,7 @@ public class PauseBackgroundBlur : CustomPass
     {
         blurTexture = RTHandles.Alloc(
             Vector2.one * 0.5f,
-            colorFormat: UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_UNorm,
+            colorFormat: UnityEngine.Experimental.Rendering.GraphicsFormat.R16G16B16A16_SNorm,
             useDynamicScale: true,
             name: "Pause Background Blur"
         );
@@ -25,7 +27,7 @@ public class PauseBackgroundBlur : CustomPass
         if (blurMaterial == null)
             return;
         
-        blurMaterial.SetFloat("_Raidus", radius);
+        blurMaterial.SetFloat("_Radius", radius);
         HDUtils.BlitCameraTexture(
             ctx.cmd,
             ctx.cameraColorBuffer,

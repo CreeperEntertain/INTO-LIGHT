@@ -2474,7 +2474,7 @@ MonoBehaviour:
   priority: 0
   customPasses:
   - rid: 5253677116612149371
-  injectionPoint: 1
+  injectionPoint: 3
   m_TargetCamera: {fileID: 0}
   useTargetCamera: 0
   references:
@@ -2491,8 +2491,8 @@ MonoBehaviour:
         passFoldout: 0
         m_Version: 0
         blurMaterial: {fileID: 2100000, guid: 497d97bc13fc4ae4dbb4da5b9e94422b, type: 2}
-        iterations: 4
-        radius: 2
+        iterations: 1
+        radius: 8
 --- !u!1 &1109078626
 GameObject:
   m_ObjectHideFlags: 0
