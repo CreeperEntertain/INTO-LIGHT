@@ -3034,7 +3034,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e9f54e7914d7eef4f8bd4d405b91df01, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GlobalUIOverlay
-  playerInput: {fileID: 0}
+  playerInput: {fileID: 11400000, guid: 31fe7847487dfb3428a57071a68c7e21, type: 2}
 --- !u!1 &1247627806
 GameObject:
   m_ObjectHideFlags: 0
