@@ -125,7 +125,7 @@ public class PauseMenuStateManager : MonoBehaviour
         blendTarget = open ? 1.0f : 0.0f;
         transitionStart = Time.unscaledTime;
 
-        uiDocument.rootVisualElement.style.display =
-            open ? DisplayStyle.Flex : DisplayStyle.None;
+        uiDocument.rootVisualElement.style.display = open
+            ? DisplayStyle.Flex : DisplayStyle.None;
     }
 }
