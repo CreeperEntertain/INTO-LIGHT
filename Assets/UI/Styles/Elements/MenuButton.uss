@@ -2,7 +2,7 @@
     width: 100%;
     min-height: 60px;
 
-    background-color: rgba(0, 0, 0, 0.75);
+    background-color: rgba(0, 0, 0, 0.85);
     background-image: none;
     color: white;
 
