@@ -2487,12 +2487,11 @@ MonoBehaviour:
         enabled: 1
         targetColorBuffer: 0
         targetDepthBuffer: 0
-        clearFlags: 0
+        clearFlags: 6
         passFoldout: 0
         m_Version: 0
         blurMaterial: {fileID: 2100000, guid: 497d97bc13fc4ae4dbb4da5b9e94422b, type: 2}
-        iterations: 1
-        radius: 8
+        radius: 0
 --- !u!1 &1109078626
 GameObject:
   m_ObjectHideFlags: 0

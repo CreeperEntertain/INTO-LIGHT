@@ -7,7 +7,7 @@ using UnityEngine.Rendering.HighDefinition;
 public class PauseBackgroundBlur : CustomPass
 {
     [SerializeField] private Material blurMaterial;
-    [SerializeField, Range(0.1f, 16.0f)]
+    [SerializeField, Range(0.0f, 16.0f)]
     private float radius = 2.0f;
 
     private RTHandle blurTexture;

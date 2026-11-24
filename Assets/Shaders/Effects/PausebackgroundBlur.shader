@@ -2,7 +2,7 @@ Shader "INTO LIGHT/Effects/Pause Background Blur"
 {
     Properties
     {
-        _Radius ("Blur Radius", Range(0.1, 16.0)) = 2.0
+        _Radius ("Blur Radius", Range(0.0, 16.0)) = 2.0
     }
 
     SubShader
