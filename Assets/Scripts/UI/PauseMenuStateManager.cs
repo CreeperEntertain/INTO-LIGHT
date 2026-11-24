@@ -106,6 +106,7 @@ public class PauseMenuStateManager : MonoBehaviour
         if (isOpen == open)
             return;
 
+        GameState.SetPaused(open);
         isOpen = open;
         if (open)
         {
