@@ -10,6 +10,16 @@ public class PlayerInput : ScriptableObject
         new() { binding = "<Keyboard>/escape" },
         new() { binding = "<Gamepad>/start" }
     };
+    [SerializeField] private Vector2Input.Source[] moveCursorBindings =
+    {
+        new() { binding = "<Mouse>/delta", mode = Vector2Input.SourceMode.Relative },
+        new()
+        {
+            mode = Vector2Input.SourceMode.Tilt,
+            motionSensitivity = new(10.0f, 10.0f),
+            cullMotionBounds = true
+        }
+    };
     [SerializeField] private Vector2Input.Source[] moveBindings =
     {
         new() { binding = "<Gamepad>/leftStick", mode = Vector2Input.SourceMode.Direction },
