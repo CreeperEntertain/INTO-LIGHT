@@ -1543,6 +1543,7 @@ MonoBehaviour:
   playerInput: {fileID: 11400000, guid: 31fe7847487dfb3428a57071a68c7e21, type: 2}
   blurVolume: {fileID: 1068994603}
   uiDocument: {fileID: 649189259}
+  transitionDuration: 0.2
 --- !u!1 &700933676
 GameObject:
   m_ObjectHideFlags: 0
@@ -2485,14 +2486,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26d6499a6bd256e47b859377446493a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.HighDefinition.Runtime::UnityEngine.Rendering.HighDefinition.CustomPassVolume
-  m_IsGlobal: 1
+  m_IsGlobal: 0
   fadeRadius: 0
   priority: 0
   customPasses:
   - rid: 5253677116612149371
   injectionPoint: 3
-  m_TargetCamera: {fileID: 0}
-  useTargetCamera: 0
+  m_TargetCamera: {fileID: 1422038889}
+  useTargetCamera: 1
   references:
     version: 2
     RefIds:
@@ -3607,6 +3608,11 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!20 &1422038889 stripped
+Camera:
+  m_CorrespondingSourceObject: {fileID: 2657291233693489984, guid: 7bc3e4fcd8107c949a9a54d2f79198c1, type: 3}
+  m_PrefabInstance: {fileID: 4753640715519827078}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1493423059
 GameObject:
   m_ObjectHideFlags: 0
