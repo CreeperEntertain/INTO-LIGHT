@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -8,15 +9,24 @@ public class GlobalUIOverlay : MonoBehaviour
 
 
     private void OnEnable()
+        => StartCoroutine(InitializeOverlay());
+
+    private IEnumerator InitializeOverlay()
     {
+        yield return null;
+
         UIDocument document = GetComponent<UIDocument>();
+        VisualElement root = document.rootVisualElement;
+        if (root.panel == null)
+        {
+            Debug.LogError("Global UI Overlay: UIDocument has no runtime panel.", this);
+            yield break;
+        }
 
         document.panelSettings.sortingOrder = float.MaxValue;
         document.sortingOrder = float.MaxValue;
 
-        VisualElement root = document.rootVisualElement;
         root.pickingMode = PickingMode.Ignore;
-
         root.style.width = Length.Percent(100);
         root.style.height = Length.Percent(100);
 
@@ -54,5 +64,8 @@ public class GlobalUIOverlay : MonoBehaviour
     }
 
     private void OnDisable()
-        => marker?.RemoveFromHierarchy();
+    {
+        marker?.RemoveFromHierarchy();
+        marker = null;
+    }
 }
