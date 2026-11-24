@@ -19,6 +19,14 @@ public class PauseBackgroundBlur : CustomPass
     private static readonly int MaxBrightnessId = Shader.PropertyToID("_MaxBrightness");
     private static readonly int BlendId = Shader.PropertyToID("_Blend");
 
+
+    public float Blend
+    {
+        get => blend;
+        set => blend = Mathf.Clamp01(value);
+    }
+
+
     protected override void Setup(ScriptableRenderContext renderContext, CommandBuffer cmd)
     {
         blurTexture = RTHandles.Alloc(
