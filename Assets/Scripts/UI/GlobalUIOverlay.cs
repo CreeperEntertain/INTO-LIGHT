@@ -74,7 +74,7 @@ public class GlobalUIOverlay : MonoBehaviour
     cursorPosition.x = Mathf.Clamp(cursorPosition.x, 0f, Screen.width);
     cursorPosition.y = Mathf.Clamp(cursorPosition.y, 0f, Screen.height);
 
-    Vector2 panelPosition = RuntimePanelUtils.ScreenToPanel(marker.panel, cursorPosition);
+    Vector2 panelPosition = RuntimePanelUtils.ScreenToPanel(marker.panel, new(cursorPosition.x, Screen.height - cursorPosition.y));
 
     marker.style.left = panelPosition.x - 12f;
     marker.style.top = panelPosition.y - 12f;
