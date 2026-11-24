@@ -32,6 +32,9 @@ public class HandTransform : MonoBehaviour
 
     private void LateUpdate()
     {
+        if (GameState.IsPaused)
+            return;
+
         Vector3 directionToCamera = cameraTransform.position - transform.position;
         if (directionToCamera.sqrMagnitude < 1.0e-6f)
             return;

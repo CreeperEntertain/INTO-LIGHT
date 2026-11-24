@@ -100,6 +100,8 @@ public class HandAnimation : MonoBehaviour
 
     private void Update()
     {
+        if (GameState.IsPaused)
+            return;
         ReadInput();
         UpdateBlend();
     }

@@ -37,6 +37,11 @@ public class HandBehavior : MonoBehaviour
 
     private void Update()
     {
+        if (GameState.IsPaused)
+        {
+            MoveHandInput = Vector3.zero;
+            return;
+        }
         if (inputSettings != null && inputSettings.ResetMotionCalibration.WasPressedThisFrame())
         {
             handOffset = Vector2.zero;
