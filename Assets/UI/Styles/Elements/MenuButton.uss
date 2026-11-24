@@ -1,0 +1,46 @@
+.menu-button {
+    width: 100%;
+    min-height: 60px;
+
+    background-color: rgba(0, 0, 0, 0.85);
+    background-image: none;
+    color: white;
+
+    border-width: 0;
+    border-radius: 0;
+    padding: 0px;
+    padding-right: 20px;
+    margin: 0px;
+
+    -unity-text-align: middle-right;
+    font-size: 24px;
+    color: white;
+}
+
+.menu-button__stripe {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 1%;
+
+    background-color: white;
+    overflow: hidden;
+
+    transition-property: width;
+    transition-duration: 0.2s;
+}
+
+.menu-button:hover .menu-button__stripe {
+    width: 100%;
+}
+
+.menu-button__inverted-text {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+
+    color: black;
+    -unity-text-align: middle-right;
+}
