@@ -17,7 +17,7 @@ public class PauseBackgroundBlur : CustomPass
     protected override void Setup(ScriptableRenderContext renderContext, CommandBuffer cmd)
     {
         blurTexture = RTHandles.Alloc(
-            Vector2.one * 0.5f,
+            Vector2.one,
             colorFormat: UnityEngine.Experimental.Rendering.GraphicsFormat.R16G16B16A16_SFloat,
             useDynamicScale: true,
             name: "Pause Background Blur"
