@@ -46,6 +46,8 @@ public class PauseMenuStateManager : MonoBehaviour
     {
         if (playerInput.Pause.WasPressedThisFrame())
             SetOpen(!isOpen);
+        if (Mathf.Approximately(blurPass.Blend, blendTarget))
+            return;
         
         float t = Mathf.Clamp01((Time.unscaledTime - transitionStart) / transitionDuration);
         blurPass.Blend = Mathf.Lerp(blendStart, blendTarget, t);
