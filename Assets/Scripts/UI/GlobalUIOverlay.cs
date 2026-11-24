@@ -4,7 +4,10 @@ using UnityEngine.UIElements;
 [RequireComponent(typeof(UIDocument))]
 public class GlobalUIOverlay : MonoBehaviour
 {
+    [SerializeField] private PlayerInput playerInput;
+
     private VisualElement marker;
+    private Vector2 cursorPosition;
 
 
     private void OnEnable()
@@ -16,9 +19,10 @@ public class GlobalUIOverlay : MonoBehaviour
 
         VisualElement root = document.rootVisualElement;
         root.pickingMode = PickingMode.Ignore;
-
         root.style.width = Length.Percent(100);
         root.style.height = Length.Percent(100);
+
+        cursorPosition = new(Screen.width / 2.0f, Screen.height / 2.0f);
 
         marker = new VisualElement
         {
@@ -32,7 +36,6 @@ public class GlobalUIOverlay : MonoBehaviour
         marker.style.width = 24;
         marker.style.height = 24;
         marker.style.flexShrink = 0;
-
         marker.style.backgroundColor = new Color(0f, 0f, 0f, 0.85f);
 
         marker.style.borderTopWidth = 1;
@@ -52,6 +55,26 @@ public class GlobalUIOverlay : MonoBehaviour
 
         root.Add(marker);
         marker.BringToFront();
+    }
+
+    private void Update()
+    {
+        if (marker == null || playerInput?.MoveCursor == null)
+            return;
+        
+        Vector2 movement = playerInput.MoveCursor.Value;
+        if (playerInput.MoveCursor.IsRelative)
+            cursorPosition += movement;
+        else
+            cursorPosition += movement * (Screen.height / 2.0f);
+        
+        cursorPosition.x = Mathf.Clamp(cursorPosition.x, 0.0f, Screen.width);
+        cursorPosition.y = Mathf.Clamp(cursorPosition.y, 0.0f, Screen.height);
+
+        Vector2 panelPosition = RuntimePanelUtils.ScreenToPanel(marker.panel, new Vector2(cursorPosition.x, Screen.height - cursorPosition.y));
+
+        marker.style.left = panelPosition.x - 12.0f;
+        marker.style.top = panelPosition.y - 12.0f;
     }
 
     private void OnDisable()

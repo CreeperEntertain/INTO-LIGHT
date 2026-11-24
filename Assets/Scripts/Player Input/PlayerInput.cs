@@ -117,6 +117,7 @@ public class PlayerInput : ScriptableObject
     };
 
     public ReleasableButtonInput Pause { get; private set;}
+    public Vector2Input MoveCursor { get; private set; }
     public Vector2Input Move { get; private set; }
     public InputAction Jump { get; private set; }
     public Vector2Input MoveCamera { get; private set; }
@@ -143,6 +144,7 @@ public class PlayerInput : ScriptableObject
     private void BuildActions()
     {
         Pause = new("Pause", pauseBindings);
+        MoveCursor = new("Move Cursor", moveCursorBindings);
         Move = new("Move", moveBindings);
         Jump = CreateButton("Jump", jumpBindings);
         MoveCamera = new("Move Camera", moveCamera);
