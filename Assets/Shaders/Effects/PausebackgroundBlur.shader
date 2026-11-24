@@ -1,4 +1,4 @@
-Shader "INTO LIGHT/Effects/PausebackgroundBlur"
+Shader "INTO LIGHT/Effects/PauseBackgroundBlur"
 {   
     SubShader
     {
