@@ -59,7 +59,7 @@ public class GlobalUIOverlay : MonoBehaviour
 
     private void Update()
     {
-        if (marker == null || playerInput?.MoveCursor == null)
+        if (marker == null || marker.panel == null || playerInput?.MoveCursor == null)
             return;
         
         Vector2 movement = playerInput.MoveCursor.Value;
