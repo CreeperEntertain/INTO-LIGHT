@@ -58,27 +58,27 @@ public class GlobalUIOverlay : MonoBehaviour
     }
 
     private void Update()
-{
-    if (marker == null || marker.panel == null || playerInput?.MoveCursor == null)
-        return;
+    {
+        if (marker == null || marker.panel == null || playerInput?.MoveCursor == null)
+            return;
 
-    Vector2 movement = playerInput.MoveCursor.Value;
-    if (playerInput.MoveCursor.ActiveMode == Vector2Input.SourceMode.Tilt)
-        cursorPosition = new(
-            (movement.x + 1f) * 0.5f * Screen.width,
-            (movement.y + 1f) * 0.5f * Screen.height
-        );
-    else if (playerInput.MoveCursor.IsRelative)
-        cursorPosition += movement;
+        Vector2 movement = playerInput.MoveCursor.Value;
+        if (playerInput.MoveCursor.ActiveMode == Vector2Input.SourceMode.Tilt)
+            cursorPosition = new(
+                (movement.x + 1f) * 0.5f * Screen.width,
+                (movement.y + 1f) * 0.5f * Screen.height
+            );
+        else if (playerInput.MoveCursor.IsRelative)
+            cursorPosition += movement;
 
-    cursorPosition.x = Mathf.Clamp(cursorPosition.x, 0f, Screen.width);
-    cursorPosition.y = Mathf.Clamp(cursorPosition.y, 0f, Screen.height);
+        cursorPosition.x = Mathf.Clamp(cursorPosition.x, 0f, Screen.width);
+        cursorPosition.y = Mathf.Clamp(cursorPosition.y, 0f, Screen.height);
 
-    Vector2 panelPosition = RuntimePanelUtils.ScreenToPanel(marker.panel, new(cursorPosition.x, Screen.height - cursorPosition.y));
+        Vector2 panelPosition = RuntimePanelUtils.ScreenToPanel(marker.panel, new(cursorPosition.x, Screen.height - cursorPosition.y));
 
-    marker.style.left = panelPosition.x - 12f;
-    marker.style.top = panelPosition.y - 12f;
-}
+        marker.style.left = panelPosition.x - 12f;
+        marker.style.top = panelPosition.y - 12f;
+    }
 
     private void OnDisable()
     {
