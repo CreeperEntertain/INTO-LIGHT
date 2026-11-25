@@ -63,6 +63,9 @@ public class GlobalUIOverlay : MonoBehaviour
 
         root.Add(marker);
         marker.BringToFront();
+
+        Enabled = false;
+        marker.style.display = DisplayStyle.None;
     }
     
     private void Start()
@@ -192,11 +195,17 @@ public class GlobalUIOverlay : MonoBehaviour
     {
         if (Enabled)
             return;
+        Enabled = true;
+        if (marker != null)
+            marker.style.display = DisplayStyle.Flex;
     }
 
     public void Disable()
     {
         if (!Enabled)
             return;
+        Enabled = false;
+        if (marker != null)
+            marker.style.display = DisplayStyle.None;
     }
 }

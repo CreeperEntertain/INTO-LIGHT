@@ -2977,6 +2977,7 @@ GameObject:
   - component: {fileID: 1230769134}
   - component: {fileID: 1230769133}
   - component: {fileID: 1230769135}
+  - component: {fileID: 1230769136}
   m_Layer: 5
   m_Name: Global Cursor
   m_TagString: Untagged
@@ -3035,6 +3036,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GlobalUIOverlay
   playerInput: {fileID: 11400000, guid: 31fe7847487dfb3428a57071a68c7e21, type: 2}
+--- !u!114 &1230769136
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1230769132}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1df2ddfb93c077f41b5797b3c92c4f44, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CursorState
 --- !u!1 &1247627806
 GameObject:
   m_ObjectHideFlags: 0
