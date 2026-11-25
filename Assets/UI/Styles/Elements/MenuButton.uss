@@ -44,3 +44,24 @@
     color: black;
     -unity-text-align: middle-right;
 }
+
+.menu-button.menu-button--active .menu-button__stripe {
+    width: 100%;
+}
+
+.menu-foldout {
+    width: 100%;
+    flex-shrink: 0;
+}
+
+.menu-folout__header {
+    width: 100%;
+}
+
+.menu-foldout__content {
+    width: 100%;
+
+    background-color: rgba(0, 0, 0, 0.85);
+
+    padding: 20px;
+}
