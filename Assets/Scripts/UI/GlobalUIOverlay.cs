@@ -188,12 +188,20 @@ public class GlobalUIOverlay : MonoBehaviour
         if (!Enabled)
             return;
 
-        Touch touch = CreateVirtualTouch(position, TouchPhase.Began);
-        using (PointerDownEvent pointerEvent = PointerDownEvent.GetPooled(touch))
-            panel.visualTree.SendEvent(pointerEvent);
-        touch.phase = TouchPhase.Ended;
-        using (PointerUpEvent pointerEvent = PointerUpEvent.GetPooled(touch))
-            panel.visualTree.SendEvent(pointerEvent);
+        VisualElement target = panel.Pick(position);
+        while (target != null && target is not Button)
+            target = target.parent;
+        if (target is not Button button)
+            return;
+        
+        VisualElement previousFocus = panel.focusController.focusedElement as VisualElement;
+        button.Focus();
+        using (NavigationSubmitEvent submitEvent = NavigationSubmitEvent.GetPooled())
+            button.SendEvent(submitEvent);
+        if (previousFocus != null && previousFocus.panel == panel)
+            previousFocus.Focus();
+        else if (button.panel == panel)
+            button.Blur();
     }
 
 
