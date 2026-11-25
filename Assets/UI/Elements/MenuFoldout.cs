@@ -4,7 +4,7 @@ using UnityEngine.UIElements;
 public partial class MenuFoldout : VisualElement
 {
     private readonly MenuButton header;
-    private readonly VisualElement content;
+    private readonly GroupBox content;
     private bool isExpanded;
 
     public override VisualElement contentContainer => content;
