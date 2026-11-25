@@ -63,7 +63,24 @@ public class PauseMenuStateManager : MonoBehaviour
     {
         VisualElement root = GetComponent<UIDocument>().rootVisualElement;
 
+        // UI
+        root.Q<InputBindingFoldout>("PauseBindingsFoldout").Input = keybinds;
+        root.Q<InputBindingFoldout>("MoveCursorBindingsFoldout").Input = keybinds;
+        root.Q<InputBindingFoldout>("MenuSelectBindingsFoldout").Input = keybinds;
+        // General
+        root.Q<InputBindingFoldout>("JumpBindingFoldout").Input = keybinds;
+        root.Q<InputBindingFoldout>("MoveBindingsFoldout").Input = keybinds;
         root.Q<InputBindingFoldout>("MoveCameraBindingsFoldout").Input = keybinds;
+        root.Q<InputBindingFoldout>("HandModeBindingsFoldout").Input = keybinds;
+        // Motion Controls
+        root.Q<InputBindingFoldout>("ResetMotionCalibrationBindingsFoldout").Input = keybinds;
+        root.Q<InputBindingFoldout>("MoveHandBindingsFoldout").Input = keybinds;
+        // Hand Controls
+        root.Q<InputBindingFoldout>("GrabBindingFoldout").Input = keybinds;
+        root.Q<InputBindingFoldout>("Pose1BinsingsFoldout").Input = keybinds;
+        root.Q<InputBindingFoldout>("Pose2BinsingsFoldout").Input = keybinds;
+        root.Q<InputBindingFoldout>("Pose3BinsingsFoldout").Input = keybinds;
+        root.Q<InputBindingFoldout>("Pose4BinsingsFoldout").Input = keybinds;
 
         MenuButton resumeButton = root.Q<MenuButton>("ResumeButton");
         MenuButton optionsButton = root.Q<MenuButton>("OptionsButton");
