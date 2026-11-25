@@ -63,6 +63,8 @@ public class PauseMenuStateManager : MonoBehaviour
     {
         VisualElement root = GetComponent<UIDocument>().rootVisualElement;
 
+        root.Q<InputBindingFoldout>("MoveCameraBindingsFoldout").Input = keybinds;
+
         MenuButton resumeButton = root.Q<MenuButton>("ResumeButton");
         MenuButton optionsButton = root.Q<MenuButton>("OptionsButton");
         MenuButton controlsButton = root.Q<MenuButton>("ControlsButton");
