@@ -169,8 +169,8 @@ public class GlobalUIOverlay : MonoBehaviour
             deltaPosition = Vector2.zero,
             deltaTime = Time.unscaledDeltaTime,
             tapCount = 1,
-            pressure = 1f,
-            maximumPossiblePressure = 1f
+            pressure = 1.0f,
+            maximumPossiblePressure = 1.0f
         };
 
     private static void SendPointerMove(IPanel panel, Vector2 position)
