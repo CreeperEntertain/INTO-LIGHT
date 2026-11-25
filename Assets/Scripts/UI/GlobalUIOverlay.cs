@@ -15,6 +15,8 @@ public class GlobalUIOverlay : MonoBehaviour
     private Vector2 cursorPosition;
     private IPanel activePanel;
 
+    public static bool Enabled { get; private set; } = false;
+
 
     private void OnEnable()
     {
@@ -85,6 +87,8 @@ public class GlobalUIOverlay : MonoBehaviour
     private void Update()
     {
         if (marker == null || marker.panel == null || playerInput?.MoveCursor == null)
+            return;
+        if (!Enabled)
             return;
 
         Vector2 movement = playerInput.MoveCursor.Value;
@@ -162,6 +166,9 @@ public class GlobalUIOverlay : MonoBehaviour
 
     private static void SendPointerMove(IPanel panel, Vector2 position)
     {
+        if (!Enabled)
+            return;
+
         Touch touch = CreateVirtualTouch(position, TouchPhase.Moved);
         using (PointerMoveEvent pointerEvent = PointerMoveEvent.GetPooled(touch))
             panel.visualTree.SendEvent(pointerEvent);
@@ -169,11 +176,27 @@ public class GlobalUIOverlay : MonoBehaviour
 
     private static void SendPointerClick(IPanel panel, Vector2 position)
     {
+        if (!Enabled)
+            return;
+
         Touch touch = CreateVirtualTouch(position, TouchPhase.Began);
         using (PointerDownEvent pointerEvent = PointerDownEvent.GetPooled(touch))
             panel.visualTree.SendEvent(pointerEvent);
         touch.phase = TouchPhase.Ended;
         using (PointerUpEvent pointerEvent = PointerUpEvent.GetPooled(touch))
             panel.visualTree.SendEvent(pointerEvent);
+    }
+
+
+    public void Enable()
+    {
+        if (Enabled)
+            return;
+    }
+
+    public void Disable()
+    {
+        if (!Enabled)
+            return;
     }
 }
