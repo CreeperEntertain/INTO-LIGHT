@@ -24,6 +24,15 @@ public class PlayerInput : ScriptableObject
         },
         new()
         {
+            mode = Vector2Input.SourceMode.Tilt,
+            motionSensitivity = new(10.0f, 10.0f),
+            cullMotionBounds = true
+        }
+    };
+    [SerializeField] private Vector2Input.Source[] scrollBindings =
+    {
+        new()
+        {
             useComposite = true,
             mode = Vector2Input.SourceMode.Direction,
             up = "<Keyboard>/upArrow",
@@ -31,12 +40,7 @@ public class PlayerInput : ScriptableObject
             left = "<Keyboard>/leftArrow",
             right = "<Keyboard>/rightArrow"
         },
-        new()
-        {
-            mode = Vector2Input.SourceMode.Tilt,
-            motionSensitivity = new(10.0f, 10.0f),
-            cullMotionBounds = true
-        }
+        new() { binding = "<Gamepad>/rightStick", mode = Vector2Input.SourceMode.Direction }
     };
     [SerializeField] private ReleasableButtonInput[] menuSelectBindings =
     {
@@ -162,6 +166,7 @@ public class PlayerInput : ScriptableObject
 
     public ReleasableButtonInput Pause { get; private set;}
     public Vector2Input MoveCursor { get; private set; }
+    public Vector2Input Scroll { get; private set; }
     public ReleasableButtonInput MenuSelect { get; private set; }
     public ReleasableButtonInput MenuBack { get; private set; }
     public ReleasableButtonInput MenuContext { get; private set; }
@@ -192,6 +197,7 @@ public class PlayerInput : ScriptableObject
     {
         Pause = new("Pause", pauseBindings);
         MoveCursor = new("Move Cursor", moveCursorBindings);
+        Scroll = new("Scroll", scrollBindings);
         MenuSelect = new("Menu Select", menuSelectBindings);
         MenuBack = new("Menu Back", menuBackBindings);
         MenuContext = new("Menu Context", menuContextBindings);
@@ -225,6 +231,7 @@ public class PlayerInput : ScriptableObject
     {
         Pause.Enable();
         MoveCursor.Enable();
+        Scroll.Enable();
         MenuSelect.Enable();
         MenuBack.Enable();
         MenuContext.Enable();
@@ -248,6 +255,7 @@ public class PlayerInput : ScriptableObject
     {
         Pause?.Dispose();
         MoveCursor?.Dispose();
+        Scroll?.Dispose();
         MenuSelect?.Dispose();
         MenuBack?.Dispose();
         MenuContext?.Dispose();
