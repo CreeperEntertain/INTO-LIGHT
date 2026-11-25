@@ -15,11 +15,13 @@ MonoBehaviour:
   pauseBindings:
   - binding: <Keyboard>/escape
   - binding: <Gamepad>/start
-  moveBindings:
-  - binding: <Gamepad>/leftStick
-    mode: 0
+  moveCursorBindings:
+  - binding: <Mouse>/delta
+    mode: 1
     center: {x: 0.5, y: 0.5}
     scale: 2
+    cullMotionBounds: 0
+    motionSensitivity: {x: 1, y: 1}
     useComposite: 0
     up: 
     down: 
@@ -29,6 +31,71 @@ MonoBehaviour:
     mode: 0
     center: {x: 0.5, y: 0.5}
     scale: 2
+    cullMotionBounds: 0
+    motionSensitivity: {x: 1, y: 1}
+    useComposite: 1
+    up: <Keyboard>/w
+    down: <Keyboard>/s
+    left: <Keyboard>/a
+    right: <Keyboard>/d
+  - binding: 
+    mode: 0
+    center: {x: 0.5, y: 0.5}
+    scale: 2
+    cullMotionBounds: 0
+    motionSensitivity: {x: 1, y: 1}
+    useComposite: 1
+    up: <Keyboard>/upArrow
+    down: <Keyboard>/downArrow
+    left: <Keyboard>/leftArrow
+    right: <Keyboard>/rightArrow
+  - binding: 
+    mode: 3
+    center: {x: 0.5, y: 0.5}
+    scale: 2
+    cullMotionBounds: 1
+    motionSensitivity: {x: 10, y: 10}
+    useComposite: 0
+    up: 
+    down: 
+    left: 
+    right: 
+  menuSelectBindings:
+  - binding: <Keyboard>/e
+  - binding: <Keyboard>/enter
+  - binding: <Keyboard>/space
+  - binding: <Mouse>/leftButton
+  - binding: <Gamepad>/buttonSouth
+  menuBackBindings:
+  - binding: <Keyboard>/tab
+  - binding: <Keyboard>/backspace
+  - binding: <Keyboard>/leftAlt
+  - binding: <Mouse>/backButton
+  - binding: <Gamepad>/buttonEast
+  menuContextBindings:
+  - binding: <Keyboard>/q
+  - binding: <Keyboard>/rightShift
+  - binding: <Keyboard>/leftControl
+  - binding: <Mouse>/rightButton
+  - binding: <Gamepad>/buttonWest
+  moveBindings:
+  - binding: <Gamepad>/leftStick
+    mode: 0
+    center: {x: 0.5, y: 0.5}
+    scale: 2
+    cullMotionBounds: 0
+    motionSensitivity: {x: 1, y: 1}
+    useComposite: 0
+    up: 
+    down: 
+    left: 
+    right: 
+  - binding: 
+    mode: 0
+    center: {x: 0.5, y: 0.5}
+    scale: 2
+    cullMotionBounds: 0
+    motionSensitivity: {x: 1, y: 1}
     useComposite: 1
     up: <Keyboard>/w
     down: <Keyboard>/s
@@ -43,6 +110,8 @@ MonoBehaviour:
     mode: 1
     center: {x: 0.5, y: 0.5}
     scale: 2
+    cullMotionBounds: 0
+    motionSensitivity: {x: 1, y: 1}
     useComposite: 0
     up: 
     down: 
@@ -52,6 +121,8 @@ MonoBehaviour:
     mode: 0
     center: {x: 0.5, y: 0.5}
     scale: 2
+    cullMotionBounds: 0
+    motionSensitivity: {x: 1, y: 1}
     useComposite: 0
     up: 
     down: 
@@ -61,6 +132,8 @@ MonoBehaviour:
     mode: 0
     center: {x: 0.5, y: 0.5}
     scale: 2
+    cullMotionBounds: 0
+    motionSensitivity: {x: 1, y: 1}
     useComposite: 1
     up: <Keyboard>/upArrow
     down: <Keyboard>/downArrow
@@ -72,14 +145,14 @@ MonoBehaviour:
   - <Gamepad>/leftShoulder
   resetMotionCalibration:
   - binding: <Gamepad>/start
-    pressTime: 1
+    pressTime: 0.5
   moveHand:
   - binding: <Mouse>/delta
     mode: 1
     center: {x: 0.5, y: 0.5, z: 0.5}
     scale: 2
     cullMotionBounds: 0
-    motionSensitivity: 1
+    motionSensitivity: {x: 1, y: 1, z: 1}
     useComposite: 0
     up: 
     down: 
@@ -92,7 +165,7 @@ MonoBehaviour:
     center: {x: 0.5, y: 0.5, z: 0.5}
     scale: 2
     cullMotionBounds: 0
-    motionSensitivity: 1
+    motionSensitivity: {x: 1, y: 1, z: 1}
     useComposite: 1
     up: <Keyboard>/upArrow
     down: <Keyboard>/downArrow
@@ -105,7 +178,7 @@ MonoBehaviour:
     center: {x: 0.5, y: 0.5, z: 0.5}
     scale: 2
     cullMotionBounds: 1
-    motionSensitivity: 10
+    motionSensitivity: {x: 10, y: 10, z: 1}
     useComposite: 0
     up: 
     down: 

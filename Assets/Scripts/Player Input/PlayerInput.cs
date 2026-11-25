@@ -110,7 +110,7 @@ public class PlayerInput : ScriptableObject
         new()
         {
             binding = "<Gamepad>/start",
-            pressTime = 1.0f
+            pressTime = 0.5f
         }
     };
     [SerializeField] private Vector3Input.Source[] moveHand =
