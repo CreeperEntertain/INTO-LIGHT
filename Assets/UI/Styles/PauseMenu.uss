@@ -68,10 +68,10 @@
     margin: 0;
 }
 .unity-scroll-view .unity-scroller--vertical .unity-base-slider__dragger {
-    left: 5px;
+    left: 15px;
     width: 5px;
 }
 .unity-scroll-view .unity-scroller--horizontal .unity-base-slider__dragger {
-    top: 5px;
+    top: 15px;
     height: 5px;
 }
