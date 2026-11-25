@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -287,5 +290,374 @@ public class PlayerInput : ScriptableObject
             return;
         action.Disable();
         action.Dispose();
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    public InputBindingDisplayData[] GetBindingDisplayData(string inputName)
+        => NormalizeInputName(inputName) switch
+        {
+            "pause" => CreateReleasableDisplayData(pauseBindings),
+            "movecursor" => CreateVector2DisplayData(moveCursorBindings),
+            "scroll" => CreateVector2DisplayData(scrollBindings),
+            "menuselect" => CreateReleasableDisplayData(menuSelectBindings),
+            "menuback" => CreateReleasableDisplayData(menuBackBindings),
+            "menucontext" => CreateReleasableDisplayData(menuContextBindings),
+
+            "move" => CreateVector2DisplayData(moveBindings),
+            "jump" => CreatePathDisplayData(jumpBindings),
+            "movecamera" => CreateVector2DisplayData(moveCamera),
+            "handmode" => CreatePathDisplayData(handModeBindings),
+
+            "resetmotioncalibration" => CreateHoldableDisplayData(resetMotionCalibration),
+            "movehand" => CreateVector3DisplayData(moveHand),
+
+            "grab" => CreatePathDisplayData(grabBindings),
+            "pose1" => CreatePathDisplayData(pose1Bindings),
+            "pose2" => CreatePathDisplayData(pose2Bindings),
+            "pose3" => CreatePathDisplayData(pose3Bindings),
+            "pose4" => CreatePathDisplayData(pose4Bindings),
+
+            _ => Array.Empty<InputBindingDisplayData>()
+        };
+
+
+    private static InputBindingDisplayData[] CreateReleasableDisplayData(ReleasableButtonInput[] bindings)
+    {
+        List<InputBindingDisplayData> result = new();
+        if (bindings == null)
+            return result.ToArray();
+        foreach (ReleasableButtonInput binding in bindings)
+        {
+            InputBindingDisplayData data = CreateSingleBindingDisplayData(binding?.binding);
+            if (data != null)
+                result.Add(data);
+        }
+        return result.ToArray();
+    }
+    private static InputBindingDisplayData[] CreateHoldableDisplayData(HoldableButtonInput[] bindings)
+    {
+        List<InputBindingDisplayData> result = new();
+        if (bindings == null)
+            return result.ToArray();
+        foreach (HoldableButtonInput binding in bindings)
+        {
+            InputBindingDisplayData data = CreateSingleBindingDisplayData(binding?.binding);
+            if (data != null)
+                result.Add(data);
+        }
+        return result.ToArray();
+    }
+    private static InputBindingDisplayData[] CreatePathDisplayData(string[] bindings)
+    {
+        List<InputBindingDisplayData> result = new();
+        if (bindings == null)
+            return result.ToArray();
+        foreach (string binding in bindings)
+        {
+            InputBindingDisplayData data = CreateSingleBindingDisplayData(binding);
+            if (data != null)
+                result.Add(data);
+        }
+        return result.ToArray();
+    }
+    private static InputBindingDisplayData[] CreateVector2DisplayData(Vector2Input.Source[] bindings)
+    {
+        List<InputBindingDisplayData> result = new();
+        if (bindings == null)
+            return result.ToArray();
+        foreach (Vector2Input.Source source in bindings)
+        {
+            if (source == null)
+                continue;
+            if (source.mode == Vector2Input.SourceMode.Tilt)
+            {
+                result.Add(new()
+                {
+                    ControlName = "Motion",
+                    VisualType = InputBindingVisualType.Tilt,
+                    IconClassName = "motion-tilt"
+                });
+                continue;
+            }
+            if (source.useComposite)
+            {
+                result.Add(CreateCompositeDisplayData(
+                    new[]
+                    {
+                        source.up,
+                        source.left,
+                        source.down,
+                        source.right
+                    },
+                    InputBindingVisualType.KeyCluster4
+                ));
+                continue;
+            }
+            InputBindingDisplayData data = CreateSingleBindingDisplayData(source.binding);
+            if (data != null)
+                result.Add(data);
+        }
+        return result.ToArray();
+    }
+    private static InputBindingDisplayData[] CreateVector3DisplayData(Vector3Input.Source[] bindings)
+    {
+        List<InputBindingDisplayData> result = new();
+        if (bindings == null)
+            return result.ToArray();
+        foreach (Vector3Input.Source source in bindings)
+        {
+            if (source == null)
+                continue;
+            if (source.mode == Vector3Input.SourceMode.Tilt)
+            {
+                result.Add(new()
+                {
+                    ControlName = "Motion",
+                    VisualType = InputBindingVisualType.Tilt,
+                    IconClassName = "motion-tilt"
+                });
+                continue;
+            }
+            if (source.useComposite)
+            {
+                result.Add(CreateCompositeDisplayData(
+                    new[]
+                    {
+                        source.up,
+                        source.down,
+                        source.left,
+                        source.right,
+                        source.forward,
+                        source.backward
+                    },
+                    InputBindingVisualType.KeyCluster6
+                ));
+                continue;
+            }
+            InputBindingDisplayData data = CreateSingleBindingDisplayData(source.binding);
+            if (data != null)
+                result.Add(data);
+        }
+        return result.ToArray();
+    }
+
+
+    private static InputBindingDisplayData CreateCompositeDisplayData(string[] bindings, InputBindingVisualType visualType)
+    {
+        bool hasBinding = false;
+        foreach (string binding in bindings)
+            if (TryParseBindingPath(binding, out _, out _))
+            {
+                hasBinding = true;
+                break;
+            }
+        if (!hasBinding)
+            return null;
+        string[] labels = new string[bindings.Length];
+        for (int i = 0; i < bindings.Length; i++)
+            labels[i] = GetBindingLabel(bindings[i]);
+        return new()
+        {
+            ControlName = GetCompositeControlName(bindings),
+            VisualType = visualType,
+            KeyLabels = labels
+        };
+    }
+    private static InputBindingDisplayData CreateSingleBindingDisplayData(string binding)
+    {
+        if (!TryParseBindingPath(binding, out string device, out string control))
+            return null;
+        string controlName = GetDeviceDisplayName(device);
+        if (device.Equals("Keyboard", StringComparison.OrdinalIgnoreCase))
+            return new()
+            {
+                ControlName = controlName,
+                VisualType = InputBindingVisualType.Key,
+                KeyLabels = new[] { FormatKeyboardKey(control) }
+            };
+        if (device.Equals("Mouse", StringComparison.OrdinalIgnoreCase))
+        {
+            if (control.Equals("delta", StringComparison.OrdinalIgnoreCase))
+                return new()
+                {
+                    ControlName = controlName,
+                    VisualType = InputBindingVisualType.MouseDelta,
+                    IconClassName = "mouse-delta"
+                };
+            if (control.Equals("scroll", StringComparison.OrdinalIgnoreCase))
+                return new()
+                {
+                    ControlName = controlName,
+                    VisualType = InputBindingVisualType.ScrollWheel,
+                    IconClassName = "mouse-scroll"
+                };
+            if (control.EndsWith("Button", StringComparison.OrdinalIgnoreCase))
+                return new()
+                {
+                    ControlName = controlName,
+                    VisualType = InputBindingVisualType.MouseButton,
+                    IconClassName = CreateIconClassName(device, control)
+                };
+        }
+        return new()
+        {
+            ControlName = controlName,
+            VisualType = InputBindingVisualType.GenericIcon,
+            IconClassName = CreateIconClassName(device, control)
+        };
+    }
+
+
+    private static bool TryParseBindingPath(string binding, out string device, out string control)
+    {
+        device = null;
+        control = null;
+        if (string.IsNullOrWhiteSpace(binding))
+            return false;
+        int deviceStart = binding.IndexOf('<');
+        int deviceEnd = binding.IndexOf('>');
+        if (deviceStart < 0 || deviceEnd < 0)
+            return false;
+        int controlStart = binding.IndexOf('/', deviceEnd + 1);
+        if (controlStart < 0 || controlStart >= binding.Length - 1)
+            return false;
+        device = binding.Substring(deviceStart + 1, deviceEnd - deviceStart - 1);
+        control = binding.Substring(controlStart + 1);
+        return !string.IsNullOrWhiteSpace(device) && !string.IsNullOrWhiteSpace(control);
+    }
+    private static string GetBindingLabel(string binding)
+    {
+        if (!TryParseBindingPath(binding, out string device, out string control))
+            return string.Empty;
+        if (device.Equals("Keyboard", StringComparison.OrdinalIgnoreCase))
+            return FormatKeyboardKey(control);
+        return FormatDisplayWords(control).ToUpperInvariant();
+    }
+    private static string GetCompositeControlName(string[] bindings)
+    {
+        string commonDevice = null;
+        foreach (string binding in bindings)
+        {
+            if (!TryParseBindingPath(binding, out string device, out _))
+                continue;
+            if (commonDevice == null)
+            {
+                commonDevice = device;
+                continue;
+            }
+            if (!commonDevice.Equals(device, StringComparison.OrdinalIgnoreCase))
+                return "Mixed Controls";
+        }
+        return commonDevice != null
+            ? GetDeviceDisplayName(commonDevice) : "Controls";
+    }
+    private static string GetDeviceDisplayName(string device)
+    {
+        if (device.Equals("Keyboard", StringComparison.OrdinalIgnoreCase))
+            return "Keyboard";
+        if (device.Equals("Mouse", StringComparison.OrdinalIgnoreCase))
+            return "Mouse";
+        if (device.Equals("Gamepad", StringComparison.OrdinalIgnoreCase))
+            return "Gamepad";
+        return FormatDisplayWords(device);
+    }
+    private static string NormalizeInputName(string inputName)
+    {
+        if (string.IsNullOrWhiteSpace(inputName))
+            return string.Empty;
+        StringBuilder result = new(inputName.Length);
+        foreach (char character in inputName)
+            if (char.IsLetterOrDigit(character))
+                result.Append(char.ToLowerInvariant(character));
+        return result.ToString();
+    }
+
+
+    private static string FormatKeyboardKey(string control)
+        => control.ToLowerInvariant() switch
+        {
+            "space" => "SPACE",
+            "enter" => "ENTER",
+            "escape" => "ESC",
+            "tab" => "TAB",
+            "backspace" => "BACK",
+            "delete" => "DEL",
+
+            "leftctrl" or "leftcontrol" => "L CTRL",
+            "rightctrl" or "rightcontrol" => "R CTRL",
+            "leftshift" => "L SHIFT",
+            "rightshift" => "R SHIFT",
+            "leftalt" => "L ALT",
+            "rightalt" => "R ALT",
+            "leftmeta" => "L META",
+            "rightmeta" => "R META",
+
+            "uparrow" => "↑",
+            "downarrow" => "↓",
+            "leftarrow" => "←",
+            "rightarrow" => "→",
+
+            "pageup" => "PG UP",
+            "pagedown" => "PG DN",
+            "home" => "HOME",
+            "end" => "END",
+
+            _ => FormatDisplayWords(control).ToUpperInvariant()
+        };
+    private static string FormatDisplayWords(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+            return string.Empty;
+        StringBuilder result = new();
+        for (int i = 0; i < value.Length; i++)
+        {
+            char character = value[i];
+            if (character is '/' or '_' or '-')
+            {
+                if (result.Length > 0 && result[result.Length - 1] != ' ')
+                    result.Append(' ');
+                continue;
+            }
+            if (char.IsUpper(character) && i > 0 && (char.IsLower(value[i - 1]) || char.IsDigit(value[i - 1])))
+                result.Append(' ');
+            result.Append(character);
+        }
+        return result.ToString().Trim();
+    }
+    private static string CreateIconClassName(string device, string control)
+        => $"{ToKebabCase(device)}-{ToKebabCase(control)}";
+    private static string ToKebabCase(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+            return string.Empty;
+        StringBuilder result = new();
+        for (int i = 0; i < value.Length; i++)
+        {
+            char character = value[i];
+            if (character is '/' or '_' or '-' or ' ')
+            {
+                if (result.Length > 0 && result[result.Length - 1] != '-')
+                    result.Append('-');
+                continue;
+            }
+            if (char.IsUpper(character) && i > 0 && (char.IsLower(value[i - 1]) || char.IsDigit(value[i - 1])))
+                result.Append('-');
+            result.Append(char.ToLowerInvariant(character));
+        }
+        return result.ToString().Trim('-');
     }
 }
