@@ -22,7 +22,7 @@
     left: 0;
     top: 0;
     bottom: 0;
-    width: 1%;
+    width: 5px;
 
     background-color: white;
     overflow: hidden;
