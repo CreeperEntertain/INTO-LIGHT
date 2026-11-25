@@ -7,11 +7,13 @@ public class GlobalUIOverlay : MonoBehaviour
 {
     [SerializeField] private PlayerInput playerInput;
 
+    private const int VirtualPointerFingerId = 0;
+
+    private readonly List<(IPanel panel, float sortingOrder)> targetPanels = new();
+
     private VisualElement marker;
     private Vector2 cursorPosition;
     private IPanel activePanel;
-
-    private readonly List<(IPanel panel, float sortingOrder)> targetPanels = new();
 
 
     private void OnEnable()
@@ -144,37 +146,34 @@ public class GlobalUIOverlay : MonoBehaviour
         return null;
     }
 
+    private static Touch CreateVirtualTouch(Vector2 position, TouchPhase phase)
+        => new()
+        {
+            fingerId = VirtualPointerFingerId,
+            position = position,
+            rawPosition = position,
+            phase = phase,
+            deltaPosition = Vector2.zero,
+            deltaTime = Time.unscaledDeltaTime,
+            tapCount = 1,
+            pressure = 1f,
+            maximumPossiblePressure = 1f
+        };
+
     private static void SendPointerMove(IPanel panel, Vector2 position)
     {
-        Event mouseEvent = new()
-        {
-            type = EventType.MouseMove,
-            mousePosition = position
-        };
-        using (PointerMoveEvent pointerEvent = PointerMoveEvent.GetPooled(mouseEvent))
+        Touch touch = CreateVirtualTouch(position, TouchPhase.Moved);
+        using (PointerMoveEvent pointerEvent = PointerMoveEvent.GetPooled(touch))
             panel.visualTree.SendEvent(pointerEvent);
     }
 
     private static void SendPointerClick(IPanel panel, Vector2 position)
     {
-        Event mouseDown = new()
-        {
-            type = EventType.MouseDown,
-            mousePosition = position,
-            button = 0,
-            clickCount = 1
-        };
-        using (PointerDownEvent pointerEvent = PointerDownEvent.GetPooled(mouseDown))
+        Touch touch = CreateVirtualTouch(position, TouchPhase.Began);
+        using (PointerDownEvent pointerEvent = PointerDownEvent.GetPooled(touch))
             panel.visualTree.SendEvent(pointerEvent);
-        
-        Event mouseUp = new()
-        {
-            type = EventType.MouseUp,
-            mousePosition = position,
-            button = 0,
-            clickCount = 1
-        };
-        using (PointerUpEvent pointerEvent = PointerUpEvent.GetPooled(mouseUp))
+        touch.phase = TouchPhase.Ended;
+        using (PointerUpEvent pointerEvent = PointerUpEvent.GetPooled(touch))
             panel.visualTree.SendEvent(pointerEvent);
     }
 }
