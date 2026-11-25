@@ -39,6 +39,29 @@ MonoBehaviour:
     left: <Keyboard>/a
     right: <Keyboard>/d
   - binding: 
+    mode: 3
+    center: {x: 0.5, y: 0.5}
+    scale: 2
+    cullMotionBounds: 1
+    motionSensitivity: {x: 10, y: 10}
+    useComposite: 0
+    up: 
+    down: 
+    left: 
+    right: 
+  scrollBindings:
+  - binding: <Mouse>/scroll
+    mode: 4
+    center: {x: 0.5, y: 0.5}
+    scale: 0.01
+    cullMotionBounds: 0
+    motionSensitivity: {x: 1, y: 1}
+    useComposite: 0
+    up: 
+    down: 
+    left: 
+    right: 
+  - binding: 
     mode: 0
     center: {x: 0.5, y: 0.5}
     scale: 2
@@ -49,12 +72,12 @@ MonoBehaviour:
     down: <Keyboard>/downArrow
     left: <Keyboard>/leftArrow
     right: <Keyboard>/rightArrow
-  - binding: 
-    mode: 3
+  - binding: <Gamepad>/rightStick
+    mode: 0
     center: {x: 0.5, y: 0.5}
     scale: 2
-    cullMotionBounds: 1
-    motionSensitivity: {x: 10, y: 10}
+    cullMotionBounds: 0
+    motionSensitivity: {x: 1, y: 1}
     useComposite: 0
     up: 
     down: 

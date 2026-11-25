@@ -72,6 +72,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GlobalUIOverlay
   playerInput: {fileID: 11400000, guid: 31fe7847487dfb3428a57071a68c7e21, type: 2}
   directionalCursorSpeed: 900
+  directionalScrollSpeed: 600
+  wheelScrollSpeed: 5000
 --- !u!114 &882590874243488943
 MonoBehaviour:
   m_ObjectHideFlags: 0
