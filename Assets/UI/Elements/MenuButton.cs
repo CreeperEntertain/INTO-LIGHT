@@ -11,7 +11,7 @@ public partial class MenuButton : Button
     {
         AddToClassList("menu-button");
 
-        var stripe = new VisualElement();
+        VisualElement stripe = new();
         stripe.AddToClassList("menu-button__stripe");
         stripe.pickingMode = PickingMode.Ignore;
 

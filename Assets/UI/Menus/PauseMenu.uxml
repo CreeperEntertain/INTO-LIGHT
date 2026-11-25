@@ -1,6 +1,7 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/Styles/PauseMenu.uss?fileID=7433441132597879392&amp;guid=e6fb080dd816334478d4c70d850259b1&amp;type=3"/>
     <Style src="project://database/Assets/UI/Styles/Elements/MenuButton.uss?fileID=7433441132597879392&amp;guid=74960458a7a1cbe438413f8111471ebd&amp;type=3#MenuButton"/>
+    <Style src="project://database/Assets/UI/Styles/Elements/MenuLabel.uss?fileID=7433441132597879392&amp;guid=fe8cfc1540cce004ca3d05fbbc5004fd&amp;type=3#MenuLabel"/>
     <ui:GroupBox name="Main" style="height: 100%; width: 100%; top: auto; left: auto; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;">
         <ui:GroupBox name="LeftGroup" style="margin-bottom: 0; margin-top: 0; margin-right: 0; margin-left: 0; padding-top: 70px; padding-right: 70px; padding-bottom: 70px; padding-left: 70px; width: 33%; height: 100%; position: absolute; left: 0; justify-content: center; aspect-ratio: auto; flex-basis: auto;">
             <MenuButton text="Resume" name="ResumeButton" class="menu-button" style="margin-bottom: 20px;"/>
@@ -9,13 +10,28 @@
             <MenuButton name="ExitGameButton" text="Exit Game" enable-rich-text="true"/>
         </ui:GroupBox>
         <ui:GroupBox name="RightGroup" style="margin-bottom: 0; margin-top: 0; margin-right: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; width: 67%; height: 100%; position: absolute; right: 0;">
-            <ui:GroupBox name="OptionsPanel" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 70px; padding-right: 70px; padding-bottom: 70px; padding-left: 70px; width: 100%; height: 100%; position: absolute; top: 0%; left: 0%;">
-                <MenuFoldout name="ExampleOption" text="Example" expanded="true">
-                    <MenuButton/>
-                    <MenuButton/>
-                </MenuFoldout>
+            <ui:GroupBox name="ControlsPanel" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 70px; padding-right: 70px; padding-bottom: 70px; padding-left: 70px; width: 100%; height: 100%; position: absolute; top: 0%; left: 0%;">
+                <ui:ScrollView style="width: 100%; height: 100%;">
+                    <MenuLabel name="UiBindingsLabel" title="UI"/>
+                    <MenuFoldout name="PauseBindingsFoldout" text="Pause Game" style="margin-top: 20px;"/>
+                    <MenuFoldout name="MoveCursorBindingsFoldout" text="Move Menu Cursor" style="margin-top: 20px;"/>
+                    <MenuFoldout name="MenuSelectBindingsFoldout" text="Menu Select" style="margin-top: 20px;"/>
+                    <MenuLabel name="GeneralBindingsLabel" title="General" style="margin-top: 40px;"/>
+                    <MenuFoldout name="MoveBindingsFoldout" text="Move" style="margin-top: 20px;"/>
+                    <MenuFoldout name="JumpBindingsFoldout" text="Jump" style="margin-top: 20px;"/>
+                    <MenuFoldout name="MoveCameraBindingsFoldout" text="Look Around" style="margin-top: 20px;"/>
+                    <MenuFoldout name="HandModeBindingsFoldout" text="Hand Mode" style="margin-top: 20px;"/>
+                    <MenuLabel name="MotionBindingsLabel" title="Motion Controls" style="margin-top: 40px;"/>
+                    <MenuFoldout name="ResetMotionCalibrationBindingsFoldout" text="Reset Calibration" style="margin-top: 20px;"/>
+                    <MenuFoldout name="MoveHandBindingsFoldout" text="Move Hand" style="margin-top: 20px;"/>
+                    <MenuLabel name="HandPoseBindingsLabel" title="Hand Controls" style="margin-top: 40px;"/>
+                    <MenuFoldout name="GrabBindingsFoldout" text="Grab" style="margin-top: 20px;"/>
+                    <MenuFoldout name="Pose1BindingsFoldout" text="Pose 1" style="margin-top: 20px;"/>
+                    <MenuFoldout name="Pose2BindingsFoldout" text="Pose 2" style="margin-top: 20px;"/>
+                    <MenuFoldout name="Pose3BindingsFoldout" text="Pose 3 " style="margin-top: 20px;"/>
+                    <MenuFoldout name="Pose4BindingsFoldout" text="Pose 4" expanded="false" style="margin-top: 20px;"/>
+                </ui:ScrollView>
             </ui:GroupBox>
-            <ui:GroupBox name="ControlsPanel" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 70px; padding-right: 70px; padding-bottom: 70px; padding-left: 70px; width: 100%; height: 100%; position: absolute; top: 0%; left: 0%;"/>
         </ui:GroupBox>
     </ui:GroupBox>
 </ui:UXML>
