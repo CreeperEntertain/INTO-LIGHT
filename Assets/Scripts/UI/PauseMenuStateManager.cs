@@ -100,9 +100,7 @@ public class PauseMenuStateManager : MonoBehaviour
     }
 
     private void ExitGame()
-    {
-        
-    }
+        => Application.Quit();
 
     private void SetOpen(bool open)
     {
