@@ -30,7 +30,7 @@ public partial class MenuFoldout : VisualElement
     {
         AddToClassList("menu-foldout");
 
-        header = new MenuButton { name = "Header" };
+        header = new() { name = "Header" };
         header.AddToClassList("menu-foldout__header");
         header.clicked += ToggleExpanded;
         hierarchy.Add(header);
