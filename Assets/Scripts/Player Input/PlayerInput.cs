@@ -33,6 +33,12 @@ public class PlayerInput : ScriptableObject
     {
         new()
         {
+            binding = "<Mouse>/scroll",
+            mode = Vector2Input.SourceMode.Scroll,
+            scale = 0.01f
+        },
+        new()
+        {
             useComposite = true,
             mode = Vector2Input.SourceMode.Direction,
             up = "<Keyboard>/upArrow",

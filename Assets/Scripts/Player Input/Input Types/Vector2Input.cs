@@ -11,7 +11,8 @@ public sealed class Vector2Input : IDisposable
         Direction,
         Relative,
         Position,
-        Tilt
+        Tilt,
+        Scroll
     }
 
     [Serializable]
@@ -86,14 +87,21 @@ public sealed class Vector2Input : IDisposable
                 }
 
                 Vector2 raw = source.action.ReadValue<Vector2>();
-                if (raw == Vector2.zero)
+                if (source.settings.mode == SourceMode.Scroll)
+                {
+                    float delta = -raw.y * source.settings.scale;
+                    if (Mathf.Approximately(delta, 0.0f))
+                        continue;
+                    raw = new(delta, delta);
+                }
+                else if (raw == Vector2.zero)
                     continue;
                 
                 HasInput = true;
                 ActiveMode = source.settings.mode;
                 LastActiveMode = source.settings.mode;
                 ActiveControl = source.action.activeControl;
-                IsRelative = source.settings.mode == SourceMode.Relative;
+                IsRelative = source.settings.mode is SourceMode.Relative or SourceMode.Scroll;
                 return source.settings.mode switch
                 {
                     SourceMode.Position =>
