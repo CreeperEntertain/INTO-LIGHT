@@ -1,5 +1,5 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <Style src="project://database/Assets/UI/Styles/PauseMenu.uss?fileID=7433441132597879392&amp;guid=e6fb080dd816334478d4c70d850259b1&amp;type=3#PauseMenu"/>
+    <Style src="project://database/Assets/UI/Styles/PauseMenu.uss?fileID=7433441132597879392&amp;guid=e6fb080dd816334478d4c70d850259b1&amp;type=3"/>
     <Style src="project://database/Assets/UI/Styles/Elements/MenuButton.uss?fileID=7433441132597879392&amp;guid=74960458a7a1cbe438413f8111471ebd&amp;type=3#MenuButton"/>
     <ui:GroupBox name="Main" style="height: 100%; width: 100%; top: auto; left: auto; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;">
         <ui:GroupBox name="LeftGroup" style="margin-bottom: 0; margin-top: 0; margin-right: 0; margin-left: 0; padding-top: 70px; padding-right: 70px; padding-bottom: 70px; padding-left: 70px; width: 33%; height: 100%; position: absolute; left: 0; justify-content: center; aspect-ratio: auto; flex-basis: auto;">
@@ -10,7 +10,7 @@
         </ui:GroupBox>
         <ui:GroupBox name="RightGroup" style="margin-bottom: 0; margin-top: 0; margin-right: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; width: 67%; height: 100%; position: absolute; right: 0;">
             <ui:GroupBox name="OptionsPanel" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 70px; padding-right: 70px; padding-bottom: 70px; padding-left: 70px; width: 100%; height: 100%; position: absolute; top: 0%; left: 0%;">
-                <MenuFoldout name="ExampleOption" text="Example" expanded="false">
+                <MenuFoldout name="ExampleOption" text="Example" expanded="true">
                     <MenuButton/>
                     <MenuButton/>
                 </MenuFoldout>
