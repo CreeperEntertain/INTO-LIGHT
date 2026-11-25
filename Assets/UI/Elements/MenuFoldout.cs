@@ -62,7 +62,7 @@ public partial class MenuFoldout : VisualElement
         }
         else
         {
-            header.RemoveFromClassList("menu-button--actiove");
+            header.RemoveFromClassList("menu-button--active");
             contentClip.style.height = 0;
         }
     }
