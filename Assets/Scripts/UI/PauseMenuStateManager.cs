@@ -6,7 +6,7 @@ using UnityEngine.UIElements;
 public class PauseMenuStateManager : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private PlayerInput playerInput;
+    [SerializeField] private PlayerInput keybinds;
     [SerializeField] private CustomPassVolume blurVolume;
     [SerializeField] private UIDocument uiDocument;
 
@@ -50,7 +50,7 @@ public class PauseMenuStateManager : MonoBehaviour
 
     private void Update()
     {
-        if (playerInput.Pause.WasPressedThisFrame())
+        if (keybinds.Pause.WasPressedThisFrame())
             SetOpen(!isOpen);
         if (Mathf.Approximately(blurPass.Blend, blendTarget))
             return;
