@@ -44,6 +44,8 @@ public class PauseMenuStateManager : MonoBehaviour
         isOpen = false;
 
         uiDocument.rootVisualElement.style.display = DisplayStyle.None;
+
+        GameState.SetPaused(false);
     }
 
     private void Update()
@@ -77,6 +79,7 @@ public class PauseMenuStateManager : MonoBehaviour
         if (!isOpen)
             return;
         
+        GameState.SetPaused(false);
         Time.timeScale = previousTimeScale;
         AudioListener.pause = previousAudioPause;
         isOpen = false;
