@@ -1,0 +1,100 @@
+.input-binding-button {
+    position: relative;
+
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+
+    min-height: 44px;
+
+    padding: 12px;
+    margin: 0px;
+
+    background-color: rgba(0, 0, 0, 0);
+    background-image: none;
+
+    border-width: 0;
+}
+
+.input-binding-button__name {
+    flex-grow: 1;
+    flex-shrink: 1;
+    margin-right: 12px;
+}
+
+.input-binding-button__visual {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.input-binding-button__outline {
+    position: absolute;
+
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+
+    border-left-color: rgba(255, 255, 255, 0.5);
+    border-right-color: rgba(255, 255, 255, 0.5);
+    border-top-color: rgba(255, 255, 255, 0.5);
+    border-bottom-color: rgba(255, 255, 255, 0.5);
+
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.input-binding-button:hover .input-binding-button__outline {
+    border-left-width: 5px;
+    border-right-width: 5px;
+    border-top-width: 5px;
+    border-bottom-width: 5px;
+}
+
+.input-binding-button__key-cluster {
+    width: 60px;
+
+    flex-direction: column;
+    flex-shrink: 0;
+}
+
+.input-binding-button__key-row {
+    width: 60px;
+    height: 18px;
+
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.input-binding-button__key-row--second {
+    margin-top: 3px;
+}
+
+.input-binding-button__key,
+.input-binding-button__key-placeholder {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+.input-binding-button__key {
+    background-color: white;
+    color: black;
+
+    font-size: 10px;
+    -unity-text-align: middle-center;
+}
+
+.input-binding-button__icon {
+    width: 28px;
+    height: 28px;
+
+    flex-shrink: 0;
+}
