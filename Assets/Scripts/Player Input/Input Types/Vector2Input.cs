@@ -92,7 +92,7 @@ public sealed class Vector2Input : IDisposable
                     float delta = -raw.y * source.settings.scale;
                     if (Mathf.Approximately(delta, 0.0f))
                         continue;
-                    raw = new(delta, delta);
+                    raw = new(-delta, -delta);
                 }
                 else if (raw == Vector2.zero)
                     continue;

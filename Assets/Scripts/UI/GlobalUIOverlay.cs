@@ -9,7 +9,7 @@ public class GlobalUIOverlay : MonoBehaviour
     [SerializeField] private PlayerInput playerInput;
 
     [Header("Settings")]
-    [SerializeField, Min(0.0f)] private float directionalCursorSpeed = 900.0f;
+    [SerializeField, Min(0.0f)] private float directionalCursorSpeed = 600.0f;
     [SerializeField, Min(0.0f)] private float directionalScrollSpeed = 600.0f;
     [SerializeField, Min(0.0f)] private float wheelScrollSpeed = 5000.0f;
 
@@ -193,7 +193,7 @@ public class GlobalUIOverlay : MonoBehaviour
         
         float amount = playerInput.Scroll.ActiveMode == Vector2Input.SourceMode.Direction
             ? directionalScrollSpeed * Time.unscaledDeltaTime : wheelScrollSpeed;
-        scrollView.scrollOffset += scroll * amount;
+        scrollView.scrollOffset -= scroll * amount;
     }
 
     private static void SendPointerMove(IPanel panel, Vector2 position)
