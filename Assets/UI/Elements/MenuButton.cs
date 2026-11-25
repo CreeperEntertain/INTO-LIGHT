@@ -3,7 +3,6 @@ using UnityEngine.UIElements;
 [UxmlElement]
 public partial class MenuButton : Button
 {
-    private readonly VisualElement stripe;
     private readonly TextElement invertedText;
 
     private bool textLayoutSyncQueued;
