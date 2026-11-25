@@ -101,7 +101,10 @@ public class PauseMenuStateManager : MonoBehaviour
 
     private void ExitGame()
     {
-        
+    #if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+    #endif
+        Application.Quit();
     }
 
     private void SetOpen(bool open)
