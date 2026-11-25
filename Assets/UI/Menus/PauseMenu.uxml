@@ -20,7 +20,7 @@
                     <MenuLabel name="GeneralBindingsLabel" title="General" style="margin-top: 40px;"/>
                     <MenuFoldout name="MoveBindingsFoldout" text="Move" style="margin-top: 20px;"/>
                     <MenuFoldout name="JumpBindingsFoldout" text="Jump" style="margin-top: 20px;"/>
-                    <MenuFoldout name="MoveCameraBindingsFoldout" text="Look Around" style="margin-top: 20px;"/>
+                    <InputBindingFoldout name="MoveCameraBindingsFoldout" input-name="MoveCamera" text="Look Around" style="margin-top: 20px;"/>
                     <MenuFoldout name="HandModeBindingsFoldout" text="Hand Mode" style="margin-top: 20px;"/>
                     <MenuLabel name="MotionBindingsLabel" title="Motion Controls" style="margin-top: 40px;"/>
                     <MenuFoldout name="ResetMotionCalibrationBindingsFoldout" text="Reset Calibration" style="margin-top: 20px;"/>
