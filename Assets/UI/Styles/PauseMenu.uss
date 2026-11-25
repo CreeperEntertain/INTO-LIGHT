@@ -1,0 +1,25 @@
+.unity-scroll-view__vertical-scroller {
+    width: 8px;
+}
+
+.unity-scroll-view__horizontal-scroller {
+    height: 8px;
+}
+
+.unity-scroll-view .unity-scroller__low-button,
+.unity-scroll-view .unity-scroller__high-button {
+    display: none;
+}
+
+.unity-scroll-view .unity-base-slider__tracker {
+    background-color: rgba(127, 127, 127, 0.85);
+    border-width: 0;
+    margin: 8px;
+}
+
+.unity-scroll-view .unity-base-slider__dragger {
+    background-color: white;
+    border-width: 0;
+    border-radius: 0;
+    margin: 8px;
+}
