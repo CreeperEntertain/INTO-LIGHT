@@ -71,8 +71,8 @@ Shader "INTO LIGHT/Effects/Pause Background Blur"
                     int y1 = min(y + 1, radius);
 
                     float wy0 = exp(-(float)(y * y) * invTwoSigmaSquared);
-                    float wy1 = (y1 == y) ? 0.0 :
-                        exp(-(float)(y1 * y1) * invTwoSigmaSquared);
+                    float wy1 = (y1 == y)
+                        ? 0.0 : exp(-(float)(y1 * y1) * invTwoSigmaSquared);
 
                     float weightY = wy0 + wy1;
                     float offsetY = (y * wy0 + y1 * wy1) / weightY;
@@ -82,23 +82,18 @@ Shader "INTO LIGHT/Effects/Pause Background Blur"
                         int x1 = min(x + 1, radius);
 
                         float wx0 = exp(-(float)(x * x) * invTwoSigmaSquared);
-                        float wx1 = (x1 == x) ? 0.0 :
-                            exp(-(float)(x1 * x1) * invTwoSigmaSquared);
+                        float wx1 = (x1 == x)
+                            ? 0.0 : exp(-(float)(x1 * x1) * invTwoSigmaSquared);
 
                         float weightX = wx0 + wx1;
                         float offsetX = (x * wx0 + x1 * wx1) / weightX;
 
                         float weight = weightX * weightY;
-                        float2 uv = input.texcoord +
-                            float2(offsetX, offsetY) * texel;
+                        float2 uv = input.texcoord + float2(offsetX, offsetY) * texel;
 
-                        float4 pixel = SAMPLE_TEXTURE2D_X(
-                            _BlitTexture, sampler_LinearClamp, uv);
+                        float4 pixel = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_LinearClamp, uv);
 
-                        pixel.rgb = RemapBrightness(
-                            pixel.rgb,
-                            effectiveMinBrightness,
-                            effectiveMaxBrightness);
+                        pixel.rgb = RemapBrightness(pixel.rgb, effectiveMinBrightness, effectiveMaxBrightness);
 
                         colorSum += pixel * weight;
                         weightSum += weight;
