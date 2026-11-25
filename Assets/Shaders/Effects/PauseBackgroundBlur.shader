@@ -66,22 +66,39 @@ Shader "INTO LIGHT/Effects/Pause Background Blur"
 
                 int radius = min((int)ceil(3.0 * sigma), 16);
 
-                for (int y = -16; y <= 16; y++)
+                for (int y = -radius; y <= radius; y += 2)
                 {
-                    if (abs(y) > radius)
-                        continue;
+                    int y1 = min(y + 1, radius);
 
-                    for (int x = -16; x <= 16; x++)
+                    float wy0 = exp(-(float)(y * y) * invTwoSigmaSquared);
+                    float wy1 = (y1 == y) ? 0.0 :
+                        exp(-(float)(y1 * y1) * invTwoSigmaSquared);
+
+                    float weightY = wy0 + wy1;
+                    float offsetY = (y * wy0 + y1 * wy1) / weightY;
+
+                    for (int x = -radius; x <= radius; x += 2)
                     {
-                        if (abs(x) > radius)
-                            continue;
+                        int x1 = min(x + 1, radius);
 
-                        float2 d = float2((float)x, (float)y);
-                        float weight = exp(-dot(d, d) * invTwoSigmaSquared);
-                        float2 uv = input.texcoord + d * texel;
+                        float wx0 = exp(-(float)(x * x) * invTwoSigmaSquared);
+                        float wx1 = (x1 == x) ? 0.0 :
+                            exp(-(float)(x1 * x1) * invTwoSigmaSquared);
 
-                        float4 pixel = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_LinearClamp, uv);
-                        pixel.rgb = RemapBrightness(pixel.rgb, effectiveMinBrightness, effectiveMaxBrightness);
+                        float weightX = wx0 + wx1;
+                        float offsetX = (x * wx0 + x1 * wx1) / weightX;
+
+                        float weight = weightX * weightY;
+                        float2 uv = input.texcoord +
+                            float2(offsetX, offsetY) * texel;
+
+                        float4 pixel = SAMPLE_TEXTURE2D_X(
+                            _BlitTexture, sampler_LinearClamp, uv);
+
+                        pixel.rgb = RemapBrightness(
+                            pixel.rgb,
+                            effectiveMinBrightness,
+                            effectiveMaxBrightness);
 
                         colorSum += pixel * weight;
                         weightSum += weight;
