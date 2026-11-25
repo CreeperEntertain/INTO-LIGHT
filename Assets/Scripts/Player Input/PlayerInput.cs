@@ -4,12 +4,66 @@ using UnityEngine.InputSystem;
 [CreateAssetMenu(fileName = "PlayerInput", menuName = "Scriptable Objects/Player Input")]
 public class PlayerInput : ScriptableObject
 {
-    [Header("General Bindings")]
+    [Header("UI Bindings")]
     [SerializeField] private ReleasableButtonInput[] pauseBindings =
     {
         new() { binding = "<Keyboard>/escape" },
         new() { binding = "<Gamepad>/start" }
     };
+    [SerializeField] private Vector2Input.Source[] moveCursorBindings =
+    {
+        new() { binding = "<Mouse>/delta", mode = Vector2Input.SourceMode.Relative },
+        new()
+        {
+            mode = Vector2Input.SourceMode.Tilt,
+            motionSensitivity = new(10.0f, 10.0f),
+            cullMotionBounds = true
+        },
+        new()
+        {
+            useComposite = true,
+            mode = Vector2Input.SourceMode.Direction,
+            up = "<Keyboard>/w",
+            down = "<Keyboard>/s",
+            left = "<Keyboard>/a",
+            right = "<Keyboard>/d"
+        },
+        new()
+        {
+            useComposite = true,
+            mode = Vector2Input.SourceMode.Direction,
+            up = "<Keyboard>/upArrow",
+            down = "<Keyboard>/downArrow",
+            left = "<Keyboard>/leftArrow",
+            right = "<Keyboard>/rightArrow"
+        }
+    };
+    [SerializeField] private ReleasableButtonInput[] menuSelectBindings =
+    {
+        new() { binding = "<Keyboard>/e" },
+        new() { binding = "<Keyboard>/enter" },
+        new() { binding = "<Keyboard>/space" },
+        new() { binding = "<Mouse>/leftButton" },
+        new() { binding = "<Gamepad>/buttonSouth" }
+    };
+    [SerializeField] private ReleasableButtonInput[] menuBackBindings =
+    {
+        new() { binding = "<Keyboard>/tab" },
+        new() { binding = "<Keyboard>/backspace" },
+        new() { binding = "<Keyboard>/leftAlt" },
+        new() { binding = "<Mouse>/backButton" },
+        new() { binding = "<Gamepad>/buttonEast" }
+    };
+    [SerializeField] private ReleasableButtonInput[] menuContextBindings =
+    {
+        new() { binding = "<Keyboard>/q" },
+        new() { binding = "<Keyboard>/rightShift" },
+        new() { binding = "<Keyboard>/leftControl" },
+        new() { binding = "<Mouse>/rightButton" },
+        new() { binding = "<Gamepad>/buttonWest" }
+    };
+
+    [Header("General Bindings")]
     [SerializeField] private Vector2Input.Source[] moveBindings =
     {
         new() { binding = "<Gamepad>/leftStick", mode = Vector2Input.SourceMode.Direction },
@@ -107,6 +161,10 @@ public class PlayerInput : ScriptableObject
     };
 
     public ReleasableButtonInput Pause { get; private set;}
+    public Vector2Input MoveCursor { get; private set; }
+    public ReleasableButtonInput MenuSelect { get; private set; }
+    public ReleasableButtonInput MenuBack { get; private set; }
+    public ReleasableButtonInput MenuContext { get; private set; }
     public Vector2Input Move { get; private set; }
     public InputAction Jump { get; private set; }
     public Vector2Input MoveCamera { get; private set; }
@@ -133,6 +191,11 @@ public class PlayerInput : ScriptableObject
     private void BuildActions()
     {
         Pause = new("Pause", pauseBindings);
+        MoveCursor = new("Move Cursor", moveCursorBindings);
+        MenuSelect = new("Menu Select", menuSelectBindings);
+        MenuBack = new("Menu Back", menuBackBindings);
+        MenuContext = new("Menu Context", menuContextBindings);
+
         Move = new("Move", moveBindings);
         Jump = CreateButton("Jump", jumpBindings);
         MoveCamera = new("Move Camera", moveCamera);
@@ -161,12 +224,19 @@ public class PlayerInput : ScriptableObject
     private void EnableActions()
     {
         Pause.Enable();
+        MoveCursor.Enable();
+        MenuSelect.Enable();
+        MenuBack.Enable();
+        MenuContext.Enable();
+
         Move.Enable();
         Jump.Enable();
         MoveCamera.Enable();
         HandMode.Enable();
+
         MoveHand.Enable();
         ResetMotionCalibration.Enable();
+
         Grab.Enable();
         Pose1.Enable();
         Pose2.Enable();
@@ -177,12 +247,19 @@ public class PlayerInput : ScriptableObject
     private void DisableAndDisposeActions()
     {
         Pause?.Dispose();
+        MoveCursor?.Dispose();
+        MenuSelect?.Dispose();
+        MenuBack?.Dispose();
+        MenuContext?.Dispose();
+
         Move?.Dispose();
         DisposeAction(Jump);
         MoveCamera?.Dispose();
         DisposeAction(HandMode);
+
         MoveHand?.Dispose();
         ResetMotionCalibration?.Dispose();
+
         DisposeAction(Grab);
         DisposeAction(Pose1);
         DisposeAction(Pose2);

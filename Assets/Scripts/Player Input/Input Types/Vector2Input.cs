@@ -10,7 +10,8 @@ public sealed class Vector2Input : IDisposable
     {
         Direction,
         Relative,
-        Position
+        Position,
+        Tilt
     }
 
     [Serializable]
@@ -20,6 +21,8 @@ public sealed class Vector2Input : IDisposable
         public SourceMode mode;
         public Vector2 center = new(0.5f, 0.5f);
         public float scale = 2.0f;
+        public bool cullMotionBounds;
+        [Min(0.0f)] public Vector2 motionSensitivity = new(1.0f, 1.0f);
 
         public bool useComposite;
         public string up;
@@ -32,6 +35,9 @@ public sealed class Vector2Input : IDisposable
     {
         public Source settings;
         public InputAction action;
+        public Vector2 accumulatedAngleDegrees;
+        public int lastMotionFrame = -1;
+        public int motionStateVersion = -1;
     }
 
     private readonly List<RuntimeSource> sources = new();
@@ -45,6 +51,40 @@ public sealed class Vector2Input : IDisposable
             ActiveControl = null;
             foreach (RuntimeSource source in sources)
             {
+                if (source.settings.mode == SourceMode.Tilt)
+                {
+                    if (!JSLMotionInput.TryGetGyroDelta(out Vector3 delta))
+                        continue;
+                    if (source.lastMotionFrame != Time.frameCount)
+                    {
+                        source.lastMotionFrame = Time.frameCount;
+                        if (source.motionStateVersion != JSLMotionInput.MotionStateVersion)
+                        {
+                            source.accumulatedAngleDegrees = Vector2.zero;
+                            source.motionStateVersion = JSLMotionInput.MotionStateVersion;
+                        }
+                        source.accumulatedAngleDegrees += Vector2.Scale(new(delta.x, delta.y), source.settings.motionSensitivity);
+                        if (source.settings.cullMotionBounds)
+                            source.accumulatedAngleDegrees = new(
+                                Mathf.Clamp(source.accumulatedAngleDegrees.x, -180.0f, 180.0f),
+                                Mathf.Clamp(source.accumulatedAngleDegrees.y, -180.0f, 180.0f)
+                            );
+                        else
+                            source.accumulatedAngleDegrees = new(
+                                Mathf.DeltaAngle(0.0f, source.accumulatedAngleDegrees.x),
+                                Mathf.DeltaAngle(0.0f, source.accumulatedAngleDegrees.y)
+                            );
+                    }
+
+                    HasInput = true;
+                    ActiveMode = SourceMode.Tilt;
+                    LastActiveMode = SourceMode.Tilt;
+                    ActiveControl = null;
+                    IsRelative = false;
+
+                    return source.accumulatedAngleDegrees / 180.0f;
+                }
+
                 Vector2 raw = source.action.ReadValue<Vector2>();
                 if (raw == Vector2.zero)
                     continue;
@@ -82,6 +122,11 @@ public sealed class Vector2Input : IDisposable
         {
             if (source == null)
                 return;
+            if (source.mode == SourceMode.Tilt)
+            {
+                sources.Add(new() { settings = source });
+                continue;
+            }
             
             InputAction action = new($"{name} {sources.Count}", InputActionType.Value, expectedControlType: "Vector2");
             if (source.useComposite)
@@ -123,19 +168,19 @@ public sealed class Vector2Input : IDisposable
     public void Enable()
     {
         foreach (RuntimeSource source in sources)
-            source.action.Enable();
+            source.action?.Enable();
     }
 
     public void Disable()
     {
         foreach (RuntimeSource source in sources)
-            source.action.Disable();
+            source.action?.Disable();
     }
 
     public bool WasPressedThisFrame()
     {
         foreach (RuntimeSource source in sources)
-            if (source.action.WasPressedThisFrame())
+            if (source.action != null && source.action.WasPressedThisFrame())
                 return true;
         return false;
     }
@@ -143,7 +188,7 @@ public sealed class Vector2Input : IDisposable
     public bool IsPressed()
     {
         foreach (RuntimeSource source in sources)
-            if (source.action.IsPressed())
+            if (source.action != null && source.action.IsPressed())
                 return true;
         return false;
     }
@@ -157,8 +202,8 @@ public sealed class Vector2Input : IDisposable
     {
         foreach (RuntimeSource source in sources)
         {
-            source.action.Disable();
-            source.action.Dispose();
+            source.action?.Disable();
+            source.action?.Dispose();
         }
         sources.Clear();
     }

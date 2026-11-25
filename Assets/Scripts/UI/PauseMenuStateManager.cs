@@ -44,6 +44,8 @@ public class PauseMenuStateManager : MonoBehaviour
         isOpen = false;
 
         uiDocument.rootVisualElement.style.display = DisplayStyle.None;
+
+        GameState.SetPaused(false);
     }
 
     private void Update()
@@ -77,6 +79,7 @@ public class PauseMenuStateManager : MonoBehaviour
         if (!isOpen)
             return;
         
+        GameState.SetPaused(false);
         Time.timeScale = previousTimeScale;
         AudioListener.pause = previousAudioPause;
         isOpen = false;
@@ -106,6 +109,7 @@ public class PauseMenuStateManager : MonoBehaviour
         if (isOpen == open)
             return;
 
+        GameState.SetPaused(open);
         isOpen = open;
         if (open)
         {
@@ -125,7 +129,7 @@ public class PauseMenuStateManager : MonoBehaviour
         blendTarget = open ? 1.0f : 0.0f;
         transitionStart = Time.unscaledTime;
 
-        uiDocument.rootVisualElement.style.display =
-            open ? DisplayStyle.Flex : DisplayStyle.None;
+        uiDocument.rootVisualElement.style.display = open
+            ? DisplayStyle.Flex : DisplayStyle.None;
     }
 }

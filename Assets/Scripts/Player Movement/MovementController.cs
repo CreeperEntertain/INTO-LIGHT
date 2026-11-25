@@ -66,6 +66,12 @@ public class MovementController : MonoBehaviour
     
     private void Update()
     {
+        if (GameState.IsPaused)
+        {
+            moveInput = Vector2.zero;
+            jumpQueued = false;
+            return;
+        }
         ReadMovementInput();
         ReadCameraInput();
     }
@@ -125,6 +131,12 @@ public class MovementController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (GameState.IsPaused)
+        {
+            moveInput = Vector2.zero;
+            jumpQueued = false;
+            return;
+        }
         if (groundSpring.IsGrounded)
             lastGroundedTime = Time.fixedTime;
         HandleMovement();
