@@ -5,7 +5,11 @@ using UnityEngine.UIElements;
 [RequireComponent(typeof(UIDocument))]
 public class GlobalUIOverlay : MonoBehaviour
 {
+    [Header("References")]
     [SerializeField] private PlayerInput playerInput;
+
+    [Header("Settings")]
+    [SerializeField, Min(0.0f)] private float directionalCursorSpeed = 900.0f;
 
     private const int VirtualPointerFingerId = 0;
 
@@ -44,7 +48,7 @@ public class GlobalUIOverlay : MonoBehaviour
         marker.style.width = 24;
         marker.style.height = 24;
         marker.style.flexShrink = 0;
-        marker.style.backgroundColor = new Color(0f, 0f, 0f, 0.85f);
+        marker.style.backgroundColor = new Color(0.0f, 0.0f, 0.0f, 0.85f);
 
         marker.style.borderTopWidth = 1;
         marker.style.borderBottomWidth = 1;
@@ -100,6 +104,8 @@ public class GlobalUIOverlay : MonoBehaviour
                 (movement.x + 1.0f) * 0.5f * Screen.width,
                 (movement.y + 1.0f) * 0.5f * Screen.height
             );
+        else if (playerInput.MoveCursor.ActiveMode == Vector2Input.SourceMode.Direction)
+            cursorPosition += directionalCursorSpeed * Time.unscaledDeltaTime * movement;
         else if (playerInput.MoveCursor.IsRelative)
             cursorPosition += movement;
 
@@ -195,6 +201,7 @@ public class GlobalUIOverlay : MonoBehaviour
     {
         if (Enabled)
             return;
+        cursorPosition = new(Screen.width * 0.5f, Screen.height * 0.5f);
         Enabled = true;
         if (marker != null)
             marker.style.display = DisplayStyle.Flex;
