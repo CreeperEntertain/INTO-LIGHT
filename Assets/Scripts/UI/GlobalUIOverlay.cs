@@ -44,7 +44,7 @@ public class GlobalUIOverlay : MonoBehaviour
         marker.style.width = 24;
         marker.style.height = 24;
         marker.style.flexShrink = 0;
-        marker.style.backgroundColor = new Color(0f, 0f, 0f, 0.85f);
+        marker.style.backgroundColor = new Color(0.0f, 0.0f, 0.0f, 0.85f);
 
         marker.style.borderTopWidth = 1;
         marker.style.borderBottomWidth = 1;
