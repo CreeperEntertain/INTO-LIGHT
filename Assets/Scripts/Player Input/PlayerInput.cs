@@ -15,12 +15,6 @@ public class PlayerInput : ScriptableObject
         new() { binding = "<Mouse>/delta", mode = Vector2Input.SourceMode.Relative },
         new()
         {
-            mode = Vector2Input.SourceMode.Tilt,
-            motionSensitivity = new(10.0f, 10.0f),
-            cullMotionBounds = true
-        },
-        new()
-        {
             useComposite = true,
             mode = Vector2Input.SourceMode.Direction,
             up = "<Keyboard>/w",
@@ -36,6 +30,12 @@ public class PlayerInput : ScriptableObject
             down = "<Keyboard>/downArrow",
             left = "<Keyboard>/leftArrow",
             right = "<Keyboard>/rightArrow"
+        },
+        new()
+        {
+            mode = Vector2Input.SourceMode.Tilt,
+            motionSensitivity = new(10.0f, 10.0f),
+            cullMotionBounds = true
         }
     };
     [SerializeField] private ReleasableButtonInput[] menuSelectBindings =
