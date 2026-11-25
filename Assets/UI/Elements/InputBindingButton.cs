@@ -94,16 +94,20 @@ public partial class InputBindingButton : Button
     private void CreateKeyCluster6(string[] labels)
     {
         VisualElement cluster = CreateKeyCluster();
-        for (int rowIndex = 0; rowIndex < 2; rowIndex++)
-        {
-            VisualElement row = CreateKeyRow(rowIndex > 0);
-            for (int columnIndex = 0; columnIndex < 3; columnIndex++)
-            {
-                int keyIndex = rowIndex * 3 + columnIndex;
-                row.Add(CreateKey(labels, keyIndex));
-            }
-            cluster.Add(row);
-        }
+
+        VisualElement topRow = CreateKeyRow();
+        topRow.Add(CreateKey(labels, 4));
+        topRow.Add(CreateKey(labels, 0));
+        topRow.Add(CreateKey(labels, 5));
+
+        VisualElement bottomRow = CreateKeyRow(true);
+        bottomRow.Add(CreateKey(labels, 2));
+        bottomRow.Add(CreateKey(labels, 1));
+        bottomRow.Add(CreateKey(labels, 3));
+
+        cluster.Add(topRow);
+        cluster.Add(bottomRow);
+
         visualContainer.Add(cluster);
     }
 
