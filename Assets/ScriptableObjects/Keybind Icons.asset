@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::InputIconLibrary
   icons: []
   vectorIcons:
+  - {fileID: 7388822144124034973, guid: a88982797dccf6d46aa277b837c12103, type: 3}
   - {fileID: 7388822144124034973, guid: 4a67346bd4de42c4b804bea4d4c27aca, type: 3}
   - {fileID: 7388822144124034973, guid: 61a92c7e3e0438c478fab0d95bc31114, type: 3}
   - {fileID: 7388822144124034973, guid: e03074b024aec01478500c1daf07cb58, type: 3}
