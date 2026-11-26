@@ -345,14 +345,16 @@ public class PlayerInput : ScriptableObject
     }
     private void ResolveDisplayIcons(InputBindingDisplayData data)
     {
+        data.EmptyIcon = inputIconLibrary != null
+            ? inputIconLibrary.ResolveIcon("empty", out _) : null;
         if (data.VisualType is InputBindingVisualType.IconCluster4 or InputBindingVisualType.IconCluster6)
         {
             if (data.IconNames == null)
                 data.IconNames = Array.Empty<string>();
-            data.Icons = new Texture2D[data.IconNames.Length];
+            data.Icons = new UnityEngine.Object[data.IconNames.Length];
             for (int i = 0; i < data.IconNames.Length; i++)
             {
-                string resolvedName = "undefined";
+                string resolvedName = data.IconNames[i];
                 if (inputIconLibrary != null)
                     data.Icons[i] = inputIconLibrary.ResolveIcon(data.IconNames[i], out resolvedName);
                 data.IconNames[i] = resolvedName;
@@ -360,7 +362,7 @@ public class PlayerInput : ScriptableObject
             return;
         }
 
-        string iconName = "undefined";
+        string iconName = data.IconName;
         if (inputIconLibrary != null)
             data.Icon = inputIconLibrary.ResolveIcon(data.IconName, out iconName);
         data.IconName = iconName;
@@ -525,7 +527,7 @@ public class PlayerInput : ScriptableObject
     private static string GetBindingIconName(string binding)
     {
         if (!TryParseBindingPath(binding, out string device, out string control))
-            return "undefined";
+            return "empty";
         return GetBindingIconName(device, control);
     }
     private static string GetBindingIconName(string device, string control)

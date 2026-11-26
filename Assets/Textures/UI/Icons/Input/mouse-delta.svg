@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 48 48"
+   height="48px"
+   width="48px"
+   fill="#FFFFFF"
+   version="1.1"
+   id="svg1"
+   sodipodi:docname="mouse-delta.svg"
+   inkscape:version="1.4.4 (dcaf3e7, 2026-05-05)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#4e3535"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="16.8125"
+     inkscape:cx="23.97026"
+     inkscape:cy="24"
+     inkscape:window-width="1920"
+     inkscape:window-height="1009"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="path2" />
+  <path
+     d="M 18,44 Q 12.1,44 8.05,39.95 4,35.9 4,30 V 17 Q 4,11.1 8.05,7.05 12.1,3 18,3 23.9,3 27.95,7.05 32,11.1 32,17 v 13 q 0,5.9 -4.05,9.95 Q 23.9,44 18,44 Z M 19.5,17 H 29 Q 29,12.95 26.35,9.8 23.7,6.65 19.5,6.1 Z M 7,17 h 9.5 V 6.1 Q 12.3,6.65 9.65,9.8 7,12.95 7,17 Z m 10.99,24 q 4.56,0 7.79,-3.22 Q 29.01,34.56 29,30 V 20 H 7 v 10 q 0,4.56 3.21,7.78 Q 13.42,41 17.99,41 Z M 18,20 Z m 1.5,-3 z m -3,0 z m 1.5,3 z"
+     id="path1" />
+  <g
+     id="path2"
+     style="opacity:1">
+    <path
+       style="baseline-shift:baseline;display:inline;overflow:visible;vector-effect:none;enable-background:accumulate;stop-color:#000000;stop-opacity:1"
+       d="m 38.648437,12.074219 v 23.554687 h 3 V 12.074219 Z"
+       id="path6" />
+    <path
+       d="M 35.837848,12.296052 39.20955,5.5526461 a 1.05,1.05 0 0 1 1.878298,0 l 3.371702,6.7434059 a 1.2978714,1.2978714 0 0 1 -1.160851,1.878297 h -6.3 a 1.2978714,1.2978714 0 0 1 -1.160851,-1.878297 z"
+       style="baseline-shift:baseline;display:inline;overflow:visible;vector-effect:none;fill-rule:evenodd;enable-background:accumulate;stop-color:#000000"
+       id="path3" />
+    <path
+       d="m 44.45955,35.40655 -3.371702,6.743406 a 1.05,1.05 0 0 1 -1.878298,0 L 35.837848,35.40655 a 1.2978714,1.2978714 0 0 1 1.160851,-1.878297 h 6.3 a 1.2978714,1.2978714 0 0 1 1.160851,1.878297 z"
+       style="baseline-shift:baseline;display:inline;overflow:visible;vector-effect:none;fill-rule:evenodd;enable-background:accumulate;stop-color:#000000"
+       id="path5" />
+  </g>
+</svg>

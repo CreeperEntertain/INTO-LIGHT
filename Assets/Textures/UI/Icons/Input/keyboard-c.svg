@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 48 48"
+   height="48px"
+   width="48px"
+   fill="#FFFFFF"
+   version="1.1"
+   id="svg1"
+   sodipodi:docname="keyboard-c.svg"
+   inkscape:version="1.4.4 (dcaf3e7, 2026-05-05)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#4e3535"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="11.888233"
+     inkscape:cx="21.786249"
+     inkscape:cy="27.127665"
+     inkscape:window-width="1920"
+     inkscape:window-height="1009"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1" />
+  <rect
+     style="fill:none;stroke:#ffffff;stroke-width:4;stroke-linejoin:round;stroke-dasharray:none"
+     id="rect1"
+     width="40"
+     height="40"
+     x="4"
+     y="4" />
+  <path
+     d="m 25.720001,33.653344 q -2.10667,0 -3.893338,-0.693334 -1.760003,-0.720001 -3.066671,-2.000003 -1.280002,-1.306668 -2.000003,-3.06667 -0.693334,-1.786669 -0.693334,-3.893339 0,-2.080002 0.720001,-3.840005 0.746668,-1.760002 2.080003,-3.06667 1.333335,-1.306668 3.120004,-2.026669 1.813335,-0.720001 3.920005,-0.720001 1.333335,0 2.613336,0.346667 1.280002,0.346667 2.373337,1.040001 1.120001,0.666668 1.920002,1.626669 l -2.800003,3.173337 q -0.826668,-0.906668 -1.866669,-1.413335 -1.013335,-0.506667 -2.26667,-0.506667 -1.066668,0 -2.026669,0.373334 -0.933335,0.373333 -1.626669,1.093334 -0.693334,0.720001 -1.093335,1.706669 -0.4,0.986668 -0.4,2.240003 0,1.226668 0.373334,2.240003 0.4,0.986668 1.120001,1.706669 0.746668,0.693334 1.760002,1.066668 1.040002,0.373333 2.293336,0.373333 0.826668,0 1.573336,-0.213333 0.773334,-0.24 1.440002,-0.666668 0.666667,-0.426667 1.146668,-0.960001 l 2.213336,3.520005 q -0.640001,0.72 -1.760002,1.306668 -1.093335,0.586667 -2.453337,0.933334 -1.333335,0.320001 -2.720003,0.320001 z"
+     id="text1"
+     style="font-weight:bold;font-size:26.6667px;font-family:'Readex Pro';-inkscape-font-specification:'Readex Pro Bold';text-align:center;text-anchor:middle;stroke-width:4;stroke-linejoin:round"
+     aria-label="C" />
+</svg>

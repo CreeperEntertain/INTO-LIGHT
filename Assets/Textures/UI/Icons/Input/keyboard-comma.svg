@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 48 48"
+   height="48px"
+   width="48px"
+   fill="#FFFFFF"
+   version="1.1"
+   id="svg1"
+   sodipodi:docname="keyboard-comma.svg"
+   inkscape:version="1.4.4 (dcaf3e7, 2026-05-05)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#4e3535"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="11.888233"
+     inkscape:cx="10.766949"
+     inkscape:cy="18.295402"
+     inkscape:window-width="1920"
+     inkscape:window-height="1009"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1" />
+  <rect
+     style="fill:none;stroke:#ffffff;stroke-width:4;stroke-linejoin:round;stroke-dasharray:none"
+     id="rect1"
+     width="40"
+     height="40"
+     x="4"
+     y="4" />
+  <path
+     d="M 22.328002,28.869328 20.949337,27.19733 q 1.202665,-0.557332 1.906664,-1.378665 0.733333,-0.821332 0.733333,-1.378665 0,-0.293333 -0.146667,-0.586666 -0.146666,-0.293333 -0.645332,-0.703999 -0.674666,-0.498666 -0.938666,-0.967999 -0.234666,-0.498666 -0.234666,-1.085332 0,-0.938665 0.674666,-1.437332 Q 22.973334,19.130673 24,19.130673 q 0.879999,0 1.554665,0.469333 0.703999,0.469333 1.085332,1.319998 0.410666,0.821333 0.410666,1.935998 0,0.967999 -0.351999,1.906665 -0.352,0.938665 -0.997333,1.759998 -0.645332,0.821332 -1.495998,1.407998 -0.850666,0.615999 -1.877331,0.938665 z"
+     id="text1"
+     style="font-weight:bold;font-size:29.3333px;line-height:1;font-family:'Readex Pro';-inkscape-font-specification:'Readex Pro Bold';text-align:center;text-anchor:middle;stroke-width:4;stroke-linejoin:round"
+     aria-label="," />
+</svg>
