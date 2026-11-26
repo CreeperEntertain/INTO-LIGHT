@@ -7,7 +7,7 @@
 
     min-height: 44px;
 
-    padding: 12px;
+    padding: 20px;
     margin: 0px;
 
     background-color: rgba(0, 0, 0, 0);
@@ -19,7 +19,11 @@
 .input-binding-button__name {
     flex-grow: 1;
     flex-shrink: 1;
-    margin-right: 12px;
+
+    color: white;
+    font-size: 24px;
+    -unity-text-align: upper-left;
+    align-self: flex-start;
 }
 
 .input-binding-button__visual {
