@@ -37,24 +37,16 @@
     top: 0;
     bottom: 0;
 
-    border-left-width: 2px;
-    border-right-width: 2px;
-    border-top-width: 2px;
-    border-bottom-width: 2px;
-
-    border-left-color: rgba(255, 255, 255, 0.5);
-    border-right-color: rgba(255, 255, 255, 0.5);
-    border-top-color: rgba(255, 255, 255, 0.5);
-    border-bottom-color: rgba(255, 255, 255, 0.5);
+    border-width: 2px;
+    border-color: rgba(255, 255, 255, 0.5);
 
     background-color: rgba(0, 0, 0, 0);
+
+    transition-property: border-width;
 }
 
 .input-binding-button:hover .input-binding-button__outline {
-    border-left-width: 5px;
-    border-right-width: 5px;
-    border-top-width: 5px;
-    border-bottom-width: 5px;
+    border-width: 5px;
 }
 
 .input-binding-button__key-cluster {
