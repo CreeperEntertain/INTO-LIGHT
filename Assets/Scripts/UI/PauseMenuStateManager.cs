@@ -6,7 +6,7 @@ using UnityEngine.UIElements;
 public class PauseMenuStateManager : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private PlayerInput playerInput;
+    [SerializeField] private PlayerInput keybinds;
     [SerializeField] private CustomPassVolume blurVolume;
     [SerializeField] private UIDocument uiDocument;
 
@@ -50,7 +50,7 @@ public class PauseMenuStateManager : MonoBehaviour
 
     private void Update()
     {
-        if (playerInput.Pause.WasPressedThisFrame())
+        if (keybinds.Pause.WasPressedThisFrame())
             SetOpen(!isOpen);
         if (Mathf.Approximately(blurPass.Blend, blendTarget))
             return;
@@ -62,6 +62,25 @@ public class PauseMenuStateManager : MonoBehaviour
     private void OnEnable()
     {
         VisualElement root = GetComponent<UIDocument>().rootVisualElement;
+
+        // UI
+        root.Q<InputBindingFoldout>("PauseBindingsFoldout").Input = keybinds;
+        root.Q<InputBindingFoldout>("MoveCursorBindingsFoldout").Input = keybinds;
+        root.Q<InputBindingFoldout>("MenuSelectBindingsFoldout").Input = keybinds;
+        // General
+        root.Q<InputBindingFoldout>("JumpBindingsFoldout").Input = keybinds;
+        root.Q<InputBindingFoldout>("MoveBindingsFoldout").Input = keybinds;
+        root.Q<InputBindingFoldout>("MoveCameraBindingsFoldout").Input = keybinds;
+        root.Q<InputBindingFoldout>("HandModeBindingsFoldout").Input = keybinds;
+        // Motion Controls
+        root.Q<InputBindingFoldout>("ResetMotionCalibrationBindingsFoldout").Input = keybinds;
+        root.Q<InputBindingFoldout>("MoveHandBindingsFoldout").Input = keybinds;
+        // Hand Controls
+        root.Q<InputBindingFoldout>("GrabBindingsFoldout").Input = keybinds;
+        root.Q<InputBindingFoldout>("Pose1BindingsFoldout").Input = keybinds;
+        root.Q<InputBindingFoldout>("Pose2BindingsFoldout").Input = keybinds;
+        root.Q<InputBindingFoldout>("Pose3BindingsFoldout").Input = keybinds;
+        root.Q<InputBindingFoldout>("Pose4BindingsFoldout").Input = keybinds;
 
         MenuButton resumeButton = root.Q<MenuButton>("ResumeButton");
         MenuButton optionsButton = root.Q<MenuButton>("OptionsButton");

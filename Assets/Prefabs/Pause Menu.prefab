@@ -69,7 +69,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52f5171dcb6d39a44b943e61caf50e96, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PauseMenuStateManager
-  playerInput: {fileID: 11400000, guid: 31fe7847487dfb3428a57071a68c7e21, type: 2}
+  keybinds: {fileID: 11400000, guid: 31fe7847487dfb3428a57071a68c7e21, type: 2}
   blurVolume: {fileID: 4033598593010085253}
   uiDocument: {fileID: 4946427072624720565}
   transitionDuration: 0.2

@@ -1,0 +1,87 @@
+.input-binding-button {
+    position: relative;
+
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 20px;
+    margin: 0px;
+
+    background-color: rgba(0, 0, 0, 0);
+    background-image: none;
+
+    border-width: 0;
+}
+
+.input-binding-button__name {
+    flex-grow: 1;
+    flex-shrink: 1;
+
+    color: white;
+    font-size: 24px;
+    -unity-text-align: upper-left;
+    align-self: flex-start;
+}
+
+.input-binding-button__visual {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.input-binding-button__outline {
+    position: absolute;
+
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+
+    border-width: 0px;
+    border-color: rgba(255, 255, 255, 0.5);
+
+    background-color: rgba(0, 0, 0, 0);
+
+    transition-property: border-width;
+    transition-duration: 0.2s;
+    transition-timing-function: ease;
+}
+
+.input-binding-button:hover .input-binding-button__outline {
+    border-width: 5px;
+}
+
+.input-binding-button__icon-cluster {
+    width: 170px;
+    flex-direction: column;
+    flex-shrink: 0;
+}
+
+.input-binding-button__icon-row {
+    width: 170px;
+    height: 50px;
+
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.input-binding-button__icon-row--second {
+    margin-top: 8px;
+}
+
+.input-binding-button__icon,
+.input-binding-button__icon-placeholder {
+    width: 50px;
+    height: 50px;
+    flex-shrink: 0;
+}
+
+.input-binding-button__icon {
+    width: 50px;
+    height: 50px;
+
+    flex-shrink: 0;
+}

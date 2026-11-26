@@ -9,7 +9,9 @@ public class GlobalUIOverlay : MonoBehaviour
     [SerializeField] private PlayerInput playerInput;
 
     [Header("Settings")]
-    [SerializeField, Min(0.0f)] private float directionalCursorSpeed = 900.0f;
+    [SerializeField, Min(0.0f)] private float directionalCursorSpeed = 600.0f;
+    [SerializeField, Min(0.0f)] private float directionalScrollSpeed = 600.0f;
+    [SerializeField, Min(0.0f)] private float wheelScrollSpeed = 5000.0f;
 
     private const int VirtualPointerFingerId = 0;
 
@@ -129,6 +131,7 @@ public class GlobalUIOverlay : MonoBehaviour
             return;
         
         SendPointerMove(activePanel, panelPosition);
+        HandleScroll(activePanel, panelPosition);
         if (playerInput.MenuSelect?.WasPressedThisFrame() == true)
             SendPointerClick(activePanel, panelPosition);
     }
@@ -172,6 +175,26 @@ public class GlobalUIOverlay : MonoBehaviour
             pressure = 1.0f,
             maximumPossiblePressure = 1.0f
         };
+
+    private void HandleScroll(IPanel panel, Vector2 panelPosition)
+    {
+        if (playerInput.Scroll == null)
+            return;
+        
+        Vector2 scroll = playerInput.Scroll.Value;
+        if (scroll == Vector2.zero)
+            return;
+        
+        VisualElement target = panel.Pick(panelPosition);
+        while (target != null && target is not ScrollView)
+            target = target.parent;
+        if (target is not ScrollView scrollView)
+            return;
+        
+        float amount = playerInput.Scroll.ActiveMode == Vector2Input.SourceMode.Direction
+            ? directionalScrollSpeed * Time.unscaledDeltaTime : wheelScrollSpeed;
+        scrollView.scrollOffset -= scroll * amount;
+    }
 
     private static void SendPointerMove(IPanel panel, Vector2 position)
     {

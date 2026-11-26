@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 5277042344746409061}
   - component: {fileID: 4884559644976186734}
   - component: {fileID: 882590874243488943}
+  - component: {fileID: 4124193167207048124}
   m_Layer: 5
   m_Name: Global Cursor
   m_TagString: Untagged
@@ -70,7 +71,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GlobalUIOverlay
   playerInput: {fileID: 11400000, guid: 31fe7847487dfb3428a57071a68c7e21, type: 2}
-  directionalCursorSpeed: 900
+  directionalCursorSpeed: 600
+  directionalScrollSpeed: 600
+  wheelScrollSpeed: 5000
 --- !u!114 &882590874243488943
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -83,3 +86,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1df2ddfb93c077f41b5797b3c92c4f44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CursorState
+--- !u!114 &4124193167207048124
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9168352068236644288}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67b9d308aaf6ad34097c0184c1f19a63, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DisableAutomaticUIToolkitInput

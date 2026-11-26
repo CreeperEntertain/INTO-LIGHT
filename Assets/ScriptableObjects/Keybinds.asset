@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f01b02315f8408741b35e1d188583c20, type: 3}
   m_Name: Keybinds
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInput
+  inputIconLibrary: {fileID: 11400000, guid: 1d4852fdf7f5bc54aa0d054400ec6177, type: 2}
   pauseBindings:
   - binding: <Keyboard>/escape
   - binding: <Gamepad>/start
@@ -39,6 +40,29 @@ MonoBehaviour:
     left: <Keyboard>/a
     right: <Keyboard>/d
   - binding: 
+    mode: 3
+    center: {x: 0.5, y: 0.5}
+    scale: 2
+    cullMotionBounds: 1
+    motionSensitivity: {x: 10, y: 10}
+    useComposite: 0
+    up: 
+    down: 
+    left: 
+    right: 
+  scrollBindings:
+  - binding: <Mouse>/scroll
+    mode: 4
+    center: {x: 0.5, y: 0.5}
+    scale: 0.01
+    cullMotionBounds: 0
+    motionSensitivity: {x: 1, y: 1}
+    useComposite: 0
+    up: 
+    down: 
+    left: 
+    right: 
+  - binding: 
     mode: 0
     center: {x: 0.5, y: 0.5}
     scale: 2
@@ -49,12 +73,12 @@ MonoBehaviour:
     down: <Keyboard>/downArrow
     left: <Keyboard>/leftArrow
     right: <Keyboard>/rightArrow
-  - binding: 
-    mode: 3
+  - binding: <Gamepad>/rightStick
+    mode: 0
     center: {x: 0.5, y: 0.5}
     scale: 2
-    cullMotionBounds: 1
-    motionSensitivity: {x: 10, y: 10}
+    cullMotionBounds: 0
+    motionSensitivity: {x: 1, y: 1}
     useComposite: 0
     up: 
     down: 

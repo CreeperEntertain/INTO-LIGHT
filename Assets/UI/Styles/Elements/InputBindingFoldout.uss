@@ -1,0 +1,12 @@
+.input-binding-foldout {
+    width: 100%;
+}
+
+.input-binding-foldout > .menu-foldout__content-clip {
+    width: 100%;
+}
+
+.input-binding-foldout .input-binding-button {
+    width: 100%;
+    flex-shrink: 0;
+}
