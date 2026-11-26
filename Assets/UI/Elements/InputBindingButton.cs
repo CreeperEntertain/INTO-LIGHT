@@ -1,24 +1,27 @@
 using System;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 public enum InputBindingVisualType
 {
-    Key,
-    KeyCluster4,
-    KeyCluster6,
-    MouseDelta,
-    MouseButton,
-    ScrollWheel,
-    Tilt,
-    GenericIcon
+    Icon,
+    IconCluster4,
+    IconCluster6
 }
 
 public class InputBindingDisplayData
 {
     public string ControlName { get; set; } = string.Empty;
+
     public InputBindingVisualType VisualType { get; set; }
-    public string[] KeyLabels { get; set; } = Array.Empty<string>();
-    public string IconClassName { get; set; } = string.Empty;
+
+    public string IconName { get; set; } = "undefined";
+
+    public string[] IconNames { get; set; } = Array.Empty<string>();
+
+    public Texture2D Icon { get; set; }
+
+    public Texture2D[] Icons { get; set; } = Array.Empty<Texture2D>();
 }
 
 [UxmlElement]
@@ -56,34 +59,31 @@ public partial class InputBindingButton : Button
         visualContainer.Clear();
         switch (data.VisualType)
         {
-            case InputBindingVisualType.Key:
-                visualContainer.Add(CreateKey(data.KeyLabels, 0));
+            case InputBindingVisualType.Icon:
+                visualContainer.Add(CreateIcon(data.Icon));
                 break;
-            case InputBindingVisualType.KeyCluster4:
-                CreateKeyCluster4(data.KeyLabels);
+            case InputBindingVisualType.IconCluster4:
+                CreateIconCluster4(data.Icons);
                 break;
-            case InputBindingVisualType.KeyCluster6:
-                CreateKeyCluster6(data.KeyLabels);
-                break;
-            default:
-                CreateIcon(data);
+            case InputBindingVisualType.IconCluster6:
+                CreateIconCluster6(data.Icons);
                 break;
         }
     }
 
-    private void CreateKeyCluster4(string[] labels)
+    private void CreateIconCluster4(Texture2D[] icons)
     {
-        VisualElement cluster = CreateKeyCluster();
+        VisualElement cluster = CreateIconCluster();
 
-        VisualElement topRow = CreateKeyRow();
-        topRow.Add(CreateKeyPlaceholder());
-        topRow.Add(CreateKey(labels, 0));
-        topRow.Add(CreateKeyPlaceholder());
+        VisualElement topRow = CreateIconRow();
+        topRow.Add(CreateIconPlaceholder());
+        topRow.Add(CreateIconAt(icons, 0));
+        topRow.Add(CreateIconPlaceholder());
 
-        VisualElement bottomRow = CreateKeyRow(true);
-        bottomRow.Add(CreateKey(labels, 1));
-        bottomRow.Add(CreateKey(labels, 2));
-        bottomRow.Add(CreateKey(labels, 3));
+        VisualElement bottomRow = CreateIconRow(true);
+        bottomRow.Add(CreateIconAt(icons, 1));
+        bottomRow.Add(CreateIconAt(icons, 2));
+        bottomRow.Add(CreateIconAt(icons, 3));
 
         cluster.Add(topRow);
         cluster.Add(bottomRow);
@@ -91,19 +91,19 @@ public partial class InputBindingButton : Button
         visualContainer.Add(cluster);
     }
 
-    private void CreateKeyCluster6(string[] labels)
+    private void CreateIconCluster6(Texture2D[] icons)
     {
-        VisualElement cluster = CreateKeyCluster();
+        VisualElement cluster = CreateIconCluster();
 
-        VisualElement topRow = CreateKeyRow();
-        topRow.Add(CreateKey(labels, 4));
-        topRow.Add(CreateKey(labels, 0));
-        topRow.Add(CreateKey(labels, 5));
+        VisualElement topRow = CreateIconRow();
+        topRow.Add(CreateIconAt(icons, 4));
+        topRow.Add(CreateIconAt(icons, 0));
+        topRow.Add(CreateIconAt(icons, 5));
 
-        VisualElement bottomRow = CreateKeyRow(true);
-        bottomRow.Add(CreateKey(labels, 2));
-        bottomRow.Add(CreateKey(labels, 1));
-        bottomRow.Add(CreateKey(labels, 3));
+        VisualElement bottomRow = CreateIconRow(true);
+        bottomRow.Add(CreateIconAt(icons, 2));
+        bottomRow.Add(CreateIconAt(icons, 1));
+        bottomRow.Add(CreateIconAt(icons, 3));
 
         cluster.Add(topRow);
         cluster.Add(bottomRow);
@@ -111,55 +111,44 @@ public partial class InputBindingButton : Button
         visualContainer.Add(cluster);
     }
 
-    private void CreateIcon(InputBindingDisplayData data)
+    private static Image CreateIcon(Texture2D texture)
     {
-        VisualElement icon = new();
-        icon.AddToClassList("input-binding-button__icon");
-        icon.AddToClassList(GetIconModifier(data.VisualType));
-        if (!string.IsNullOrWhiteSpace(data.IconClassName))
-            icon.AddToClassList(data.IconClassName);
-        visualContainer.Add(icon);
-    }
-
-    private static string GetIconModifier(InputBindingVisualType type)
-        => type switch
+        Image icon = new()
         {
-            InputBindingVisualType.MouseDelta => "input-binding-button__icon--mouse-delta",
-            InputBindingVisualType.MouseButton => "input-binding-button__icon--mouse-button",
-            InputBindingVisualType.ScrollWheel => "input-binding-button__icon--scroll-wheel",
-            InputBindingVisualType.Tilt => "input-binding-button__icon--tilt",
-            _ => "input-binding-button__icon--generic"
+            image = texture,
+            scaleMode = ScaleMode.ScaleToFit
         };
+        icon.AddToClassList("input-binding-button__icon");
+        return icon;
+    }
 
-    private static VisualElement CreateKeyCluster()
+    private static Image CreateIconAt(Texture2D[] icons, int index)
+    {
+        Texture2D texture = icons != null && index < icons.Length
+            ? icons[index] : null;
+        return CreateIcon(texture);
+    }
+
+    private static VisualElement CreateIconCluster()
     {
         VisualElement cluster = new();
-        cluster.AddToClassList("input-binding-button__key-cluster");
+        cluster.AddToClassList("input-binding-button__icon-cluster");
         return cluster;
     }
 
-    private static VisualElement CreateKeyRow(bool secondRow = false)
+    private static VisualElement CreateIconRow(bool secondRow = false)
     {
         VisualElement row = new();
-        row.AddToClassList("input-binding-button__key-row");
+        row.AddToClassList("input-binding-button__icon-row");
         if (secondRow)
-            row.AddToClassList("input-binding-button__key-row--second");
+            row.AddToClassList("input-binding-button__icon-row--second");
         return row;
     }
 
-    private static Label CreateKey(string[] labels, int index)
-    {
-        string text = labels != null && index < labels.Length
-            ? labels[index] ?? string.Empty : string.Empty;
-        Label key = new(text);
-        key.AddToClassList("input-binding-button__key");
-        return key;
-    }
-
-    private static VisualElement CreateKeyPlaceholder()
+    private static VisualElement CreateIconPlaceholder()
     {
         VisualElement placeholder = new();
-        placeholder.AddToClassList("input-binding-button__key-placeholder");
+        placeholder.AddToClassList("input-binding-button__icon-placeholder");
         return placeholder;
     }
 }

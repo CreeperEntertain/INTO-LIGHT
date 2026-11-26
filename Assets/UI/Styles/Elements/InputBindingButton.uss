@@ -53,14 +53,13 @@
     border-width: 5px;
 }
 
-.input-binding-button__key-cluster {
+.input-binding-button__icon-cluster {
     width: 170px;
-
     flex-direction: column;
     flex-shrink: 0;
 }
 
-.input-binding-button__key-row {
+.input-binding-button__icon-row {
     width: 170px;
     height: 50px;
 
@@ -69,23 +68,15 @@
     justify-content: space-between;
 }
 
-.input-binding-button__key-row--second {
+.input-binding-button__icon-row--second {
     margin-top: 8px;
 }
 
-.input-binding-button__key,
-.input-binding-button__key-placeholder {
+.input-binding-button__icon,
+.input-binding-button__icon-placeholder {
     width: 50px;
     height: 50px;
     flex-shrink: 0;
-}
-
-.input-binding-button__key {
-    background-color: white;
-    color: black;
-
-    font-size: 10px;
-    -unity-text-align: middle-center;
 }
 
 .input-binding-button__icon {

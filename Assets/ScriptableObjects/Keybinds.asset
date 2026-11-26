@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f01b02315f8408741b35e1d188583c20, type: 3}
   m_Name: Keybinds
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInput
+  inputIconLibrary: {fileID: 11400000, guid: 1d4852fdf7f5bc54aa0d054400ec6177, type: 2}
   pauseBindings:
   - binding: <Keyboard>/escape
   - binding: <Gamepad>/start

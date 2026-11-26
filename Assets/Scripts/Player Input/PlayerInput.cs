@@ -7,6 +7,9 @@ using UnityEngine.InputSystem;
 [CreateAssetMenu(fileName = "PlayerInput", menuName = "Scriptable Objects/Player Input")]
 public class PlayerInput : ScriptableObject
 {
+    [Header("Icons")]
+    [SerializeField] private InputIconLibrary inputIconLibrary;
+
     [Header("UI Bindings")]
     [SerializeField] private ReleasableButtonInput[] pauseBindings =
     {
@@ -309,7 +312,8 @@ public class PlayerInput : ScriptableObject
 
 
     public InputBindingDisplayData[] GetBindingDisplayData(string inputName)
-        => NormalizeInputName(inputName) switch
+    {
+        InputBindingDisplayData[] result = NormalizeInputName(inputName) switch
         {
             "pause" => CreateReleasableDisplayData(pauseBindings),
             "movecursor" => CreateVector2DisplayData(moveCursorBindings),
@@ -334,6 +338,33 @@ public class PlayerInput : ScriptableObject
 
             _ => Array.Empty<InputBindingDisplayData>()
         };
+        foreach (InputBindingDisplayData data in result)
+            if (data != null)
+                ResolveDisplayIcons(data);
+        return result;
+    }
+    private void ResolveDisplayIcons(InputBindingDisplayData data)
+    {
+        if (data.VisualType is InputBindingVisualType.IconCluster4 or InputBindingVisualType.IconCluster6)
+        {
+            if (data.IconNames == null)
+                data.IconNames = Array.Empty<string>();
+            data.Icons = new Texture2D[data.IconNames.Length];
+            for (int i = 0; i < data.IconNames.Length; i++)
+            {
+                string resolvedName = "undefined";
+                if (inputIconLibrary != null)
+                    data.Icons[i] = inputIconLibrary.ResolveIcon(data.IconNames[i], out resolvedName);
+                data.IconNames[i] = resolvedName;
+            }
+            return;
+        }
+
+        string iconName = "undefined";
+        if (inputIconLibrary != null)
+            data.Icon = inputIconLibrary.ResolveIcon(data.IconName, out iconName);
+        data.IconName = iconName;
+    }
 
 
     private static InputBindingDisplayData[] CreateReleasableDisplayData(ReleasableButtonInput[] bindings)
@@ -389,8 +420,8 @@ public class PlayerInput : ScriptableObject
                 result.Add(new()
                 {
                     ControlName = "Motion",
-                    VisualType = InputBindingVisualType.Tilt,
-                    IconClassName = "motion-tilt"
+                    VisualType = InputBindingVisualType.Icon,
+                    IconName = "motion-tilt"
                 });
                 continue;
             }
@@ -404,7 +435,7 @@ public class PlayerInput : ScriptableObject
                         source.down,
                         source.right
                     },
-                    InputBindingVisualType.KeyCluster4
+                    InputBindingVisualType.IconCluster4
                 ));
                 continue;
             }
@@ -428,8 +459,8 @@ public class PlayerInput : ScriptableObject
                 result.Add(new()
                 {
                     ControlName = "Motion",
-                    VisualType = InputBindingVisualType.Tilt,
-                    IconClassName = "motion-tilt"
+                    VisualType = InputBindingVisualType.Icon,
+                    IconName = "motion-tilt"
                 });
                 continue;
             }
@@ -445,7 +476,7 @@ public class PlayerInput : ScriptableObject
                         source.forward,
                         source.backward
                     },
-                    InputBindingVisualType.KeyCluster6
+                    InputBindingVisualType.IconCluster6
                 ));
                 continue;
             }
@@ -468,59 +499,48 @@ public class PlayerInput : ScriptableObject
             }
         if (!hasBinding)
             return null;
-        string[] labels = new string[bindings.Length];
+        string[] iconNames = new string[bindings.Length];
         for (int i = 0; i < bindings.Length; i++)
-            labels[i] = GetBindingLabel(bindings[i]);
+            iconNames[i] = GetBindingIconName(bindings[i]);
         return new()
         {
             ControlName = GetCompositeControlName(bindings),
             VisualType = visualType,
-            KeyLabels = labels
+            IconNames = iconNames
         };
     }
     private static InputBindingDisplayData CreateSingleBindingDisplayData(string binding)
     {
         if (!TryParseBindingPath(binding, out string device, out string control))
             return null;
-        string controlName = GetDeviceDisplayName(device);
-        if (device.Equals("Keyboard", StringComparison.OrdinalIgnoreCase))
-            return new()
-            {
-                ControlName = controlName,
-                VisualType = InputBindingVisualType.Key,
-                KeyLabels = new[] { FormatKeyboardKey(control) }
-            };
+        return new()
+        {
+            ControlName = GetDeviceDisplayName(device),
+            VisualType = InputBindingVisualType.Icon,
+            IconName = GetBindingIconName(device, control)
+        };
+    }
+
+
+    private static string GetBindingIconName(string binding)
+    {
+        if (!TryParseBindingPath(binding, out string device, out string control))
+            return "undefined";
+        return GetBindingIconName(device, control);
+    }
+    private static string GetBindingIconName(string device, string control)
+    {
         if (device.Equals("Mouse", StringComparison.OrdinalIgnoreCase))
         {
             if (control.Equals("delta", StringComparison.OrdinalIgnoreCase))
-                return new()
-                {
-                    ControlName = controlName,
-                    VisualType = InputBindingVisualType.MouseDelta,
-                    IconClassName = "mouse-delta"
-                };
+                return "mouse-delta";
             if (control.Equals("scroll", StringComparison.OrdinalIgnoreCase))
-                return new()
-                {
-                    ControlName = controlName,
-                    VisualType = InputBindingVisualType.ScrollWheel,
-                    IconClassName = "mouse-scroll"
-                };
-            if (control.EndsWith("Button", StringComparison.OrdinalIgnoreCase))
-                return new()
-                {
-                    ControlName = controlName,
-                    VisualType = InputBindingVisualType.MouseButton,
-                    IconClassName = CreateIconClassName(device, control)
-                };
+                return "mouse-scroll";
         }
-        return new()
-        {
-            ControlName = controlName,
-            VisualType = InputBindingVisualType.GenericIcon,
-            IconClassName = CreateIconClassName(device, control)
-        };
+        return CreateIconName(device, control);
     }
+    private static string CreateIconName(string device, string control)
+        => $"{ToKebabCase(device)}-{ToKebabCase(control)}";
 
 
     private static bool TryParseBindingPath(string binding, out string device, out string control)
@@ -639,8 +659,6 @@ public class PlayerInput : ScriptableObject
         }
         return result.ToString().Trim();
     }
-    private static string CreateIconClassName(string device, string control)
-        => $"{ToKebabCase(device)}-{ToKebabCase(control)}";
     private static string ToKebabCase(string value)
     {
         if (string.IsNullOrEmpty(value))
