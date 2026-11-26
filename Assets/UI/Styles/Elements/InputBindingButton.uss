@@ -5,7 +5,7 @@
     align-items: center;
     justify-content: space-between;
 
-    padding: 20px;
+    padding: 10px;
     margin: 0px;
 
     background-color: rgba(0, 0, 0, 0);
@@ -50,18 +50,18 @@
 }
 
 .input-binding-button:hover .input-binding-button__outline {
-    border-width: 5px;
+    border-width: 3px;
 }
 
 .input-binding-button__icon-cluster {
-    width: 170px;
+    width: 106px;
     flex-direction: column;
     flex-shrink: 0;
 }
 
 .input-binding-button__icon-row {
-    width: 170px;
-    height: 50px;
+    width: 106px;
+    height: 32px;
 
     flex-direction: row;
     align-items: center;
@@ -74,14 +74,14 @@
 
 .input-binding-button__icon,
 .input-binding-button__icon-placeholder {
-    width: 50px;
-    height: 50px;
+    width: 32px;
+    height: 32px;
     flex-shrink: 0;
 }
 
 .input-binding-button__icon {
-    width: 50px;
-    height: 50px;
+    width: 32px;
+    height: 32px;
 
     flex-shrink: 0;
 }
