@@ -43,6 +43,8 @@
     background-color: rgba(0, 0, 0, 0);
 
     transition-property: border-width;
+    transition-duration: 0.2s;
+    transition-timing-function: ease;
 }
 
 .input-binding-button:hover .input-binding-button__outline {
