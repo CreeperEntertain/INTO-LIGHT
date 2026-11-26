@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 48 48"
+   height="48px"
+   width="48px"
+   fill="#FFFFFF"
+   version="1.1"
+   id="svg1"
+   sodipodi:docname="keyboard-j.svg"
+   inkscape:version="1.4.4 (dcaf3e7, 2026-05-05)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#4e3535"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="11.888233"
+     inkscape:cx="21.786249"
+     inkscape:cy="23.005942"
+     inkscape:window-width="1920"
+     inkscape:window-height="1009"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1" />
+  <rect
+     style="fill:none;stroke:#ffffff;stroke-width:4;stroke-linejoin:round;stroke-dasharray:none"
+     id="rect1"
+     width="40"
+     height="40"
+     x="4"
+     y="4" />
+  <path
+     d="m 22.253343,33.653344 q -1.013335,0 -1.920003,-0.240001 -0.880001,-0.213333 -1.626668,-0.64 -0.746668,-0.453334 -1.360002,-1.066668 -0.586668,-0.640001 -0.986668,-1.413335 l 2.613337,-2.720004 q 0.506667,0.720001 0.960001,1.173335 0.453334,0.426667 0.906668,0.613334 0.453334,0.186667 0.960001,0.186667 0.640001,0 1.120001,-0.293334 0.506668,-0.32 0.773335,-0.853334 0.266667,-0.533334 0.266667,-1.200002 v -8.506677 h -3.440005 v -3.973338 h 10.74668 v 3.973338 h -2.880003 v 9.013345 q 0,1.360001 -0.480001,2.453336 -0.453334,1.093335 -1.280001,1.866669 -0.826668,0.773334 -1.94667,1.200002 -1.120001,0.426667 -2.426669,0.426667 z"
+     id="text1"
+     style="font-weight:bold;font-size:26.6667px;font-family:'Readex Pro';-inkscape-font-specification:'Readex Pro Bold';text-align:center;text-anchor:middle;stroke-width:4;stroke-linejoin:round"
+     aria-label="J" />
+</svg>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 48 48"
+   height="48px"
+   width="48px"
+   fill="#FFFFFF"
+   version="1.1"
+   id="svg1"
+   sodipodi:docname="keyboard-right-shift.svg"
+   inkscape:version="1.4.4 (dcaf3e7, 2026-05-05)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#4e3535"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="11.888233"
+     inkscape:cx="10.766949"
+     inkscape:cy="18.295402"
+     inkscape:window-width="1920"
+     inkscape:window-height="1009"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1" />
+  <rect
+     style="fill:none;stroke:#ffffff;stroke-width:4;stroke-linejoin:round;stroke-dasharray:none"
+     id="rect1"
+     width="40"
+     height="40"
+     x="4"
+     y="4" />
+  <g
+     id="path5"
+     style="opacity:1">
+    <path
+       style="baseline-shift:baseline;display:inline;overflow:visible;vector-effect:none;stroke-linejoin:round;enable-background:accumulate;stop-color:#000000;stop-opacity:1"
+       d="m 30.685547,20.660156 -0.08398,13.746094 4,0.02344 0.08398,-13.746093 z"
+       id="path6" />
+    <g
+       id="g2">
+      <g
+         id="path2"
+         style="opacity:1">
+        <path
+           style="baseline-shift:baseline;display:inline;overflow:visible;vector-effect:none;fill-rule:evenodd;enable-background:accumulate;stop-color:#000000;stop-opacity:1"
+           d="m 32.721045,14.902277 4.946971,8.680437 -9.999813,-0.0612 z"
+           id="path3" />
+        <path
+           style="baseline-shift:baseline;display:inline;overflow:visible;vector-effect:none;fill-rule:evenodd;enable-background:accumulate;stop-color:#000000;stop-opacity:1"
+           d="m 32.728516,13.570313 -6.220704,10.611328 12.310547,0.07422 z m -0.01563,2.664062 3.802734,6.673828 -7.6875,-0.04492 z"
+           id="path4" />
+      </g>
+    </g>
+  </g>
+  <path
+     d="m 8.5453275,34.266655 v -20.53331 h 9.2986555 q 1.994665,0 3.578663,0.850666 1.583998,0.850666 2.49333,2.346664 0.938666,1.466665 0.938666,3.373329 0,1.935998 -0.938666,3.46133 -0.909332,1.525331 -2.49333,2.434664 -1.583998,0.879999 -3.578663,0.879999 h -4.517328 v 7.186658 z m 11.4106535,0 -5.221327,-9.298656 5.133327,-0.733333 5.807993,10.061322 z M 13.326655,23.178668 h 4.077329 q 0.762666,0 1.319998,-0.322667 0.586666,-0.351999 0.879999,-0.938665 0.322667,-0.586666 0.322667,-1.349332 0,-0.791999 -0.381333,-1.378665 -0.352,-0.586666 -1.026666,-0.909332 -0.645332,-0.352 -1.554665,-0.352 h -3.637329 z"
+     id="text6"
+     style="font-weight:bold;font-size:29.3333px;line-height:1;font-family:'Readex Pro';-inkscape-font-specification:'Readex Pro Bold';text-align:center;text-anchor:middle;stroke-width:4;stroke-linejoin:round"
+     aria-label="R" />
+</svg>

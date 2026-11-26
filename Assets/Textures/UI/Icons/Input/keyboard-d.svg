@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 48 48"
+   height="48px"
+   width="48px"
+   fill="#FFFFFF"
+   version="1.1"
+   id="svg1"
+   sodipodi:docname="keyboard-d.svg"
+   inkscape:version="1.4.4 (dcaf3e7, 2026-05-05)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#4e3535"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="11.888233"
+     inkscape:cx="21.786249"
+     inkscape:cy="27.127665"
+     inkscape:window-width="1920"
+     inkscape:window-height="1009"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1" />
+  <rect
+     style="fill:none;stroke:#ffffff;stroke-width:4;stroke-linejoin:round;stroke-dasharray:none"
+     id="rect1"
+     width="40"
+     height="40"
+     x="4"
+     y="4" />
+  <path
+     d="m 16.186675,33.386677 v -18.66669 h 7.866676 q 2.053336,0 3.760005,0.693334 1.706669,0.666667 2.933337,1.920002 1.226668,1.226668 1.893336,2.960004 0.666667,1.706669 0.666667,3.760005 0,2.080002 -0.666667,3.786671 -0.666668,1.706669 -1.893336,2.960004 -1.226668,1.226668 -2.933337,1.920002 -1.680002,0.666668 -3.760005,0.666668 z m 4.560005,-3.146671 -0.586667,-0.880001 h 3.760005 q 1.093334,0 1.973335,-0.373334 0.880002,-0.373334 1.493336,-1.066668 0.64,-0.720001 0.960001,-1.680002 0.346667,-0.986668 0.346667,-2.186669 0,-1.200002 -0.346667,-2.160003 -0.320001,-0.986668 -0.960001,-1.680002 -0.613334,-0.720001 -1.493336,-1.093335 -0.880001,-0.373334 -1.973335,-0.373334 h -3.840005 l 0.666667,-0.826667 z"
+     id="text1"
+     style="font-weight:bold;font-size:26.6667px;font-family:'Readex Pro';-inkscape-font-specification:'Readex Pro Bold';text-align:center;text-anchor:middle;stroke-width:4;stroke-linejoin:round"
+     aria-label="D" />
+</svg>

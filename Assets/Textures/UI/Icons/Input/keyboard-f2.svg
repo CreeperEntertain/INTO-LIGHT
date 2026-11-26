@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 48 48"
+   height="48px"
+   width="48px"
+   fill="#FFFFFF"
+   version="1.1"
+   id="svg1"
+   sodipodi:docname="keyboard-f2.svg"
+   inkscape:version="1.4.4 (dcaf3e7, 2026-05-05)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#4e3535"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="11.888233"
+     inkscape:cx="21.786249"
+     inkscape:cy="20.145971"
+     inkscape:window-width="1920"
+     inkscape:window-height="1009"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1" />
+  <rect
+     style="fill:none;stroke:#ffffff;stroke-width:4;stroke-linejoin:round;stroke-dasharray:none"
+     id="rect1"
+     width="40"
+     height="40"
+     x="4"
+     y="4" />
+  <path
+     d="M 12.586684,31.573322 V 16.640013 h 3.647995 v 14.933309 z m 1.706664,-5.717324 v -3.050662 h 7.765322 v 3.050662 z m 0,-5.994657 v -3.221328 h 8.618653 v 3.221328 z m 10.922651,11.711981 -0.725333,-1.791997 4.287994,-4.735992 q 0.383999,-0.405333 0.810665,-0.917332 0.426666,-0.511999 0.810665,-1.045332 0.405333,-0.554666 0.639999,-1.066665 0.256,-0.511999 0.256,-0.917332 0,-0.426666 -0.192,-0.746665 -0.170666,-0.32 -0.533332,-0.490666 -0.341333,-0.192 -0.895999,-0.192 -0.469332,0 -0.917332,0.256 -0.447999,0.255999 -0.853332,0.767998 -0.383999,0.490666 -0.725332,1.258665 l -2.687996,-1.493331 q 0.448,-1.237331 1.258665,-2.175996 0.831999,-0.938666 1.94133,-1.471998 1.109332,-0.533333 2.367997,-0.511999 1.322664,0 2.367996,0.554666 1.066665,0.554665 1.685331,1.535997 0.639999,0.959999 0.639999,2.26133 0,0.575999 -0.170667,1.194665 -0.149333,0.618665 -0.511999,1.322664 -0.341333,0.682666 -0.917332,1.471998 -0.575999,0.789332 -1.407998,1.706664 l -3.306661,3.605328 -0.447999,-1.599998 h 7.423988 v 3.221328 z"
+     id="text1"
+     style="font-weight:bold;font-size:21.3333px;font-family:'Readex Pro';-inkscape-font-specification:'Readex Pro Bold';text-align:center;text-anchor:middle;stroke-width:4;stroke-linejoin:round"
+     aria-label="F2" />
+</svg>
