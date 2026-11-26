@@ -349,7 +349,7 @@ public class PlayerInput : ScriptableObject
         {
             if (data.IconNames == null)
                 data.IconNames = Array.Empty<string>();
-            data.Icons = new Texture2D[data.IconNames.Length];
+            data.Icons = new UnityEngine.Object[data.IconNames.Length];
             for (int i = 0; i < data.IconNames.Length; i++)
             {
                 string resolvedName = "undefined";

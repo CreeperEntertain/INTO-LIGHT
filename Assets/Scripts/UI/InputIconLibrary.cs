@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 [CreateAssetMenu(fileName = "InputIconLibrary", menuName = "UI/Input Icon Library")]
 public sealed class InputIconLibrary : ScriptableObject
@@ -8,20 +9,21 @@ public sealed class InputIconLibrary : ScriptableObject
     public const string IconFolderPath = "Assets/Textures/UI/Icons/Input";
 
     [SerializeField] private Texture2D[] icons = Array.Empty<Texture2D>();
+    [SerializeField] private VectorImage[] vectorIcons = Array.Empty<VectorImage>();
 
-    private Dictionary<string, Texture2D> iconsByName;
+    private Dictionary<string, UnityEngine.Object> iconsByName;
 
 
-    public Texture2D ResolveIcon(string requestedName, out string resolvedName)
+    public UnityEngine.Object ResolveIcon(string requestedName, out string resolvedName)
     {
         EnsureLookup();
-        if (!string.IsNullOrWhiteSpace(requestedName) && iconsByName.TryGetValue(requestedName, out Texture2D icon))
+        if (!string.IsNullOrWhiteSpace(requestedName) && iconsByName.TryGetValue(requestedName, out UnityEngine.Object icon))
         {
             resolvedName = icon.name;
             return icon;
         }
         resolvedName = "undefined";
-        return iconsByName.TryGetValue(resolvedName, out Texture2D fallback)
+        return iconsByName.TryGetValue(resolvedName, out UnityEngine.Object fallback)
             ? fallback : null;
     }
 
@@ -36,10 +38,13 @@ public sealed class InputIconLibrary : ScriptableObject
         if (iconsByName != null)
             return;
         iconsByName = new(StringComparer.OrdinalIgnoreCase);
-        if (icons == null)
-            return;
-        foreach (Texture2D icon in icons)
-            if (icon != null)
-                iconsByName[icon.name] = icon;
+        if (icons != null)
+            foreach (Texture2D icon in icons)
+                if (icon != null)
+                    iconsByName[icon.name] = icon;
+        if (vectorIcons != null)
+            foreach (VectorImage icon in vectorIcons)
+                if (icon != null)
+                    iconsByName[icon.name] = icon;
     }
 }

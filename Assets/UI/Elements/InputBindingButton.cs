@@ -19,9 +19,9 @@ public class InputBindingDisplayData
 
     public string[] IconNames { get; set; } = Array.Empty<string>();
 
-    public Texture2D Icon { get; set; }
+    public UnityEngine.Object Icon { get; set; }
 
-    public Texture2D[] Icons { get; set; } = Array.Empty<Texture2D>();
+    public UnityEngine.Object[] Icons { get; set; } = Array.Empty<Texture2D>();
 }
 
 [UxmlElement]
@@ -71,7 +71,7 @@ public partial class InputBindingButton : Button
         }
     }
 
-    private void CreateIconCluster4(Texture2D[] icons)
+    private void CreateIconCluster4(UnityEngine.Object[] icons)
     {
         VisualElement cluster = CreateIconCluster();
 
@@ -91,7 +91,7 @@ public partial class InputBindingButton : Button
         visualContainer.Add(cluster);
     }
 
-    private void CreateIconCluster6(Texture2D[] icons)
+    private void CreateIconCluster6(UnityEngine.Object[] icons)
     {
         VisualElement cluster = CreateIconCluster();
 
@@ -111,22 +111,22 @@ public partial class InputBindingButton : Button
         visualContainer.Add(cluster);
     }
 
-    private static Image CreateIcon(Texture2D texture)
+    private static Image CreateIcon(UnityEngine.Object source)
     {
-        Image icon = new()
-        {
-            image = texture,
-            scaleMode = ScaleMode.ScaleToFit
-        };
+        Image icon = new() { scaleMode = ScaleMode.ScaleToFit };
+        if (source is Texture2D texture)
+            icon.image = texture;
+        else if (source is VectorImage vectorImage)
+            icon.vectorImage = vectorImage;
         icon.AddToClassList("input-binding-button__icon");
         return icon;
     }
 
-    private static Image CreateIconAt(Texture2D[] icons, int index)
+    private static Image CreateIconAt(UnityEngine.Object[] icons, int index)
     {
-        Texture2D texture = icons != null && index < icons.Length
+        UnityEngine.Object source = icons != null && index < icons.Length
             ? icons[index] : null;
-        return CreateIcon(texture);
+        return CreateIcon(source);
     }
 
     private static VisualElement CreateIconCluster()
