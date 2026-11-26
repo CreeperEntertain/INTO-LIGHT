@@ -70,7 +70,7 @@
 }
 
 .input-binding-button__key-row--second {
-    margin-top: 10px;
+    margin-top: 8px;
 }
 
 .input-binding-button__key,
