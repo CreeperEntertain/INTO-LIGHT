@@ -12,15 +12,11 @@ public enum InputBindingVisualType
 public class InputBindingDisplayData
 {
     public string ControlName { get; set; } = string.Empty;
-
     public InputBindingVisualType VisualType { get; set; }
-
-    public string IconName { get; set; } = "undefined";
-
+    public string IconName { get; set; } = "empty";
     public string[] IconNames { get; set; } = Array.Empty<string>();
-
     public UnityEngine.Object Icon { get; set; }
-
+    public UnityEngine.Object EmptyIcon { get; set; }
     public UnityEngine.Object[] Icons { get; set; } = Array.Empty<Texture2D>();
 }
 
@@ -63,7 +59,7 @@ public partial class InputBindingButton : Button
                 visualContainer.Add(CreateIcon(data.Icon));
                 break;
             case InputBindingVisualType.IconCluster4:
-                CreateIconCluster4(data.Icons);
+                CreateIconCluster4(data.Icons, data.EmptyIcon);
                 break;
             case InputBindingVisualType.IconCluster6:
                 CreateIconCluster6(data.Icons);
@@ -71,14 +67,16 @@ public partial class InputBindingButton : Button
         }
     }
 
-    private void CreateIconCluster4(UnityEngine.Object[] icons)
+    private void CreateIconCluster4(
+        UnityEngine.Object[] icons,
+        UnityEngine.Object emptyIcon)
     {
         VisualElement cluster = CreateIconCluster();
 
         VisualElement topRow = CreateIconRow();
-        topRow.Add(CreateIconPlaceholder());
+        topRow.Add(CreateIconPlaceholder(emptyIcon));
         topRow.Add(CreateIconAt(icons, 0));
-        topRow.Add(CreateIconPlaceholder());
+        topRow.Add(CreateIconPlaceholder(emptyIcon));
 
         VisualElement bottomRow = CreateIconRow(true);
         bottomRow.Add(CreateIconAt(icons, 1));
@@ -145,9 +143,10 @@ public partial class InputBindingButton : Button
         return row;
     }
 
-    private static VisualElement CreateIconPlaceholder()
+    private static Image CreateIconPlaceholder(UnityEngine.Object source)
     {
-        VisualElement placeholder = new();
+        Image placeholder = CreateIcon(source);
+        placeholder.RemoveFromClassList("input-binding-button__icon");
         placeholder.AddToClassList("input-binding-button__icon-placeholder");
         return placeholder;
     }

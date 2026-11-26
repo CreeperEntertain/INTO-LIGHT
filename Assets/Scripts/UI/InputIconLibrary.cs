@@ -22,6 +22,11 @@ public sealed class InputIconLibrary : ScriptableObject
             resolvedName = icon.name;
             return icon;
         }
+        if (string.Equals(requestedName, "empty", StringComparison.OrdinalIgnoreCase))
+        {
+            resolvedName = "empty";
+            return null;
+        }
         resolvedName = "undefined";
         return iconsByName.TryGetValue(resolvedName, out UnityEngine.Object fallback)
             ? fallback : null;
