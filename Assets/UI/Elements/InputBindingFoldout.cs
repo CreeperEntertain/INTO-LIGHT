@@ -47,11 +47,16 @@ public partial class InputBindingFoldout : MenuFoldout
         InputBindingDisplayData[] bindings = playerInput.GetBindingDisplayData(inputName);
         if (bindings == null)
             return;
+        bool firstButton = true;
         foreach (InputBindingDisplayData binding in bindings)
         {
             if (binding == null)
                 return;
             InputBindingButton button = new();
+            if (firstButton)
+                firstButton = false;
+            else
+                button.style.marginTop = 20;
             button.SetDisplayData(binding);
             contentContainer.Add(button);
         }
