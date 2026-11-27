@@ -36,7 +36,7 @@
                 </ui:ScrollView>
                 <ui:GroupBox name="LabelsBox" style="width: 100%; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; height: auto; flex-direction: row-reverse;">
                     <InputDisplayLabel fill-height="false" input-name="ResetKeybinds" name="ResetKeybindsLabel" text="Reset Controls" style="margin-left: 15px;"/>
-                    <MenuButton text="Input Presesets" name="InputPresetsButton" style="width: auto; flex-grow: 1;"/>
+                    <MenuButton text="Input Presets" name="InputPresetsButton" style="width: auto; flex-grow: 1;"/>
                 </ui:GroupBox>
             </ui:GroupBox>
         </ui:GroupBox>
