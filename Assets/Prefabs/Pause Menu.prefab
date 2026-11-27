@@ -72,6 +72,7 @@ MonoBehaviour:
   keybinds: {fileID: 11400000, guid: 31fe7847487dfb3428a57071a68c7e21, type: 2}
   blurVolume: {fileID: 4033598593010085253}
   uiDocument: {fileID: 4946427072624720565}
+  keybindCenter: {fileID: 11400000, guid: 2b6edae95f8d41646860c44dc333f70c, type: 2}
   transitionDuration: 0.2
 --- !u!1001 &3703225254678597557
 PrefabInstance:

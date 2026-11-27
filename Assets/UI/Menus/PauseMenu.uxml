@@ -4,6 +4,7 @@
     <Style src="project://database/Assets/UI/Styles/Elements/MenuLabel.uss?fileID=7433441132597879392&amp;guid=fe8cfc1540cce004ca3d05fbbc5004fd&amp;type=3#MenuLabel"/>
     <Style src="project://database/Assets/UI/Styles/Elements/InputBindingButton.uss?fileID=7433441132597879392&amp;guid=cdfc27a35bb3bc249bfe3604ac402105&amp;type=3#InputBindingButton"/>
     <Style src="project://database/Assets/UI/Styles/Elements/InputDisplayLabel.uss?fileID=7433441132597879392&amp;guid=0db211e1a4be8384cb26dabd43d28593&amp;type=3#InputDisplayLabel"/>
+    <Style src="project://database/Assets/UI/Styles/Elements/PopupBox.uss?fileID=7433441132597879392&amp;guid=9e71dac8df6b724439dc0dde26c1e429&amp;type=3#PopupBox"/>
     <ui:GroupBox name="Main" style="height: 100%; width: 100%; top: auto; left: auto; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;">
         <ui:GroupBox name="LeftGroup" style="margin-bottom: 0; margin-top: 0; margin-right: 0; margin-left: 0; padding-top: 70px; padding-right: 70px; padding-bottom: 70px; padding-left: 70px; width: 33%; height: 100%; position: absolute; left: 0; justify-content: center; aspect-ratio: auto; flex-basis: auto;">
             <MenuButton text="Resume" name="ResumeButton" class="menu-button" style="margin-bottom: 20px;"/>
@@ -35,9 +36,10 @@
                 </ui:ScrollView>
                 <ui:GroupBox name="LabelsBox" style="width: 100%; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; height: auto; flex-direction: row-reverse;">
                     <InputDisplayLabel fill-height="false" input-name="ResetKeybinds" name="ResetKeybindsLabel" text="Reset Controls" style="margin-left: 15px;"/>
-                    <MenuButton text="Input Presesets" name="InputPresetsButton" style="width: auto; flex-grow: 1;"/>
+                    <MenuButton text="Input Presets" name="InputPresetsButton" style="width: auto; flex-grow: 1;"/>
                 </ui:GroupBox>
             </ui:GroupBox>
         </ui:GroupBox>
+        <PopupBox name="ResetKeybindsPopup"/>
     </ui:GroupBox>
 </ui:UXML>

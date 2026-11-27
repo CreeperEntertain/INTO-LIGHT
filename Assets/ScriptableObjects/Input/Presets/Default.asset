@@ -1,0 +1,233 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f01b02315f8408741b35e1d188583c20, type: 3}
+  m_Name: Default
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerInput
+  inputIconLibrary: {fileID: 11400000, guid: 1d4852fdf7f5bc54aa0d054400ec6177, type: 2}
+  resetKeybinds:
+  - binding: <Keyboard>/r
+    pressTime: 2
+  - binding: <Gamepad>/select
+    pressTime: 2
+  pauseBindings:
+  - binding: <Keyboard>/escape
+  - binding: <Gamepad>/start
+  moveCursorBindings:
+  - binding: <Mouse>/delta
+    mode: 1
+    center: {x: 0.5, y: 0.5}
+    scale: 2
+    cullMotionBounds: 0
+    motionSensitivity: {x: 1, y: 1}
+    useComposite: 0
+    up: 
+    down: 
+    left: 
+    right: 
+  - binding: 
+    mode: 0
+    center: {x: 0.5, y: 0.5}
+    scale: 2
+    cullMotionBounds: 0
+    motionSensitivity: {x: 1, y: 1}
+    useComposite: 1
+    up: <Keyboard>/w
+    down: <Keyboard>/s
+    left: <Keyboard>/a
+    right: <Keyboard>/d
+  - binding: 
+    mode: 3
+    center: {x: 0.5, y: 0.5}
+    scale: 2
+    cullMotionBounds: 1
+    motionSensitivity: {x: 10, y: 10}
+    useComposite: 0
+    up: 
+    down: 
+    left: 
+    right: 
+  scrollBindings:
+  - binding: <Mouse>/scroll
+    mode: 4
+    center: {x: 0.5, y: 0.5}
+    scale: 0.01
+    cullMotionBounds: 0
+    motionSensitivity: {x: 1, y: 1}
+    useComposite: 0
+    up: 
+    down: 
+    left: 
+    right: 
+  - binding: 
+    mode: 0
+    center: {x: 0.5, y: 0.5}
+    scale: 2
+    cullMotionBounds: 0
+    motionSensitivity: {x: 1, y: 1}
+    useComposite: 1
+    up: <Keyboard>/upArrow
+    down: <Keyboard>/downArrow
+    left: <Keyboard>/leftArrow
+    right: <Keyboard>/rightArrow
+  - binding: <Gamepad>/rightStick
+    mode: 0
+    center: {x: 0.5, y: 0.5}
+    scale: 2
+    cullMotionBounds: 0
+    motionSensitivity: {x: 1, y: 1}
+    useComposite: 0
+    up: 
+    down: 
+    left: 
+    right: 
+  menuSelectBindings:
+  - binding: <Keyboard>/e
+  - binding: <Keyboard>/enter
+  - binding: <Keyboard>/space
+  - binding: <Mouse>/leftButton
+  - binding: <Gamepad>/buttonSouth
+  menuBackBindings:
+  - binding: <Keyboard>/tab
+  - binding: <Keyboard>/backspace
+  - binding: <Keyboard>/leftAlt
+  - binding: <Mouse>/backButton
+  - binding: <Gamepad>/buttonEast
+  menuContextBindings:
+  - binding: <Keyboard>/q
+  - binding: <Keyboard>/rightShift
+  - binding: <Keyboard>/leftControl
+  - binding: <Mouse>/rightButton
+  - binding: <Gamepad>/buttonWest
+  moveBindings:
+  - binding: <Gamepad>/leftStick
+    mode: 0
+    center: {x: 0.5, y: 0.5}
+    scale: 2
+    cullMotionBounds: 0
+    motionSensitivity: {x: 1, y: 1}
+    useComposite: 0
+    up: 
+    down: 
+    left: 
+    right: 
+  - binding: 
+    mode: 0
+    center: {x: 0.5, y: 0.5}
+    scale: 2
+    cullMotionBounds: 0
+    motionSensitivity: {x: 1, y: 1}
+    useComposite: 1
+    up: <Keyboard>/w
+    down: <Keyboard>/s
+    left: <Keyboard>/a
+    right: <Keyboard>/d
+  jumpBindings:
+  - <Keyboard>/space
+  - <Mouse>/middleButton
+  - <Gamepad>/buttonSouth
+  moveCamera:
+  - binding: <Mouse>/delta
+    mode: 1
+    center: {x: 0.5, y: 0.5}
+    scale: 2
+    cullMotionBounds: 0
+    motionSensitivity: {x: 1, y: 1}
+    useComposite: 0
+    up: 
+    down: 
+    left: 
+    right: 
+  - binding: <Gamepad>/rightStick
+    mode: 0
+    center: {x: 0.5, y: 0.5}
+    scale: 2
+    cullMotionBounds: 0
+    motionSensitivity: {x: 1, y: 1}
+    useComposite: 0
+    up: 
+    down: 
+    left: 
+    right: 
+  - binding: 
+    mode: 0
+    center: {x: 0.5, y: 0.5}
+    scale: 2
+    cullMotionBounds: 0
+    motionSensitivity: {x: 1, y: 1}
+    useComposite: 1
+    up: <Keyboard>/upArrow
+    down: <Keyboard>/downArrow
+    left: <Keyboard>/leftArrow
+    right: <Keyboard>/rightArrow
+  handModeBindings:
+  - <Keyboard>/leftAlt
+  - <Mouse>/rightButton
+  - <Gamepad>/leftShoulder
+  resetMotionCalibration:
+  - binding: <Gamepad>/start
+    pressTime: 0.5
+  moveHand:
+  - binding: <Mouse>/delta
+    mode: 1
+    center: {x: 0.5, y: 0.5, z: 0.5}
+    scale: 2
+    cullMotionBounds: 0
+    motionSensitivity: {x: 1, y: 1, z: 1}
+    useComposite: 0
+    up: 
+    down: 
+    left: 
+    right: 
+    forward: 
+    backward: 
+  - binding: 
+    mode: 0
+    center: {x: 0.5, y: 0.5, z: 0.5}
+    scale: 2
+    cullMotionBounds: 0
+    motionSensitivity: {x: 1, y: 1, z: 1}
+    useComposite: 1
+    up: <Keyboard>/upArrow
+    down: <Keyboard>/downArrow
+    left: <Keyboard>/leftArrow
+    right: <Keyboard>/rightArrow
+    forward: 
+    backward: 
+  - binding: 
+    mode: 3
+    center: {x: 0.5, y: 0.5, z: 0.5}
+    scale: 2
+    cullMotionBounds: 1
+    motionSensitivity: {x: 10, y: 10, z: 1}
+    useComposite: 0
+    up: 
+    down: 
+    left: 
+    right: 
+    forward: 
+    backward: 
+  grabBindings:
+  - <Mouse>/leftButton
+  - <Keyboard>/leftCtrl
+  - <Gamepad>/rightTrigger
+  pose1Bindings:
+  - <Keyboard>/1
+  - <Gamepad>/dpad/up
+  pose2Bindings:
+  - <Keyboard>/2
+  - <Gamepad>/dpad/right
+  pose3Bindings:
+  - <Keyboard>/3
+  - <Gamepad>/dpad/down
+  pose4Bindings:
+  - <Keyboard>/4
+  - <Gamepad>/dpad/left

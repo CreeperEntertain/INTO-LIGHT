@@ -37,6 +37,27 @@ public class HoldableButtonInput : IDisposable
     }
     public event Action<float> ReleasedBeforePressTime;
 
+    public float HoldProgress
+    {
+        get
+        {
+            UpdateState();
+            float progress = 0.0f;
+            float currentTime = Time.unscaledTime;
+            for (int i = 0; i < bindings.Count; i++)
+            {
+                RuntimeBinding binding = bindings[i];
+                if (!binding.wasHeld)
+                    continue;
+                float requiredTime = sourceTimes[i];
+                float bindingProgress = requiredTime <= 0.0f
+                    ? 1.0f : Mathf.Clamp01((currentTime - binding.pressedAt) / requiredTime);
+                progress = Mathf.Max(progress, bindingProgress);
+            }
+            return progress;
+        }
+    }
+
 
     public HoldableButtonInput() {}
 

@@ -14,8 +14,8 @@ public class PlayerInput : ScriptableObject
     [Header("SHOULD NEVER CHANGE!")]
     [SerializeField] private HoldableButtonInput[] resetKeybinds =
     {
-        new() { binding = "<Keyboard>/r", pressTime = 0.5f },
-        new() { binding = "<Gamepad>/select", pressTime = 0.5f }
+        new() { binding = "<Keyboard>/r", pressTime = 2.0f },
+        new() { binding = "<Gamepad>/select", pressTime = 2.0f }
     };
 
     [Header("UI Bindings")]
@@ -342,6 +342,21 @@ public class PlayerInput : ScriptableObject
         ActiveDevice = device;
         ActiveDeviceName = GetDeviceDisplayName(device);
         ActiveDeviceChanged?.Invoke();
+    }
+
+    public HoldableButtonInput GetHoldableButtonInput(string inputName)
+        => NormalizeInputName(inputName) switch
+        {
+            "resetkeybinds" => ResetKeybinds,
+            "resetmotioncalibration" => ResetMotionCalibration,
+            _ => null
+        };
+    
+    public void RebuildActions()
+    {
+        DisableAndDisposeActions();
+        BuildActions();
+        EnableActions();
     }
 
 

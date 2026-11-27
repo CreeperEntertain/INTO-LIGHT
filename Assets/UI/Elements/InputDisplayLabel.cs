@@ -12,6 +12,13 @@ public partial class InputDisplayLabel : VisualElement
     private string inputName = string.Empty;
     private bool fillHeight;
     private bool isSubscribed;
+    private IVisualElementScheduledItem holdProgressUpdate;
+
+    private bool hasOriginalPadding;
+    private float originalPaddingTop;
+    private float originalPaddingBottom;
+    private float originalPaddingLeft;
+    private float originalPaddingRight;
 
 
     [UxmlAttribute]
@@ -78,6 +85,19 @@ public partial class InputDisplayLabel : VisualElement
 
         RegisterCallback<AttachToPanelEvent>(_ => SubscribeToInput());
         RegisterCallback<DetachFromPanelEvent>(_ => UnsubscribeFromInput());
+
+        RegisterCallback<AttachToPanelEvent>(_ => {
+            holdProgressUpdate = schedule
+                .Execute(UpdateHoldBorder)
+                .Every(16);
+        });
+        RegisterCallback<DetachFromPanelEvent>(_ =>
+        {
+            holdProgressUpdate?.Pause();
+            holdProgressUpdate = null;
+        });
+
+        RegisterCallback<GeometryChangedEvent>(CaptureOriginalPadding);
     }
 
 
@@ -99,6 +119,44 @@ public partial class InputDisplayLabel : VisualElement
 
     public void OnActiveDeviceChanged()
         => RefreshIcon();
+    
+    private void UpdateHoldBorder()
+    {
+        HoldableButtonInput holdable = playerInput?.GetHoldableButtonInput(inputName);
+        float progress = holdable != null
+            ? holdable.HoldProgress : 0.0f;
+        float width = progress <= 0.0f || progress >= 1.0f
+            ? 0.0f : Mathf.Ceil(progress * 10.0f);
+
+        if (hasOriginalPadding)
+        {
+            style.paddingTop = Mathf.Max(0f, originalPaddingTop - width);
+            style.paddingBottom = Mathf.Max(0f, originalPaddingBottom - width);
+            style.paddingLeft = Mathf.Max(0f, originalPaddingLeft - width);
+            style.paddingRight = Mathf.Max(0f, originalPaddingRight - width);
+        }
+
+        style.borderTopWidth = width;
+        style.borderBottomWidth = width;
+        style.borderLeftWidth = width;
+        style.borderRightWidth = width;
+
+        style.borderTopColor = new Color(1.0f, 1.0f, 1.0f, progress);
+        style.borderBottomColor = new Color(1.0f, 1.0f, 1.0f, progress);
+        style.borderLeftColor = new Color( 1.0f, 1.0f, 1.0f, progress);
+        style.borderRightColor = new Color( 1.0f, 1.0f, 1.0f, progress);
+    }
+
+    private void CaptureOriginalPadding(GeometryChangedEvent evt)
+    {
+        originalPaddingTop = resolvedStyle.paddingTop;
+        originalPaddingBottom = resolvedStyle.paddingBottom;
+        originalPaddingLeft = resolvedStyle.paddingLeft;
+        originalPaddingRight = resolvedStyle.paddingRight;
+
+        hasOriginalPadding = true;
+        UnregisterCallback<GeometryChangedEvent>(CaptureOriginalPadding);
+    }
     
     private void RefreshIcon()
     {
