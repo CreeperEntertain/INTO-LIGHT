@@ -13,6 +13,11 @@ MonoBehaviour:
   m_Name: Keybinds
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInput
   inputIconLibrary: {fileID: 11400000, guid: 1d4852fdf7f5bc54aa0d054400ec6177, type: 2}
+  resetKeybinds:
+  - binding: <Keyboard>/r
+    pressTime: 2
+  - binding: <Gamepad>/select
+    pressTime: 2
   pauseBindings:
   - binding: <Keyboard>/escape
   - binding: <Gamepad>/start

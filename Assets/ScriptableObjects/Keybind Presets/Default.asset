@@ -15,9 +15,9 @@ MonoBehaviour:
   inputIconLibrary: {fileID: 11400000, guid: 1d4852fdf7f5bc54aa0d054400ec6177, type: 2}
   resetKeybinds:
   - binding: <Keyboard>/r
-    pressTime: 0.5
+    pressTime: 2
   - binding: <Gamepad>/select
-    pressTime: 0.5
+    pressTime: 2
   pauseBindings:
   - binding: <Keyboard>/escape
   - binding: <Gamepad>/start
