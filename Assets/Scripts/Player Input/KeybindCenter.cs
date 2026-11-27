@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Reflection;
+using Unity.VisualScripting;
+
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -66,19 +68,55 @@ public class KeybindCenter : ScriptableObject
             return false;
         
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
-        foreach (var field in typeof(PlayerInput).GetFields(flags))
+        FieldInfo resetBindingsField = typeof(PlayerInput).GetField("resetKeybinds", flags);
+        FieldInfo iconLibraryField = typeof(PlayerInput).GetField("inputIconLibrary", flags);
+        if (resetBindingsField == null || iconLibraryField == null)
         {
-            if (field.IsStatic || field.IsNotSerialized)
-                continue;
-            if (field.Name is "resetKeybinds" or "inputIconLibrary")
-                continue;
-            if (field.IsDefined(typeof(NonSerializedAttribute), false))
-                continue;
-            field.SetValue(target, field.GetValue(preset));
+            Debug.LogError("Could not find fields required to preserve reset controls and icons.", this);
+            return false;
         }
 
+        HoldableButtonInput[] resetBindings = CloneHoldableBindings((HoldableButtonInput[])resetBindingsField.GetValue(target));
+        object iconLibrary = iconLibraryField.GetValue(target);
+        string originalJson = JsonUtility.ToJson(target);
+        try
+        {
+            string presetJson = JsonUtility.ToJson(preset);
+            JsonUtility.FromJsonOverwrite(presetJson, target);
+        }
+        catch (Exception exception)
+        {
+            JsonUtility.FromJsonOverwrite(originalJson, target);
+            resetBindingsField.SetValue(target, resetBindings);
+            iconLibraryField.SetValue(target, iconLibrary);
+            Debug.LogException(exception, this);
+            return false;
+        }
+
+        resetBindingsField.SetValue(target, resetBindings);
+        iconLibraryField.SetValue(target, iconLibrary);
         target.RebuildActions();
         return true;
+    }
+
+    private static HoldableButtonInput[] CloneHoldableBindings(HoldableButtonInput[] source)
+    {
+        if (source == null)
+            return null;
+        
+        HoldableButtonInput[] clone = new HoldableButtonInput[source.Length];
+        for (int i = 0; i < source.Length; i++)
+        {
+            HoldableButtonInput binding = source[i];
+            clone[i] = binding == null
+                ? null : new()
+                {
+                    binding = binding.binding,
+                    pressTime = binding.pressTime
+                };
+        }
+
+        return clone;
     }
 
 
