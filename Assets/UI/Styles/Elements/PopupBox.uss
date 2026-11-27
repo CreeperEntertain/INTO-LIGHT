@@ -24,16 +24,6 @@
     padding: 30px;
 
     background-color: rgba(0, 0, 0, 0.95);
-
-    border-left-width: 1px;
-    border-right-width: 1px;
-    border-top-width: 1px;
-    border-bottom-width: 1px;
-
-    border-left-color: rgba(255, 255, 255, 0.5);
-    border-right-color: rgba(255, 255, 255, 0.5);
-    border-top-color: rgba(255, 255, 255, 0.5);
-    border-bottom-color: rgba(255, 255, 255, 0.5);
 }
 
 .popup-box__title {
@@ -77,4 +67,20 @@
 .popup-box__button {
     margin-left: 10px;
     margin-top: 5px;
+    border-width: 0px;
+
+    background-color: rgba(255, 255, 255, 0.02);
+
+    color: white;
+    font-size: 20px;
+
+    transition-property: background-color, color;
+    transition-duration: 0.1s;
+    transition-timing-function: ease;
+}
+
+.popup-box__button:hover {
+    color: black;
+
+    background-color: rgba(255, 255, 255, 1);
 }

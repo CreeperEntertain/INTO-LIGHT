@@ -55,7 +55,7 @@ public class PauseMenuStateManager : MonoBehaviour
     {
         if (isOpen && keybinds.ResetKeybinds.WasPressedThisFrame())
             resetKeybindsPopup?.Show(
-                "Reset Keybinds",
+                "Reset Controls",
                 "Placeholder",
                 new PopupButton("Confirm", () => {}),
                 new PopupButton("Cancel", () => {})
