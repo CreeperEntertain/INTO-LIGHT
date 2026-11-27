@@ -9,6 +9,7 @@ public class PauseMenuStateManager : MonoBehaviour
     [SerializeField] private PlayerInput keybinds;
     [SerializeField] private CustomPassVolume blurVolume;
     [SerializeField] private UIDocument uiDocument;
+    [SerializeField] private KeybindCenter keybindCenter;
 
     [Header("Settings")]
     [SerializeField] private float transitionDuration = 0.2f;
@@ -57,7 +58,7 @@ public class PauseMenuStateManager : MonoBehaviour
             resetKeybindsPopup?.Show(
                 "Reset Controls",
                 "Using this option will reset all your controls to factory defaults, overwriting what you have currently set. Alternatively, you can also do this by clicking \"Input Presets\" and selecting the \"Default\" option.",
-                new PopupButton("Confirm", () => {}),
+                new PopupButton("Confirm", ResetKeybindsToDefault),
                 new PopupButton("Cancel", () => {})
             );
         if (keybinds.Pause.WasPressedThisFrame())
@@ -171,5 +172,24 @@ public class PauseMenuStateManager : MonoBehaviour
 
         uiDocument.rootVisualElement.style.display = open
             ? DisplayStyle.Flex : DisplayStyle.None;
+    }
+
+
+    private void ResetKeybindsToDefault()
+    {
+        if (keybindCenter == null)
+        {
+            Debug.LogError("Default keydind preset was not found.", this);
+            return;
+        }
+
+        PlayerInput defaultPreset = keybindCenter.GetPreset("Default");
+        if (defaultPreset == null)
+        {
+            Debug.LogError("Default keybind preset was not found.", this);
+            return;
+        }
+        if (!keybindCenter.ApplyPreset(keybinds, defaultPreset))
+            Debug.LogError("Failed to reset keybinds to defaults.", this);
     }
 }
