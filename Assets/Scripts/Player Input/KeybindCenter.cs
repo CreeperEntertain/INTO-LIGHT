@@ -10,7 +10,7 @@ using UnityEditor;
 public class KeybindCenter : ScriptableObject
 {
     public const string PresetFolderPath = "Assets/ScriptableObjects/Input/Presets";
-    public const string KeybindsAssetPath = "Assets/ScripableObjects/Input/Keybinds.asset";
+    public const string KeybindsAssetPath = "Assets/ScriptableObjects/Input/Keybinds.asset";
 
     [SerializeField] private PlayerInput[] presets = Array.Empty<PlayerInput>();
 
