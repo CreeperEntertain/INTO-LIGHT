@@ -125,8 +125,8 @@ public partial class InputDisplayLabel : VisualElement
         HoldableButtonInput holdable = playerInput?.GetHoldableButtonInput(inputName);
         float progress = holdable != null
             ? holdable.HoldProgress : 0.0f;
-        float width = progress >= 1.0f
-            ? 0.0f : progress * 10.0f;
+        float width = progress <= 0.0f || progress >= 1.0f
+            ? 0.0f : Mathf.Ceil(progress * 10.0f);
 
         if (hasOriginalPadding)
         {
@@ -140,6 +140,11 @@ public partial class InputDisplayLabel : VisualElement
         style.borderBottomWidth = width;
         style.borderLeftWidth = width;
         style.borderRightWidth = width;
+
+        style.borderTopColor = new Color(1.0f, 1.0f, 1.0f, progress);
+        style.borderBottomColor = new Color(1.0f, 1.0f, 1.0f, progress);
+        style.borderLeftColor = new Color( 1.0f, 1.0f, 1.0f, progress);
+        style.borderRightColor = new Color( 1.0f, 1.0f, 1.0f, progress);
     }
 
     private void CaptureOriginalPadding(GeometryChangedEvent evt)
