@@ -73,73 +73,76 @@ MonoBehaviour:
   blurVolume: {fileID: 4033598593010085253}
   uiDocument: {fileID: 4946427072624720565}
   transitionDuration: 0.2
---- !u!1 &6790256567146082687
-GameObject:
+--- !u!1001 &3703225254678597557
+PrefabInstance:
   m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 6108636448786979075}
-  - component: {fileID: 4033598593010085253}
-  m_Layer: 0
-  m_Name: Menu Background Blur
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &6108636448786979075
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6790256567146082687}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -9.436918, y: 1.1710894, z: 4.7335796}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 8327628751514940199}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4033598593010085253
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 8327628751514940199}
+    m_Modifications:
+    - target: {fileID: 7467605639408916150, guid: 028f9cdf85303bf40bf46c0338e487d3, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7467605639408916150, guid: 028f9cdf85303bf40bf46c0338e487d3, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7467605639408916150, guid: 028f9cdf85303bf40bf46c0338e487d3, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7467605639408916150, guid: 028f9cdf85303bf40bf46c0338e487d3, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7467605639408916150, guid: 028f9cdf85303bf40bf46c0338e487d3, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7467605639408916150, guid: 028f9cdf85303bf40bf46c0338e487d3, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7467605639408916150, guid: 028f9cdf85303bf40bf46c0338e487d3, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7467605639408916150, guid: 028f9cdf85303bf40bf46c0338e487d3, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7467605639408916150, guid: 028f9cdf85303bf40bf46c0338e487d3, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7467605639408916150, guid: 028f9cdf85303bf40bf46c0338e487d3, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7881204655661711050, guid: 028f9cdf85303bf40bf46c0338e487d3, type: 3}
+      propertyPath: m_Name
+      value: Menu Background Blur
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 028f9cdf85303bf40bf46c0338e487d3, type: 3}
+--- !u!114 &4033598593010085253 stripped
 MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 332781706886914608, guid: 028f9cdf85303bf40bf46c0338e487d3, type: 3}
+  m_PrefabInstance: {fileID: 3703225254678597557}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6790256567146082687}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 26d6499a6bd256e47b859377446493a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.HighDefinition.Runtime::UnityEngine.Rendering.HighDefinition.CustomPassVolume
-  m_IsGlobal: 0
-  fadeRadius: 0
-  priority: 0
-  customPasses:
-  - rid: 5253677116612149371
-  injectionPoint: 3
-  m_TargetCamera: {fileID: 0}
-  useTargetCamera: 1
-  references:
-    version: 2
-    RefIds:
-    - rid: 5253677116612149371
-      type: {class: PauseBackgroundBlur, ns: , asm: Assembly-CSharp}
-      data:
-        m_Name: Custom Pass
-        enabled: 1
-        targetColorBuffer: 0
-        targetDepthBuffer: 0
-        clearFlags: 6
-        passFoldout: 0
-        m_Version: 0
-        blurMaterial: {fileID: 2100000, guid: 497d97bc13fc4ae4dbb4da5b9e94422b, type: 2}
-        radius: 16
-        minimumBrightness: 0.02
-        maximumBrightness: 0.98
-        blend: 0
+--- !u!4 &6108636448786979075 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7467605639408916150, guid: 028f9cdf85303bf40bf46c0338e487d3, type: 3}
+  m_PrefabInstance: {fileID: 3703225254678597557}
+  m_PrefabAsset: {fileID: 0}
