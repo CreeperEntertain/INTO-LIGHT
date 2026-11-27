@@ -56,7 +56,7 @@ public class PauseMenuStateManager : MonoBehaviour
         if (isOpen && keybinds.ResetKeybinds.WasPressedThisFrame())
             resetKeybindsPopup?.Show(
                 "Reset Controls",
-                "Placeholder",
+                "Using this option will reset all your controls to factory defaults, overwriting what you have currently set. Alternatively, you can also do this by clicking \"Input Presets\" and selecting the \"Default\" option.",
                 new PopupButton("Confirm", () => {}),
                 new PopupButton("Cancel", () => {})
             );
