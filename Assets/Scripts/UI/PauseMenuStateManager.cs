@@ -82,6 +82,9 @@ public class PauseMenuStateManager : MonoBehaviour
         root.Q<InputBindingFoldout>("Pose3BindingsFoldout").Input = keybinds;
         root.Q<InputBindingFoldout>("Pose4BindingsFoldout").Input = keybinds;
 
+        // Labels
+        root.Q<InputDisplayLabel>("ResetKeybindsLabel").Input = keybinds;
+
         MenuButton resumeButton = root.Q<MenuButton>("ResumeButton");
         MenuButton optionsButton = root.Q<MenuButton>("OptionsButton");
         MenuButton controlsButton = root.Q<MenuButton>("ControlsButton");

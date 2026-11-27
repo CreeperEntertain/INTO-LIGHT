@@ -3,12 +3,20 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.LowLevel;
 
 [CreateAssetMenu(fileName = "PlayerInput", menuName = "Scriptable Objects/Player Input")]
 public class PlayerInput : ScriptableObject
 {
     [Header("Icons")]
     [SerializeField] private InputIconLibrary inputIconLibrary;
+
+    [Header("SHOULD NEVER CHANGE!")]
+    [SerializeField] private HoldableButtonInput[] resetKeybinds =
+    {
+        new() { binding = "<Keyboard>/r", pressTime = 0.5f },
+        new() { binding = "<Gamepad>/select", pressTime = 0.5f }
+    };
 
     [Header("UI Bindings")]
     [SerializeField] private ReleasableButtonInput[] pauseBindings =
@@ -176,6 +184,7 @@ public class PlayerInput : ScriptableObject
         "<Gamepad>/dpad/left"
     };
 
+    public HoldableButtonInput ResetKeybinds { get; private set; }
     public ReleasableButtonInput Pause { get; private set;}
     public Vector2Input MoveCursor { get; private set; }
     public Vector2Input Scroll { get; private set; }
@@ -195,18 +204,32 @@ public class PlayerInput : ScriptableObject
     public InputAction Pose4 { get; private set; }
 
 
+    public InputDevice ActiveDevice { get; private set; }
+    public string ActiveDeviceName { get; private set; }
+
+    public event Action ActiveDeviceChanged;
+
+
     private void OnEnable()
     {
+        ActiveDevice = null;
+        ActiveDeviceName = null;
+        InputSystem.onEvent += OnInputEvent;
         BuildActions();
         EnableActions();
     }
 
     private void OnDisable()
-        => DisableAndDisposeActions();
+    {
+        InputSystem.onEvent -= OnInputEvent;
+        DisableAndDisposeActions();
+    }
 
 
     private void BuildActions()
     {
+        ResetKeybinds = new("Reset Keybinds", resetKeybinds);
+
         Pause = new("Pause", pauseBindings);
         MoveCursor = new("Move Cursor", moveCursorBindings);
         Scroll = new("Scroll", scrollBindings);
@@ -241,6 +264,8 @@ public class PlayerInput : ScriptableObject
 
     private void EnableActions()
     {
+        ResetKeybinds.Enable();
+
         Pause.Enable();
         MoveCursor.Enable();
         Scroll.Enable();
@@ -265,6 +290,8 @@ public class PlayerInput : ScriptableObject
 
     private void DisableAndDisposeActions()
     {
+        ResetKeybinds?.Dispose();
+
         Pause?.Dispose();
         MoveCursor?.Dispose();
         Scroll?.Dispose();
@@ -295,6 +322,28 @@ public class PlayerInput : ScriptableObject
         action.Dispose();
     }
 
+    private void OnInputEvent(InputEventPtr eventPtr, InputDevice device)
+    {
+        if (device == null || device is Sensor)
+            return;
+        if (eventPtr.type != StateEvent.Type && eventPtr.type != DeltaStateEvent.Type)
+            return;
+        foreach (InputControl control in eventPtr.EnumerateChangedControls(device: device, magnitudeThreshold: 0.15f))
+        {
+            SetActiveDevice(device);
+            return;
+        }
+    }
+
+    private void SetActiveDevice(InputDevice device)
+    {
+        if (ActiveDevice == device)
+            return;
+        ActiveDevice = device;
+        ActiveDeviceName = GetDeviceDisplayName(device);
+        ActiveDeviceChanged?.Invoke();
+    }
+
 
 
 
@@ -315,6 +364,8 @@ public class PlayerInput : ScriptableObject
     {
         InputBindingDisplayData[] result = NormalizeInputName(inputName) switch
         {
+            "resetkeybinds" => CreateHoldableDisplayData(resetKeybinds),
+
             "pause" => CreateReleasableDisplayData(pauseBindings),
             "movecursor" => CreateVector2DisplayData(moveCursorBindings),
             "scroll" => CreateVector2DisplayData(scrollBindings),
@@ -597,6 +648,16 @@ public class PlayerInput : ScriptableObject
         if (device.Equals("Gamepad", StringComparison.OrdinalIgnoreCase))
             return "Gamepad";
         return FormatDisplayWords(device);
+    }
+    private static string GetDeviceDisplayName(InputDevice device)
+    {
+        if (device is Keyboard)
+            return "Keyboard";
+        if (device is Mouse)
+            return "Mouse";
+        if (device is Gamepad)
+            return "Gamepad";
+        return GetDeviceDisplayName(device.layout);
     }
     private static string NormalizeInputName(string inputName)
     {
