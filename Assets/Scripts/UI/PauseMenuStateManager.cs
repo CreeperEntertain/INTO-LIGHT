@@ -23,6 +23,9 @@ public class PauseMenuStateManager : MonoBehaviour
     private bool previousAudioPause;
 
 
+    private PopupBox resetKeybindsPopup;
+
+
     private void Awake()
     {
         foreach (var pass in blurVolume.customPasses)
@@ -50,6 +53,13 @@ public class PauseMenuStateManager : MonoBehaviour
 
     private void Update()
     {
+        if (isOpen && keybinds.ResetKeybinds.WasPressedThisFrame())
+            resetKeybindsPopup?.Show(
+                "Reset Keybinds",
+                "Placeholder",
+                new PopupButton("Confirm", () => {}),
+                new PopupButton("Cancel", () => {})
+            );
         if (keybinds.Pause.WasPressedThisFrame())
             SetOpen(!isOpen);
         if (Mathf.Approximately(blurPass.Blend, blendTarget))
@@ -62,6 +72,11 @@ public class PauseMenuStateManager : MonoBehaviour
     private void OnEnable()
     {
         VisualElement root = GetComponent<UIDocument>().rootVisualElement;
+
+        // Popups
+        resetKeybindsPopup = root.Q<PopupBox>("ResetKeybindsPopup");
+        if (resetKeybindsPopup == null)
+            Debug.LogError("ResetKeybindsPopup not found in the pause menu.", this);
 
         // UI
         root.Q<InputBindingFoldout>("PauseBindingsFoldout").Input = keybinds;
