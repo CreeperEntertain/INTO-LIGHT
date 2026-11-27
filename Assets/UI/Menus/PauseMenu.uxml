@@ -40,6 +40,6 @@
                 </ui:GroupBox>
             </ui:GroupBox>
         </ui:GroupBox>
-        <PopupBox name="Example"/>
+        <PopupBox name="ResetKeybindsPopup"/>
     </ui:GroupBox>
 </ui:UXML>
