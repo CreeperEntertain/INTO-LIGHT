@@ -364,6 +364,8 @@ public class PlayerInput : ScriptableObject
     {
         InputBindingDisplayData[] result = NormalizeInputName(inputName) switch
         {
+            "resetkeybinds" => CreateHoldableDisplayData(resetKeybinds),
+
             "pause" => CreateReleasableDisplayData(pauseBindings),
             "movecursor" => CreateVector2DisplayData(moveCursorBindings),
             "scroll" => CreateVector2DisplayData(scrollBindings),
