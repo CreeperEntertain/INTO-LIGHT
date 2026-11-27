@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Reflection;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -57,6 +58,27 @@ public class KeybindCenter : ScriptableObject
             if (!presetsByName.ContainsKey(preset.name))
                 presetsByName.Add(preset.name, preset);
         }
+    }
+
+    public bool ApplyPreset(PlayerInput target, PlayerInput preset)
+    {
+        if (target == null || preset == null || target == preset)
+            return false;
+        
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+        foreach (var field in typeof(PlayerInput).GetFields(flags))
+        {
+            if (field.IsStatic || field.IsNotSerialized)
+                continue;
+            if (field.Name is "resetKeybinds" or "inputIconLibrary")
+                continue;
+            if (field.IsDefined(typeof(NonSerializedAttribute), false))
+                continue;
+            field.SetValue(target, field.GetValue(preset));
+        }
+
+        target.RebuildActions();
+        return true;
     }
 
 
