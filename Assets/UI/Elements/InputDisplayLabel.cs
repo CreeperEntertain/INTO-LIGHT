@@ -98,52 +98,58 @@ public partial class InputDisplayLabel : VisualElement
     }
 
     public void OnActiveDeviceChanged()
-        => RefreshIcon(allowFallback: false);
-
-    public void RefreshIcon()
-        => RefreshIcon(allowFallback: true);
+        => RefreshIcon();
     
-    private void RefreshIcon(bool allowFallback)
+    private void RefreshIcon()
     {
         if (playerInput == null || string.IsNullOrWhiteSpace(inputName))
         {
-            if (allowFallback)
-                SetIcon(null);
+            SetIcon(null);
             return;
         }
 
         InputBindingDisplayData[] bindings = playerInput.GetBindingDisplayData(inputName);
         if (bindings == null || bindings.Length == 0)
         {
-            if (allowFallback)
-                SetIcon(null);
+            SetIcon(null);
             return;
         }
 
-        InputBindingDisplayData selected = null;
         string activeDevice = playerInput.ActiveDeviceName;
-        if (!string.IsNullOrEmpty(activeDevice))
-            foreach (InputBindingDisplayData binding in bindings)
-            {
-                if (binding == null || binding.VisualType != InputBindingVisualType.Icon)
-                    continue;
-                if (string.Equals(binding.ControlName, activeDevice, StringComparison.OrdinalIgnoreCase))
-                {
-                    selected = binding;
-                    break;
-                }
-            }
-        if (selected == null && allowFallback)
-            foreach (InputBindingDisplayData binding in bindings)
-                if (binding != null && binding.VisualType == InputBindingVisualType.Icon)
-                {
-                    selected = binding;
-                    break;
-                }
-        if (selected != null)
-            SetIcon(selected.Icon);
-        else if (allowFallback)
-            SetIcon(null);
+        InputBindingDisplayData selected = FindBindingForDevice(bindings, activeDevice);
+        if (selected == null)
+        {
+            string fallbackDevice = null;
+            if (string.Equals(activeDevice, "Keyboard", StringComparison.OrdinalIgnoreCase))
+                fallbackDevice = "Mouse";
+            else if (string.Equals(activeDevice, "Mouse", StringComparison.OrdinalIgnoreCase))
+                fallbackDevice = "Keyboard";
+            selected = FindBindingForDevice(bindings, fallbackDevice);
+        }
+        selected ??= FindFirstIconBinding(bindings);
+        SetIcon(selected?.Icon);
+    }
+
+    private static InputBindingDisplayData FindBindingForDevice(InputBindingDisplayData[] bindings, string deviceName)
+    {
+        if (string.IsNullOrWhiteSpace(deviceName))
+            return null;
+        foreach (InputBindingDisplayData binding in bindings)
+            if (
+                binding != null &&
+                binding.VisualType == InputBindingVisualType.Icon &&
+                string.Equals(binding.ControlName, deviceName, StringComparison.OrdinalIgnoreCase)
+            )
+                return binding;
+        return null;
+    }
+
+    private static InputBindingDisplayData FindFirstIconBinding(InputBindingDisplayData[] bindings)
+    {
+        foreach (InputBindingDisplayData binding in bindings)
+            if (binding != null && binding.VisualType == InputBindingVisualType.Icon)
+                return binding;
+        return null;
     }
 
     private void SetIcon(UnityEngine.Object source)
