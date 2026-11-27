@@ -351,6 +351,13 @@ public class PlayerInput : ScriptableObject
             "resetmotioncalibration" => ResetMotionCalibration,
             _ => null
         };
+    
+    public void RebuildActions()
+    {
+        DisableAndDisposeActions();
+        BuildActions();
+        EnableActions();
+    }
 
 
 
