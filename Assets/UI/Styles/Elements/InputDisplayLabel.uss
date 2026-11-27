@@ -1,0 +1,30 @@
+.input-display-label {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    align-self: flex-start;
+
+    flex-grow: 0;
+    flex-shrink: 0;
+
+    padding: 20px;
+
+    background-color: rgba(0, 0, 0, 0.85);
+}
+
+.input-display-label__text {
+    flex-grow: 0;
+    flex-shrink: 1;
+
+    color: white;
+    font-size: 24px;
+    -unity-text-align: upper-left;
+    align-self: flex-start;
+}
+
+.input-display-label__icon {
+    width: 32px;
+    height: 32px;
+    margin-left: 20px;
+    flex-shrink: 0;
+}
