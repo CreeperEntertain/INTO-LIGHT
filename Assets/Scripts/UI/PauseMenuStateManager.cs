@@ -18,7 +18,7 @@ public class PauseMenuStateManager : MonoBehaviour
     private ControlsMenuStateManager controlsMenuStateManager;
 
     private MenuButton resumeButton;
-    private MenuButton optionsButton; 
+    private MenuButton optionsButton;
     private MenuButton exitGameButton;
 
     private bool isOpen;
