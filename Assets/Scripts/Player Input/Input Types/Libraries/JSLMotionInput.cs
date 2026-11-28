@@ -192,7 +192,7 @@ internal static class JSLMotionInput
         {
             if (!loggedNoSupportedController)
             {
-                Debug.LogWarning($"JSL did not select a supported DualShock 4/DualSense. New connections={newlyConnected}; handles found={count}.");
+                //Debug.LogWarning($"JSL did not select a supported DualShock 4/DualSense. New connections={newlyConnected}; handles found={count}.");
                 loggedNoSupportedController = true;
             }
             return;
