@@ -3,7 +3,7 @@ using UnityEngine;
 public class CameraManager : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private Camera camera;
+    [SerializeField] private Camera targetCamera;
 
 
     private void OnEnable()
@@ -14,5 +14,8 @@ public class CameraManager : MonoBehaviour
     
 
     private void UpdateFov(float fov)
-        => camera.fieldOfView = fov;
+    {
+        if (targetCamera != null)
+            targetCamera.fieldOfView = fov;
+    }
 }
