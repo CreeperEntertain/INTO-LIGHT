@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Unity.VisualScripting;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -8,6 +8,7 @@ public static class PopupManager
     private const int SortingOrder = 1000;
 
     private static readonly Dictionary<string, PopupBox> popups = new();
+    private static readonly Dictionary<string, ComplexPopupBox> complexPopups = new();
 
     private static PanelSettings panelSettings;
     private static StyleSheet popupStyleSheet;
@@ -23,6 +24,7 @@ public static class PopupManager
     private static void ResetStatistics()
     {
         popups.Clear();
+        complexPopups.Clear();
 
         panelSettings = null;
         popupStyleSheet = null;
@@ -44,6 +46,7 @@ public static class PopupManager
             return;
 
         popups.Clear();
+        complexPopups.Clear();
         panelSettings = settings;
         popupStyleSheet = styleSheet;
         CreateHost();
@@ -78,6 +81,7 @@ public static class PopupManager
         document = null;
         root = null;
         popups.Clear();
+        complexPopups.Clear();
 
         CreateHost();
         return IsInitialized;
@@ -104,5 +108,54 @@ public static class PopupManager
             return;
         }
         popup.Show(title, description, buttons);
+    }
+
+    public static void ShowComplex(string id, string title, string description, params PopupButton[] buttons)
+    {
+        if (!CanShowComplex(id))
+            return;
+        ComplexPopupBox popup = GetComplexPopup(id);
+        if (popup == null || popup.IsOpen)
+        {
+            popup?.BringToFront();
+            return;
+        }
+        popup.Show(title, description, buttons);
+    }
+
+    public static void ShowComplex(string id, string title, VisualElement content, params PopupButton[] buttons)
+    {
+        if (!CanShowComplex(id))
+            return;
+        ComplexPopupBox popup = GetComplexPopup(id);
+        if (popup == null || popup.IsOpen)
+        {
+            popup?.BringToFront();
+            return;
+        }
+        popup.Show(title, content, buttons);
+    }
+
+    public static void ShowComplex(string id, string title, UIDocument content, params PopupButton[] buttons)
+        => ShowComplex(id, title, content != null ? content.rootVisualElement : null, buttons);
+    
+    private static bool CanShowComplex(string id)
+    {
+        if (string.IsNullOrWhiteSpace(id))
+        {
+            Debug.LogError("PopupManager.ShowComplex requires a unique popup ID.");
+            return false;
+        }
+        return EnsureInitialized();
+    }
+
+    private static ComplexPopupBox GetComplexPopup(string id)
+    {
+        if (complexPopups.TryGetValue(id, out ComplexPopupBox existing))
+            return existing;
+        ComplexPopupBox popup = new();
+        complexPopups.Add(id, popup);
+        root.Add(popup);
+        return popup;
     }
 }
