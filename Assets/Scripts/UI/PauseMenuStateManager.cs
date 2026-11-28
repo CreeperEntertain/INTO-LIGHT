@@ -17,6 +17,10 @@ public class PauseMenuStateManager : MonoBehaviour
     private SideMenuManager sideMenuManager;
     private ControlsMenuStateManager controlsMenuStateManager;
 
+    private MenuButton resumeButton;
+    private MenuButton optionsButton; 
+    private MenuButton exitGameButton;
+
     private bool isOpen;
     private float blendStart;
     private float blendTarget;
@@ -80,21 +84,30 @@ public class PauseMenuStateManager : MonoBehaviour
         else
             controlsMenuStateManager.Close();
 
-        MenuButton resumeButton = root.Q<MenuButton>("ResumeButton");
-        MenuButton optionsButton = root.Q<MenuButton>("OptionsButton");
-        MenuButton controlsButton = root.Q<MenuButton>("ControlsButton");
-        MenuButton exitGameButton = root.Q<MenuButton>("ExitGameButton");
+        resumeButton = root.Q<MenuButton>("ResumeButton");
+        optionsButton = root.Q<MenuButton>("OptionsButton");
+        exitGameButton = root.Q<MenuButton>("ExitGameButton");
 
-        if (resumeButton != null)
-            resumeButton.clicked += Resume;
-        if (optionsButton != null)
-            optionsButton.clicked += OpenOptions;
-        if (exitGameButton != null)
-            exitGameButton.clicked += ExitGame;
+        resumeButton?.RegisterCallback<ClickEvent>(_ => Resume());
+        optionsButton?.RegisterCallback<ClickEvent>(_ => OpenOptions());
+        exitGameButton?.RegisterCallback<ClickEvent>(_ => ExitGame());
     }
 
     private void OnDisable()
     {
+        if (resumeButton != null)
+            resumeButton.clicked -= Resume;
+        if (optionsButton != null)
+            optionsButton.clicked -= OpenOptions;
+        if (exitGameButton != null)
+            exitGameButton.clicked -= ExitGame;
+        
+        resumeButton?.UnregisterCallback<ClickEvent>(_ => Resume());
+        optionsButton?.UnregisterCallback<ClickEvent>(_ => OpenOptions());
+        exitGameButton?.UnregisterCallback<ClickEvent>(_ => ExitGame());
+
+        if (controlsMenuStateManager != null)
+            controlsMenuStateManager.Close();
         if (!isOpen)
             return;
         
@@ -129,6 +142,8 @@ public class PauseMenuStateManager : MonoBehaviour
     {
         if (isOpen == open)
             return;
+        if (controlsMenuStateManager != null)
+            controlsMenuStateManager.Close();
 
         GameState.SetPaused(open);
         isOpen = open;
