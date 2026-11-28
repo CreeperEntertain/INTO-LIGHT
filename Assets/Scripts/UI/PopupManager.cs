@@ -1,57 +1,69 @@
-using Unity.VisualScripting;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public sealed class PopupManager : MonoBehaviour
+public static class PopupManager
 {
-    private static PopupManager instance;
+    private const int SortingOrder = 1000;
 
-    [Header("Popup UI")]
-    [SerializeField] private PanelSettings panelSettings;
-    [SerializeField] private StyleSheet popupStyleSheet;
+    private static readonly Dictionary<string, PopupBox> popups = new();
 
-    private UIDocument popupDocument;
-    private PopupBox popup;
+    private static GameObject host;
+    private static VisualElement root;
 
 
-    private void Awake()
+    public static bool EnsureInitialized()
     {
-        if (instance != null && instance != this)
+        if (root != null)
+            return true;
+        
+        PanelSettings panelSettings = Resources.Load<PanelSettings>("UI Toolkit/PanelSettings");
+        StyleSheet popupStyleSheet = Resources.Load<StyleSheet>("UI/Styles/Elements/PopupBox");
+        if (panelSettings == null || popupStyleSheet == null)
         {
-            Destroy(gameObject);
-            return;
+            Debug.LogError("PopupManager: PanelSettings or PopupBox stylesheet was not found in Resources.");
+            return false;
         }
 
-        instance = this;
-        DontDestroyOnLoad(gameObject);
+        host = new("Popup UI");
+        Object.DontDestroyOnLoad(host);
 
-        GameObject popupObject = new("Popup UI");
-        popupObject.transform.SetParent(transform, false);
+        UIDocument document = host.AddComponent<UIDocument>();
+        document.panelSettings = panelSettings;
+        document.sortingOrder = SortingOrder;
 
-        popupDocument = popupDocument.AddComponent<UIDocument>();
-        popupDocument.panelSettings = panelSettings;
-        popupDocument.sortingOrder = 1000;
-
-        VisualElement root = popupDocument.rootVisualElement;
+        root = document.rootVisualElement;
         root.styleSheets.Add(popupStyleSheet);
 
-        popup = new();
-        root.Add(popup);
+        return true;
     }
 
-    public static void Show(string title, string description, params PopupButton[] buttons)
+    public static void Show(
+        string id,
+        string title,
+        string description,
+        params PopupButton[] buttons
+    )
     {
-        if (instance == null || instance.popup == null)
+        if (string.IsNullOrWhiteSpace(id))
         {
-            Debug.LogError("PopupManager is missing from the scene or has not initialized.");
+            Debug.LogError("PopupManager.Show requires a unique popup ID.");
             return;
         }
-        instance.popup.Show(title, description, buttons);
+        if (!EnsureInitialized())
+            return;
+        if (!popups.TryGetValue(id, out PopupBox popup))
+        {
+            popup = new();
+            popups.Add(id, popup);
+            root.Add(popup);
+        }
+        popup.Show(title, description, buttons);
     }
 
-    public static void Hide()
+    public static void Hide(string id)
     {
-        if (instance != null && instance.popup != null)
-            instance.popup.Hide();
+        if (popups.TryGetValue(id, out PopupBox popup))
+            popup.Hide();
     }
 }
