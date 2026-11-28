@@ -8,6 +8,8 @@ public class ControlsMenuStateManager : MonoBehaviour
     [SerializeField] private PlayerInput keybinds;
     [SerializeField] private KeybindCenter keybindCenter;
     [SerializeField] private VisualTreeAsset controlsMenu;
+    [SerializeField] private VisualTreeAsset keybindPopupContent;
+    [SerializeField] private VisualTreeAsset keybindPopupRow;
 
     private SideMenuManager sideMenuManager;
     private MenuButton controlsButton;
@@ -64,7 +66,12 @@ public class ControlsMenuStateManager : MonoBehaviour
         if (controlsRoot == null)
             return;
         
-        controlsRoot.Query<InputBindingFoldout>().ForEach(foldout => foldout.Input = keybinds);
+        controlsRoot.Query<InputBindingFoldout>().ForEach(foldout =>
+        {
+            foldout.PopupContentAsset = keybindPopupContent;
+            foldout.PopupRowAsset = keybindPopupRow;
+            foldout.Input = keybinds;
+        });
         InputDisplayLabel resetLabel = controlsRoot.Q<InputDisplayLabel>("ResetKeybindsLabel");
         if (resetLabel != null)
             resetLabel.Input = keybinds;
