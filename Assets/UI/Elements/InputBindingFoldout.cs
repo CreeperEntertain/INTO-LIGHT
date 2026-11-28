@@ -1,6 +1,6 @@
 using UnityEngine.UIElements;
 
-[UxmlElement(libraryPath = "Player Input")]
+[UxmlElement]
 public partial class InputBindingFoldout : MenuFoldout
 {
     private PlayerInput playerInput;

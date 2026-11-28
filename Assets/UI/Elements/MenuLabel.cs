@@ -1,6 +1,6 @@
 using UnityEngine.UIElements;
 
-[UxmlElement(libraryPath = "Menu Basics")]
+[UxmlElement]
 public partial class MenuLabel : VisualElement
 {
     private TextElement titleElement;
