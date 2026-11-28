@@ -79,14 +79,7 @@ public class PauseMenuStateManager : MonoBehaviour
         VisualElement root = GetComponent<UIDocument>().rootVisualElement;
 
         sideMenuManager = GetComponent<SideMenuManager>();
-        VisualElement controlsRoot = LoadControlsMenu();
-        if (controlsRoot == null)
-            return;
-        
-        controlsRoot.Query<InputBindingFoldout>().ForEach(foldout => foldout.Input = keybinds);
-        InputDisplayLabel resetLabel = controlsRoot.Q<InputDisplayLabel>("ResetKeybindsLabel");
-        if (resetLabel != null)
-            resetLabel.Input = keybinds;
+        sideMenuManager?.Hide();
 
         MenuButton resumeButton = root.Q<MenuButton>("ResumeButton");
         MenuButton optionsButton = root.Q<MenuButton>("OptionsButton");
