@@ -66,7 +66,11 @@ public class PauseMenuStateManager : MonoBehaviour
                 new PopupButton("Cancel", () => {})
             );
         if (keybinds.Pause.WasPressedThisFrame())
+        {
+            if (sideMenuManager != null)
+                sideMenuManager.Hide();
             SetOpen(!isOpen);
+        }
         if (Mathf.Approximately(blurPass.Blend, blendTarget))
             return;
         
@@ -79,7 +83,8 @@ public class PauseMenuStateManager : MonoBehaviour
         VisualElement root = GetComponent<UIDocument>().rootVisualElement;
 
         sideMenuManager = GetComponent<SideMenuManager>();
-        sideMenuManager?.Hide();
+        if (sideMenuManager != null)
+            sideMenuManager.Hide();
 
         MenuButton resumeButton = root.Q<MenuButton>("ResumeButton");
         MenuButton optionsButton = root.Q<MenuButton>("OptionsButton");
@@ -125,7 +130,11 @@ public class PauseMenuStateManager : MonoBehaviour
 
 
     private void Resume()
-        => SetOpen(false);
+    {
+        if (sideMenuManager != null)
+            sideMenuManager.Hide();
+        SetOpen(false);
+    }
 
     private void OpenOptions()
     {
