@@ -6,6 +6,9 @@ public partial class InputBindingFoldout : MenuFoldout
     private PlayerInput playerInput;
     private string inputName = string.Empty;
 
+    public VisualTreeAsset PopupContentAsset { get; set; }
+    public VisualTreeAsset PopupRowAsset { get; set; }
+
 
     [UxmlAttribute]
     public string InputName
@@ -53,6 +56,12 @@ public partial class InputBindingFoldout : MenuFoldout
                 return;
             InputBindingButton button = new();
             button.SetDisplayData(binding);
+            if (binding.BindingTargets != null && binding.BindingTargets.Length > 0)
+            {
+                InputBindingDisplayData capturedData = binding;
+                button.clicked += () => KeybindPopupController.Show(playerInput, capturedData, PopupContentAsset, PopupRowAsset, RefreshBindings);
+            }
+
             contentContainer.Add(button);
         }
     }

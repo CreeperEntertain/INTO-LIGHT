@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:UXML
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ui="UnityEngine.UIElements"
+    xmlns:uie="UnityEditor.UIElements"
+    xsi:noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd"
+>
+    <ui:VisualElement name="BindingRow" style="flex-direction: row; align-items: center; width: 100%; margin-bottom: 8px;">
+        <ui:Label name="BindingPartLabel" style="width: 60px; margin-right: 8px; display: none;" />
+        <DropdownSelector name="BindingSelector" style="flex-grow: 1;" />
+        <ui:Button name="RecordButton" text="Record" class="popup-box__button" style="width: 100px; margin-left: 10px;" />
+    </ui:VisualElement>
+</ui:UXML>

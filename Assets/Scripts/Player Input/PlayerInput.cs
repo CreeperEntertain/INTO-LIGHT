@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Controls;
 using UnityEngine.InputSystem.LowLevel;
 
 [CreateAssetMenu(fileName = "PlayerInput", menuName = "Scriptable Objects/Player Input")]
@@ -377,31 +378,28 @@ public class PlayerInput : ScriptableObject
 
     public InputBindingDisplayData[] GetBindingDisplayData(string inputName)
     {
-        InputBindingDisplayData[] result = NormalizeInputName(inputName) switch
+        string normalized = NormalizeInputName(inputName);
+
+        InputBindingDisplayData[] result = normalized switch
         {
-            "resetkeybinds" => CreateHoldableDisplayData(resetKeybinds),
-
-            "pause" => CreateReleasableDisplayData(pauseBindings),
-            "movecursor" => CreateVector2DisplayData(moveCursorBindings),
-            "scroll" => CreateVector2DisplayData(scrollBindings),
-            "menuselect" => CreateReleasableDisplayData(menuSelectBindings),
-            "menuback" => CreateReleasableDisplayData(menuBackBindings),
-            "menucontext" => CreateReleasableDisplayData(menuContextBindings),
-
-            "move" => CreateVector2DisplayData(moveBindings),
-            "jump" => CreatePathDisplayData(jumpBindings),
-            "movecamera" => CreateVector2DisplayData(moveCamera),
-            "handmode" => CreatePathDisplayData(handModeBindings),
-
-            "resetmotioncalibration" => CreateHoldableDisplayData(resetMotionCalibration),
-            "movehand" => CreateVector3DisplayData(moveHand),
-
-            "grab" => CreatePathDisplayData(grabBindings),
-            "pose1" => CreatePathDisplayData(pose1Bindings),
-            "pose2" => CreatePathDisplayData(pose2Bindings),
-            "pose3" => CreatePathDisplayData(pose3Bindings),
-            "pose4" => CreatePathDisplayData(pose4Bindings),
-
+            "resetkeybinds" => CreateHoldableDisplayData(normalized, resetKeybinds),
+            "pause" => CreateReleasableDisplayData(normalized, pauseBindings),
+            "movecursor" => CreateVector2DisplayData(normalized, moveCursorBindings),
+            "scroll" => CreateVector2DisplayData(normalized, scrollBindings),
+            "menuselect" => CreateReleasableDisplayData(normalized, menuSelectBindings),
+            "menuback" => CreateReleasableDisplayData(normalized, menuBackBindings),
+            "menucontext" => CreateReleasableDisplayData(normalized, menuContextBindings),
+            "move" => CreateVector2DisplayData(normalized, moveBindings),
+            "jump" => CreatePathDisplayData(normalized, jumpBindings),
+            "movecamera" => CreateVector2DisplayData(normalized, moveCamera),
+            "handmode" => CreatePathDisplayData(normalized, handModeBindings),
+            "resetmotioncalibration" => CreateHoldableDisplayData(normalized, resetMotionCalibration),
+            "movehand" => CreateVector3DisplayData(normalized, moveHand),
+            "grab" => CreatePathDisplayData(normalized, grabBindings),
+            "pose1" => CreatePathDisplayData(normalized, pose1Bindings),
+            "pose2" => CreatePathDisplayData(normalized, pose2Bindings),
+            "pose3" => CreatePathDisplayData(normalized, pose3Bindings),
+            "pose4" => CreatePathDisplayData(normalized, pose4Bindings),
             _ => Array.Empty<InputBindingDisplayData>()
         };
         foreach (InputBindingDisplayData data in result)
@@ -435,52 +433,60 @@ public class PlayerInput : ScriptableObject
     }
 
 
-    private static InputBindingDisplayData[] CreateReleasableDisplayData(ReleasableButtonInput[] bindings)
+    private static InputBindingDisplayData[] CreateReleasableDisplayData(string inputName, ReleasableButtonInput[] bindings)
     {
         List<InputBindingDisplayData> result = new();
         if (bindings == null)
             return result.ToArray();
-        foreach (ReleasableButtonInput binding in bindings)
+        for (int i = 0; i < bindings.Length; i++)
         {
-            InputBindingDisplayData data = CreateSingleBindingDisplayData(binding?.binding);
+            ReleasableButtonInput binding = bindings[i];
+            if (binding == null)
+                continue;
+            InputBindingDisplayData data = CreateSingleBindingDisplayData(binding.binding, inputName, i, "binding", InputBindingValueType.Button, path => binding.binding = path);
             if (data != null)
                 result.Add(data);
         }
         return result.ToArray();
     }
-    private static InputBindingDisplayData[] CreateHoldableDisplayData(HoldableButtonInput[] bindings)
+    private static InputBindingDisplayData[] CreateHoldableDisplayData(string inputName, HoldableButtonInput[] bindings)
     {
         List<InputBindingDisplayData> result = new();
         if (bindings == null)
             return result.ToArray();
-        foreach (HoldableButtonInput binding in bindings)
+        for (int i = 0; i < bindings.Length; i++)
         {
-            InputBindingDisplayData data = CreateSingleBindingDisplayData(binding?.binding);
+            HoldableButtonInput binding = bindings[i];
+            if (binding == null)
+                continue;
+            InputBindingDisplayData data = CreateSingleBindingDisplayData(binding.binding, inputName, i, "binding", InputBindingValueType.Button, path => binding.binding = path);
             if (data != null)
                 result.Add(data);
         }
         return result.ToArray();
     }
-    private static InputBindingDisplayData[] CreatePathDisplayData(string[] bindings)
+    private static InputBindingDisplayData[] CreatePathDisplayData(string inputName, string[] bindings)
     {
         List<InputBindingDisplayData> result = new();
         if (bindings == null)
             return result.ToArray();
-        foreach (string binding in bindings)
+        for (int i = 0; i < bindings.Length; i++)
         {
-            InputBindingDisplayData data = CreateSingleBindingDisplayData(binding);
+            int sourceIndex = i;
+            InputBindingDisplayData data = CreateSingleBindingDisplayData(bindings[i], inputName, sourceIndex, "binding", InputBindingValueType.Button, path => bindings[sourceIndex] = path);
             if (data != null)
                 result.Add(data);
         }
         return result.ToArray();
     }
-    private static InputBindingDisplayData[] CreateVector2DisplayData(Vector2Input.Source[] bindings)
+    private static InputBindingDisplayData[] CreateVector2DisplayData(string inputName, Vector2Input.Source[] bindings)
     {
         List<InputBindingDisplayData> result = new();
         if (bindings == null)
             return result.ToArray();
-        foreach (Vector2Input.Source source in bindings)
+        for (int i = 0; i < bindings.Length; i++)
         {
+            Vector2Input.Source source = bindings[i];
             if (source == null)
                 continue;
             if (source.mode == Vector2Input.SourceMode.Tilt)
@@ -495,7 +501,9 @@ public class PlayerInput : ScriptableObject
             }
             if (source.useComposite)
             {
-                result.Add(CreateCompositeDisplayData(
+                InputBindingDisplayData data = CreateCompositeDisplayData(
+                    inputName,
+                    i,
                     new[]
                     {
                         source.up,
@@ -503,23 +511,44 @@ public class PlayerInput : ScriptableObject
                         source.down,
                         source.right
                     },
-                    InputBindingVisualType.IconCluster4
-                ));
+                    new[] { "up", "left", "down", "right" },
+                    InputBindingVisualType.IconCluster4,
+                    (component, path) =>
+                    {
+                        switch (component)
+                        {
+                            case "up":
+                                source.up = path;
+                                break;
+                            case "left":
+                                source.left = path;
+                                break;
+                            case "down":
+                                source.down = path;
+                                break;
+                            case "right":
+                                source.right = path;
+                                break;
+                        }
+                    });
+                if (data != null)
+                    result.Add(data);
                 continue;
             }
-            InputBindingDisplayData data = CreateSingleBindingDisplayData(source.binding);
-            if (data != null)
-                result.Add(data);
+            InputBindingDisplayData single = CreateSingleBindingDisplayData(source.binding, inputName, i, "binding", InputBindingValueType.Vector2, path => source.binding = path);
+            if (single != null)
+                result.Add(single);
         }
         return result.ToArray();
     }
-    private static InputBindingDisplayData[] CreateVector3DisplayData(Vector3Input.Source[] bindings)
+    private static InputBindingDisplayData[] CreateVector3DisplayData(string inputName, Vector3Input.Source[] bindings)
     {
         List<InputBindingDisplayData> result = new();
         if (bindings == null)
             return result.ToArray();
-        foreach (Vector3Input.Source source in bindings)
+        for (int i = 0; i < bindings.Length; i++)
         {
+            Vector3Input.Source source = bindings[i];
             if (source == null)
                 continue;
             if (source.mode == Vector3Input.SourceMode.Tilt)
@@ -534,7 +563,9 @@ public class PlayerInput : ScriptableObject
             }
             if (source.useComposite)
             {
-                result.Add(CreateCompositeDisplayData(
+                InputBindingDisplayData data = CreateCompositeDisplayData(
+                    inputName,
+                    i,
                     new[]
                     {
                         source.up,
@@ -544,48 +575,115 @@ public class PlayerInput : ScriptableObject
                         source.forward,
                         source.backward
                     },
-                    InputBindingVisualType.IconCluster6
-                ));
+                    new[] { "up", "down", "left", "right", "forward", "backward" },
+                    InputBindingVisualType.IconCluster6,
+                    (component, path) =>
+                    {
+                        switch (component)
+                        {
+                            case "up":
+                                source.up = path;
+                                break;
+                            case "down":
+                                source.down = path;
+                                break;
+                            case "left":
+                                source.left = path;
+                                break;
+                            case "right":
+                                source.right = path;
+                                break;
+                            case "forward":
+                                source.forward = path;
+                                break;
+                            case "backward":
+                                source.backward = path;
+                                break;
+                        }
+                    });
+                if (data != null)
+                    result.Add(data);
                 continue;
             }
-            InputBindingDisplayData data = CreateSingleBindingDisplayData(source.binding);
-            if (data != null)
-                result.Add(data);
+            InputBindingDisplayData single = CreateSingleBindingDisplayData(source.binding, inputName, i, "binding", InputBindingValueType.Vector2, path => source.binding = path);
+            if (single != null)
+                result.Add(single);
         }
         return result.ToArray();
     }
 
 
-    private static InputBindingDisplayData CreateCompositeDisplayData(string[] bindings, InputBindingVisualType visualType)
+    private static InputBindingDisplayData CreateCompositeDisplayData(
+        string inputName,
+        int sourceIndex,
+        string[] bindings,
+        string[] componentNames,
+        InputBindingVisualType visualType,
+        Action<string, string> applyComponent
+    )
     {
         bool hasBinding = false;
         foreach (string binding in bindings)
-            if (TryParseBindingPath(binding, out _, out _))
-            {
-                hasBinding = true;
-                break;
-            }
+        {
+            if (!TryParseBindingPath(binding, out _, out _))
+                continue;
+            hasBinding = true;
+            break;
+        }
         if (!hasBinding)
             return null;
         string[] iconNames = new string[bindings.Length];
+        List<InputBindingTarget> targets = new();
         for (int i = 0; i < bindings.Length; i++)
+        {
             iconNames[i] = GetBindingIconName(bindings[i]);
-        return new()
+            if (!TryParseBindingPath(bindings[i], out _, out _))
+                continue;
+            string componentName = componentNames[i];
+            targets.Add(new InputBindingTarget
+            {
+                InputName = inputName,
+                SourceIndex = sourceIndex,
+                ComponentName = componentName,
+                CurrentPath = bindings[i],
+                ValueType = InputBindingValueType.Button,
+                ApplyPath = path => applyComponent(componentName, path)
+            });
+        }
+        return new InputBindingDisplayData
         {
             ControlName = GetCompositeControlName(bindings),
             VisualType = visualType,
-            IconNames = iconNames
+            IconNames = iconNames,
+            BindingTargets = targets.ToArray()
         };
     }
-    private static InputBindingDisplayData CreateSingleBindingDisplayData(string binding)
+    private static InputBindingDisplayData CreateSingleBindingDisplayData(
+        string binding,
+        string inputName,
+        int sourceIndex,
+        string componentName,
+        InputBindingValueType valueType,
+        Action<string> applyPath
+    )
     {
         if (!TryParseBindingPath(binding, out string device, out string control))
             return null;
-        return new()
+        InputBindingTarget target = new()
+        {
+            InputName = inputName,
+            SourceIndex = sourceIndex,
+            ComponentName = componentName,
+            CurrentPath = binding,
+            ValueType = valueType,
+            ApplyPath = applyPath
+        };
+        return new InputBindingDisplayData
         {
             ControlName = GetDeviceDisplayName(device),
             VisualType = InputBindingVisualType.Icon,
-            IconName = GetBindingIconName(device, control)
+            IconName = GetBindingIconName(device, control),
+            BindingTargets = new[] { target }
         };
     }
 
@@ -756,5 +854,177 @@ public class PlayerInput : ScriptableObject
             result.Append(char.ToLowerInvariant(character));
         }
         return result.ToString().Trim('-');
+    }
+
+
+
+    public InputBindingOption[] GetAvailableBindingOptions(
+        InputBindingTarget target)
+    {
+        if (target == null || string.IsNullOrWhiteSpace(target.CurrentPath))
+            return Array.Empty<InputBindingOption>();
+        if (!TryParseBindingPath(target.CurrentPath, out string deviceLayout, out _))
+            return Array.Empty<InputBindingOption>();
+        List<string> paths = new();
+        AddBindingPath(paths, target.CurrentPath);
+        AddFallbackBindingPaths(deviceLayout, target.ValueType, paths);
+        foreach (InputDevice device in InputSystem.devices)
+        {
+            if (!IsCompatibleDevice(device, deviceLayout))
+                continue;
+            foreach (InputControl control in device.allControls)
+            {
+                if (!IsCompatibleControl(control, target.ValueType))
+                    continue;
+                string controlPath = control.path;
+                string devicePath = device.path;
+                if (!controlPath.StartsWith(devicePath, StringComparison.OrdinalIgnoreCase))
+                    continue;
+                controlPath = controlPath
+                    .Substring(devicePath.Length)
+                    .Trim('/');
+                if (string.IsNullOrWhiteSpace(controlPath))
+                    continue;
+                AddBindingPath(paths, $"<{deviceLayout}>/{controlPath}");
+            }
+        }
+        List<InputBindingOption> result = new();
+        HashSet<string> usedLabels = new(StringComparer.OrdinalIgnoreCase);
+        foreach (string path in paths)
+        {
+            string label = GetBindingLabel(path);
+            if (string.IsNullOrWhiteSpace(label))
+                label = path;
+            if (!usedLabels.Add(label))
+            {
+                string suffix = path.Substring(path.LastIndexOf('/') + 1);
+                string baseLabel = $"{label} ({suffix})";
+                label = baseLabel;
+                int number = 2;
+                while (!usedLabels.Add(label))
+                {
+                    label = $"{baseLabel} {number}";
+                    number++;
+                }
+            }
+            result.Add(new InputBindingOption
+            {
+                Label = label,
+                Path = path
+            });
+        }
+        return result.ToArray();
+    }
+
+    private static bool IsCompatibleDevice(InputDevice device, string deviceLayout)
+    {
+        if (device == null)
+            return false;
+        if (deviceLayout.Equals("Keyboard", StringComparison.OrdinalIgnoreCase))
+            return device is Keyboard;
+        if (deviceLayout.Equals("Mouse", StringComparison.OrdinalIgnoreCase))
+            return device is Mouse;
+        if (deviceLayout.Equals("Gamepad", StringComparison.OrdinalIgnoreCase))
+            return device is Gamepad;
+        return device.layout.Equals(deviceLayout, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsCompatibleControl(InputControl control, InputBindingValueType valueType)
+    {
+        if (control == null)
+            return false;
+        return valueType switch
+        {
+            InputBindingValueType.Button => control is ButtonControl,
+            InputBindingValueType.Vector2 => control is Vector2Control,
+            InputBindingValueType.Vector3 => control is Vector3Control,
+            _ => false,
+        };
+    }
+
+    private static void AddBindingPath(List<string> paths, string path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+            return;
+        foreach (string existing in paths)
+            if (existing.Equals(path, StringComparison.OrdinalIgnoreCase))
+                return;
+        paths.Add(path);
+    }
+
+    private static void AddFallbackBindingPaths(string deviceLayout, InputBindingValueType valueType, List<string> paths)
+    {
+        if (deviceLayout.Equals("Keyboard", StringComparison.OrdinalIgnoreCase) && valueType == InputBindingValueType.Button)
+        {
+            for (char key = 'a'; key <= 'z'; key++)
+                AddBindingPath(paths, $"<Keyboard>/{key}");
+            for (char key = '0'; key <= '9'; key++)
+                AddBindingPath(paths, $"<Keyboard>/{key}");
+            string[] controls =
+            {
+                "space", "enter", "escape", "tab",
+                "backspace", "delete", "insert",
+                "home", "end", "pageUp", "pageDown",
+                "upArrow", "downArrow", "leftArrow", "rightArrow",
+                "leftControl", "rightControl",
+                "leftShift", "rightShift",
+                "leftAlt", "rightAlt",
+                "leftMeta", "rightMeta",
+                "backquote", "quote", "semicolon", "comma",
+                "period", "slash", "backslash",
+                "leftBracket", "rightBracket", "minus", "equals",
+                "capsLock",
+                "f1", "f2", "f3", "f4", "f5", "f6",
+                "f7", "f8", "f9", "f10", "f11", "f12"
+            };
+            foreach (string control in controls)
+                AddBindingPath(paths, $"<Keyboard>/{control}");
+            return;
+        }
+
+        if (deviceLayout.Equals("Mouse", StringComparison.OrdinalIgnoreCase))
+        {
+            string[] controls = valueType switch
+            {
+                InputBindingValueType.Button => new[]
+                {
+                    "leftButton", "rightButton", "middleButton",
+                    "forwardButton", "backButton"
+                },
+                InputBindingValueType.Vector2 => new[]
+                {
+                    "delta", "position", "scroll"
+                },
+                _ => Array.Empty<string>()
+            };
+            foreach (string control in controls)
+                AddBindingPath(paths, $"<Mouse>/{control}");
+            return;
+        }
+
+        if (deviceLayout.Equals("Gamepad", StringComparison.OrdinalIgnoreCase))
+        {
+            string[] controls = valueType switch
+            {
+                InputBindingValueType.Button => new[]
+                {
+                    "buttonSouth", "buttonNorth",
+                    "buttonEast", "buttonWest",
+                    "start", "select",
+                    "leftShoulder", "rightShoulder",
+                    "leftTrigger", "rightTrigger",
+                    "leftStickPress", "rightStickPress",
+                    "dpad/up", "dpad/down",
+                    "dpad/left", "dpad/right"
+                },
+                InputBindingValueType.Vector2 => new[]
+                {
+                    "leftStick", "rightStick", "dpad"
+                },
+                _ => Array.Empty<string>()
+            };
+            foreach (string control in controls)
+                AddBindingPath(paths, $"<Gamepad>/{control}");
+        }
     }
 }

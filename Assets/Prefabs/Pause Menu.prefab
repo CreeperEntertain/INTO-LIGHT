@@ -74,8 +74,6 @@ MonoBehaviour:
   keybinds: {fileID: 11400000, guid: 31fe7847487dfb3428a57071a68c7e21, type: 2}
   blurVolume: {fileID: 4033598593010085253}
   uiDocument: {fileID: 4946427072624720565}
-  keybindCenter: {fileID: 11400000, guid: 2b6edae95f8d41646860c44dc333f70c, type: 2}
-  controlsMenu: {fileID: 9197481963319205126, guid: 195171ee7d066d743a1f7e2ffbf4af36, type: 3}
   transitionDuration: 0.2
 --- !u!114 &6441120903957511449
 MonoBehaviour:
@@ -92,6 +90,8 @@ MonoBehaviour:
   keybinds: {fileID: 11400000, guid: 31fe7847487dfb3428a57071a68c7e21, type: 2}
   keybindCenter: {fileID: 11400000, guid: 2b6edae95f8d41646860c44dc333f70c, type: 2}
   controlsMenu: {fileID: 9197481963319205126, guid: 195171ee7d066d743a1f7e2ffbf4af36, type: 3}
+  keybindPopupContent: {fileID: 9197481963319205126, guid: a050e14329075584f9d413ffd3624bef, type: 3}
+  keybindPopupRow: {fileID: 9197481963319205126, guid: 23611b3a4ba0198479db3e3d10def31b, type: 3}
 --- !u!114 &8405051958717417438
 MonoBehaviour:
   m_ObjectHideFlags: 0

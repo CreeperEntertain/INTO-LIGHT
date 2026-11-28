@@ -9,6 +9,29 @@ public enum InputBindingVisualType
     IconCluster6
 }
 
+public enum InputBindingValueType
+{
+    Button,
+    Vector2,
+    Vector3
+}
+
+public sealed class InputBindingTarget
+{
+    public string InputName { get; set; }
+    public int SourceIndex { get; set; }
+    public string ComponentName { get; set; }
+    public string CurrentPath { get; set; }
+    public InputBindingValueType ValueType { get; set; }
+    public Action<string> ApplyPath { get; set; }
+}
+
+public sealed class InputBindingOption
+{
+    public string Label { get; set; }
+    public string Path { get; set; }
+}
+
 public class InputBindingDisplayData
 {
     public string ControlName { get; set; } = string.Empty;
@@ -18,6 +41,7 @@ public class InputBindingDisplayData
     public UnityEngine.Object Icon { get; set; }
     public UnityEngine.Object EmptyIcon { get; set; }
     public UnityEngine.Object[] Icons { get; set; } = Array.Empty<Texture2D>();
+    public InputBindingTarget[] BindingTargets { get; set; } = Array.Empty<InputBindingTarget>();
 }
 
 [UxmlElement]
