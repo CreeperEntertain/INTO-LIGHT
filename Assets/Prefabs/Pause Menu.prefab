@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 8327628751514940199}
   - component: {fileID: 4946427072624720565}
   - component: {fileID: 7328877854825519502}
+  - component: {fileID: 6441120903957511449}
   - component: {fileID: 8405051958717417438}
   m_Layer: 5
   m_Name: Pause Menu
@@ -76,6 +77,21 @@ MonoBehaviour:
   keybindCenter: {fileID: 11400000, guid: 2b6edae95f8d41646860c44dc333f70c, type: 2}
   controlsMenu: {fileID: 9197481963319205126, guid: 195171ee7d066d743a1f7e2ffbf4af36, type: 3}
   transitionDuration: 0.2
+--- !u!114 &6441120903957511449
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1144765509168881160}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e79118bf4d4bf94596f8edc0b9fd1ad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ControlsMenuStateManager
+  keybinds: {fileID: 11400000, guid: 31fe7847487dfb3428a57071a68c7e21, type: 2}
+  keybindCenter: {fileID: 11400000, guid: 2b6edae95f8d41646860c44dc333f70c, type: 2}
+  controlsMenu: {fileID: 9197481963319205126, guid: 195171ee7d066d743a1f7e2ffbf4af36, type: 3}
 --- !u!114 &8405051958717417438
 MonoBehaviour:
   m_ObjectHideFlags: 0
