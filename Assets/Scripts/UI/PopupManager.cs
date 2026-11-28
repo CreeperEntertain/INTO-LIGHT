@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -8,42 +9,81 @@ public static class PopupManager
 
     private static readonly Dictionary<string, PopupBox> popups = new();
 
+    private static PanelSettings panelSettings;
+    private static StyleSheet popupStyleSheet;
+
     private static GameObject host;
+    private static UIDocument document;
     private static VisualElement root;
 
+    private static bool IsInitialized
+        => host != null && document != null && root != null;
 
-    public static bool EnsureInitialized()
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetStatistics()
     {
-        if (root != null)
-            return true;
-        
-        PanelSettings panelSettings = Resources.Load<PanelSettings>("UI Toolkit/PanelSettings");
-        StyleSheet popupStyleSheet = Resources.Load<StyleSheet>("UI/Styles/Elements/PopupBox");
-        if (panelSettings == null || popupStyleSheet == null)
-        {
-            Debug.LogError("PopupManager: PanelSettings or PopupBox stylesheet was not found in Resources.");
-            return false;
-        }
+        popups.Clear();
 
+        panelSettings = null;
+        popupStyleSheet = null;
+
+        host = null;
+        document = null;
+        root = null;
+    }
+
+
+    public static void Initialize(PanelSettings settings, StyleSheet styleSheet)
+    {
+        if (settings == null || styleSheet == null)
+        {
+            Debug.LogError("PopupManager requires PanelSettings and a popup stylesheet.");
+            return;
+        }
+        if (IsInitialized)
+            return;
+
+        popups.Clear();
+        panelSettings = settings;
+        popupStyleSheet = styleSheet;
+        CreateHost();
+    }
+
+    private static void CreateHost()
+    {
         host = new("Popup UI");
         Object.DontDestroyOnLoad(host);
 
-        UIDocument document = host.AddComponent<UIDocument>();
+        document = host.AddComponent<UIDocument>();
         document.panelSettings = panelSettings;
         document.sortingOrder = SortingOrder;
 
         root = document.rootVisualElement;
         root.styleSheets.Add(popupStyleSheet);
-
-        return true;
     }
 
-    public static void Show(
-        string id,
-        string title,
-        string description,
-        params PopupButton[] buttons
-    )
+    private static bool EnsureInitialized()
+    {
+        if (IsInitialized)
+            return true;
+        if (panelSettings == null || popupStyleSheet == null)
+        {
+            Debug.LogError("PopupManager has not been initialized. Check PopupManagerBootstrap on the Player prefab.");
+            return false;
+        }
+        if (host != null)
+            Object.Destroy(host);
+
+        host = null;
+        document = null;
+        root = null;
+        popups.Clear();
+
+        CreateHost();
+        return IsInitialized;
+    }
+
+    public static void Show(string id, string title, string description, params PopupButton[] buttons)
     {
         if (string.IsNullOrWhiteSpace(id))
         {
@@ -58,12 +98,11 @@ public static class PopupManager
             popups.Add(id, popup);
             root.Add(popup);
         }
+        else if (popup.IsOpen)
+        {
+            popup.BringToFront();
+            return;
+        }
         popup.Show(title, description, buttons);
-    }
-
-    public static void Hide(string id)
-    {
-        if (popups.TryGetValue(id, out PopupBox popup))
-            popup.Hide();
     }
 }
