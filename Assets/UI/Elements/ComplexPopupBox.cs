@@ -1,6 +1,6 @@
 using UnityEngine.UIElements;
 
-[UxmlElement]
+[UxmlElement(libraryPath = "Popups")]
 public partial class ComplexPopupBox : VisualElement
 {
     private readonly VisualElement popupPanel;

@@ -1,6 +1,6 @@
 using UnityEngine.UIElements;
 
-[UxmlElement]
+[UxmlElement(libraryPath = "Menu Basics")]
 public partial class MenuButton : Button
 {
     private readonly TextElement invertedText;

@@ -1,6 +1,6 @@
 using UnityEngine.UIElements;
 
-[UxmlElement]
+[UxmlElement(libraryPath = "Menu Basics")]
 public partial class MenuFoldout : VisualElement
 {
     private readonly MenuButton header;

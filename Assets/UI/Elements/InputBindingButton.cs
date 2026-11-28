@@ -20,7 +20,7 @@ public class InputBindingDisplayData
     public UnityEngine.Object[] Icons { get; set; } = Array.Empty<Texture2D>();
 }
 
-[UxmlElement]
+[UxmlElement(libraryPath = "Player Input")]
 public partial class InputBindingButton : Button
 {
     private readonly Label controlLabel;

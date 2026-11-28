@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-[UxmlElement]
+[UxmlElement(libraryPath = "Player Input")]
 public partial class InputDisplayLabel : VisualElement
 {
     private readonly Label textLabel;
