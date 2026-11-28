@@ -9,12 +9,18 @@ public class PauseMenuStateManager : MonoBehaviour
     [SerializeField] private PlayerInput keybinds;
     [SerializeField] private CustomPassVolume blurVolume;
     [SerializeField] private UIDocument uiDocument;
-    [SerializeField] private KeybindCenter keybindCenter;
 
     [Header("Settings")]
     [SerializeField] private float transitionDuration = 0.2f;
 
     private PauseBackgroundBlur blurPass;
+    private SideMenuManager sideMenuManager;
+    private ControlsMenuStateManager controlsMenuStateManager;
+
+    private MenuButton resumeButton;
+    private MenuButton optionsButton; 
+    private MenuButton exitGameButton;
+
     private bool isOpen;
     private float blendStart;
     private float blendTarget;
@@ -22,9 +28,6 @@ public class PauseMenuStateManager : MonoBehaviour
 
     private float previousTimeScale = 1.0f;
     private bool previousAudioPause;
-
-
-    private PopupBox resetKeybindsPopup;
 
 
     private void Awake()
@@ -54,16 +57,12 @@ public class PauseMenuStateManager : MonoBehaviour
 
     private void Update()
     {
-        if (isOpen && keybinds.ResetKeybinds.WasPressedThisFrame())
-            PopupManager.Show(
-                "reset-controls",
-                "Reset Controls",
-                "Using this option will reset all your controls to factory defaults, overwriting what you have currently set. Alternatively, you can also do this by clicking \"Input Presets\" and selecting the \"Default\" option.",
-                new PopupButton("Confirm", ResetKeybindsToDefault),
-                new PopupButton("Cancel", () => {})
-            );
         if (keybinds.Pause.WasPressedThisFrame())
+        {
+            if (sideMenuManager != null)
+                sideMenuManager.Hide();
             SetOpen(!isOpen);
+        }
         if (Mathf.Approximately(blurPass.Blend, blendTarget))
             return;
         
@@ -75,41 +74,39 @@ public class PauseMenuStateManager : MonoBehaviour
     {
         VisualElement root = GetComponent<UIDocument>().rootVisualElement;
 
-        // UI
-        root.Q<InputBindingFoldout>("PauseBindingsFoldout").Input = keybinds;
-        root.Q<InputBindingFoldout>("MoveCursorBindingsFoldout").Input = keybinds;
-        root.Q<InputBindingFoldout>("MenuSelectBindingsFoldout").Input = keybinds;
-        // General
-        root.Q<InputBindingFoldout>("JumpBindingsFoldout").Input = keybinds;
-        root.Q<InputBindingFoldout>("MoveBindingsFoldout").Input = keybinds;
-        root.Q<InputBindingFoldout>("MoveCameraBindingsFoldout").Input = keybinds;
-        root.Q<InputBindingFoldout>("HandModeBindingsFoldout").Input = keybinds;
-        // Motion Controls
-        root.Q<InputBindingFoldout>("ResetMotionCalibrationBindingsFoldout").Input = keybinds;
-        root.Q<InputBindingFoldout>("MoveHandBindingsFoldout").Input = keybinds;
-        // Hand Controls
-        root.Q<InputBindingFoldout>("GrabBindingsFoldout").Input = keybinds;
-        root.Q<InputBindingFoldout>("Pose1BindingsFoldout").Input = keybinds;
-        root.Q<InputBindingFoldout>("Pose2BindingsFoldout").Input = keybinds;
-        root.Q<InputBindingFoldout>("Pose3BindingsFoldout").Input = keybinds;
-        root.Q<InputBindingFoldout>("Pose4BindingsFoldout").Input = keybinds;
+        sideMenuManager = GetComponent<SideMenuManager>();
+        if (sideMenuManager != null)
+            sideMenuManager.Hide();
 
-        // Labels
-        root.Q<InputDisplayLabel>("ResetKeybindsLabel").Input = keybinds;
+        controlsMenuStateManager = GetComponent<ControlsMenuStateManager>();
+        if (controlsMenuStateManager == null)
+            Debug.LogError("ControlsMenuStateManager is missing.", this);
+        else
+            controlsMenuStateManager.Close();
 
-        MenuButton resumeButton = root.Q<MenuButton>("ResumeButton");
-        MenuButton optionsButton = root.Q<MenuButton>("OptionsButton");
-        MenuButton controlsButton = root.Q<MenuButton>("ControlsButton");
-        MenuButton exitGameButton = root.Q<MenuButton>("ExitGameButton");
+        resumeButton = root.Q<MenuButton>("ResumeButton");
+        optionsButton = root.Q<MenuButton>("OptionsButton");
+        exitGameButton = root.Q<MenuButton>("ExitGameButton");
 
-        resumeButton.clicked += Resume;
-        optionsButton.clicked += OpenOptions;
-        controlsButton.clicked += OpenControls;
-        exitGameButton.clicked += ExitGame;
+        if (resumeButton != null)
+            resumeButton.clicked += Resume;
+        if (optionsButton != null)
+            optionsButton.clicked += OpenOptions;
+        if (exitGameButton != null)
+            exitGameButton.clicked += ExitGame;
     }
 
     private void OnDisable()
     {
+        if (resumeButton != null)
+            resumeButton.clicked -= Resume;
+        if (optionsButton != null)
+            optionsButton.clicked -= OpenOptions;
+        if (exitGameButton != null)
+            exitGameButton.clicked -= ExitGame;
+
+        if (controlsMenuStateManager != null)
+            controlsMenuStateManager.Close();
         if (!isOpen)
             return;
         
@@ -121,14 +118,13 @@ public class PauseMenuStateManager : MonoBehaviour
 
 
     private void Resume()
-        => SetOpen(false);
-
-    private void OpenOptions()
     {
-        
+        if (sideMenuManager != null)
+            sideMenuManager.Hide();
+        SetOpen(false);
     }
 
-    private void OpenControls()
+    private void OpenOptions()
     {
         
     }
@@ -145,6 +141,8 @@ public class PauseMenuStateManager : MonoBehaviour
     {
         if (isOpen == open)
             return;
+        if (controlsMenuStateManager != null)
+            controlsMenuStateManager.Close();
 
         GameState.SetPaused(open);
         isOpen = open;
@@ -168,24 +166,5 @@ public class PauseMenuStateManager : MonoBehaviour
 
         uiDocument.rootVisualElement.style.display = open
             ? DisplayStyle.Flex : DisplayStyle.None;
-    }
-
-
-    private void ResetKeybindsToDefault()
-    {
-        if (keybindCenter == null)
-        {
-            Debug.LogError("Default keydind preset was not found.", this);
-            return;
-        }
-
-        PlayerInput defaultPreset = keybindCenter.GetPreset("Default");
-        if (defaultPreset == null)
-        {
-            Debug.LogError("Default keybind preset was not found.", this);
-            return;
-        }
-        if (!keybindCenter.ApplyPreset(keybinds, defaultPreset))
-            Debug.LogError("Failed to reset keybinds to defaults.", this);
     }
 }
