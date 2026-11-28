@@ -10,11 +10,14 @@ public class PauseMenuStateManager : MonoBehaviour
     [SerializeField] private CustomPassVolume blurVolume;
     [SerializeField] private UIDocument uiDocument;
     [SerializeField] private KeybindCenter keybindCenter;
+    [SerializeField] private VisualTreeAsset controlsMenu;
 
     [Header("Settings")]
     [SerializeField] private float transitionDuration = 0.2f;
 
     private PauseBackgroundBlur blurPass;
+    private SideMenuManager sideMenuManager;
+
     private bool isOpen;
     private float blendStart;
     private float blendTarget;
@@ -75,37 +78,29 @@ public class PauseMenuStateManager : MonoBehaviour
     {
         VisualElement root = GetComponent<UIDocument>().rootVisualElement;
 
-        // UI
-        root.Q<InputBindingFoldout>("PauseBindingsFoldout").Input = keybinds;
-        root.Q<InputBindingFoldout>("MoveCursorBindingsFoldout").Input = keybinds;
-        root.Q<InputBindingFoldout>("MenuSelectBindingsFoldout").Input = keybinds;
-        // General
-        root.Q<InputBindingFoldout>("JumpBindingsFoldout").Input = keybinds;
-        root.Q<InputBindingFoldout>("MoveBindingsFoldout").Input = keybinds;
-        root.Q<InputBindingFoldout>("MoveCameraBindingsFoldout").Input = keybinds;
-        root.Q<InputBindingFoldout>("HandModeBindingsFoldout").Input = keybinds;
-        // Motion Controls
-        root.Q<InputBindingFoldout>("ResetMotionCalibrationBindingsFoldout").Input = keybinds;
-        root.Q<InputBindingFoldout>("MoveHandBindingsFoldout").Input = keybinds;
-        // Hand Controls
-        root.Q<InputBindingFoldout>("GrabBindingsFoldout").Input = keybinds;
-        root.Q<InputBindingFoldout>("Pose1BindingsFoldout").Input = keybinds;
-        root.Q<InputBindingFoldout>("Pose2BindingsFoldout").Input = keybinds;
-        root.Q<InputBindingFoldout>("Pose3BindingsFoldout").Input = keybinds;
-        root.Q<InputBindingFoldout>("Pose4BindingsFoldout").Input = keybinds;
-
-        // Labels
-        root.Q<InputDisplayLabel>("ResetKeybindsLabel").Input = keybinds;
+        sideMenuManager = GetComponent<SideMenuManager>();
+        VisualElement controlsRoot = LoadControlsMenu();
+        if (controlsRoot == null)
+            return;
+        
+        controlsRoot.Query<InputBindingFoldout>().ForEach(foldout => foldout.Input = keybinds);
+        InputDisplayLabel resetLabel = controlsRoot.Q<InputDisplayLabel>("ResetKeybindsLabel");
+        if (resetLabel != null)
+            resetLabel.Input = keybinds;
 
         MenuButton resumeButton = root.Q<MenuButton>("ResumeButton");
         MenuButton optionsButton = root.Q<MenuButton>("OptionsButton");
         MenuButton controlsButton = root.Q<MenuButton>("ControlsButton");
         MenuButton exitGameButton = root.Q<MenuButton>("ExitGameButton");
 
-        resumeButton.clicked += Resume;
-        optionsButton.clicked += OpenOptions;
-        controlsButton.clicked += OpenControls;
-        exitGameButton.clicked += ExitGame;
+        if (resumeButton != null)
+            resumeButton.clicked += Resume;
+        if (optionsButton != null)
+            optionsButton.clicked += OpenOptions;
+        if (controlsButton != null)
+            controlsButton.clicked += OpenControls;
+        if (exitGameButton != null)
+            exitGameButton.clicked += ExitGame;
     }
 
     private void OnDisable()
@@ -120,6 +115,22 @@ public class PauseMenuStateManager : MonoBehaviour
     }
 
 
+    private VisualElement LoadControlsMenu()
+    {
+        if (sideMenuManager == null)
+        {
+            Debug.LogError("SideMenuManager is missing.", this);
+            return null;
+        }
+        if (controlsMenu == null)
+        {
+            Debug.LogError("ControlsMenu UXML is not assigned.", this);
+            return null;
+        }
+        return sideMenuManager.Show(controlsMenu);
+    }
+
+
     private void Resume()
         => SetOpen(false);
 
@@ -130,7 +141,13 @@ public class PauseMenuStateManager : MonoBehaviour
 
     private void OpenControls()
     {
-        
+        VisualElement controlsRoot = LoadControlsMenu();
+        if (controlsRoot == null)
+            return;
+        controlsRoot.Query<InputBindingFoldout>().ForEach(foldout => foldout.Input = keybinds);
+        InputDisplayLabel resetLabel = controlsRoot.Q<InputDisplayLabel>("ResetKeybindsLabel");
+        if (resetLabel != null)
+            resetLabel.Input = keybinds;
     }
 
     private void ExitGame()
