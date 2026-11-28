@@ -27,9 +27,8 @@ public class SideMenuManager : MonoBehaviour
             return null;
         
         sideMenuPanel.Clear();
-        VisualElement instance = menu.CloneTree();
-        sideMenuPanel.Add(instance);
-        return instance;
+        menu.CloneTree(sideMenuPanel);
+        return sideMenuPanel;
     }
 
     public void Hide()
