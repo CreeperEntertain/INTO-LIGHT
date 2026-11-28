@@ -6,8 +6,8 @@ public static class GameState
     public static event Action<bool> PauseStateChanged;
 
 
-    private static bool mainMenuActive;
-    private static bool isPaused;
+    private static bool mainMenuActive = false;
+    private static bool isPaused = false;
 
 
     public static bool MainMenuActive => mainMenuActive;
