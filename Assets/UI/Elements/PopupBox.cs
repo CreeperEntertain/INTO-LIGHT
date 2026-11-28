@@ -11,6 +11,7 @@ public partial class PopupBox : VisualElement
     private readonly VisualElement buttonContainer;
 
     public VisualElement Content => content;
+    public bool IsOpen => style.display == DisplayStyle.Flex;
 
     public PopupBox()
     {
