@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:UXML
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ui="UnityEngine.UIElements"
+    xmlns:uie="UnityEditor.UIElements"
+    xsi:noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd"
+>
+    <ui:VisualElement name="KeybindPopupContent" style="flex-direction: column; width: 100%;">
+        <ui:Label name="Description" text="Select an input type, then press Record to assign a control." class="popup-box__description" style="margin-bottom: 12px;" />
+        <ui:VisualElement name="BindingRows" style="flex-direction: column; width: 100%;" />
+    </ui:VisualElement>
+</ui:UXML>
