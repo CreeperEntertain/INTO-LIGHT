@@ -5123,6 +5123,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2657291233693489984, guid: 7bc3e4fcd8107c949a9a54d2f79198c1, type: 3}
+      propertyPath: m_FOVAxisMode
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3508566634158702904, guid: 7bc3e4fcd8107c949a9a54d2f79198c1, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
