@@ -88,9 +88,12 @@ public class PauseMenuStateManager : MonoBehaviour
         optionsButton = root.Q<MenuButton>("OptionsButton");
         exitGameButton = root.Q<MenuButton>("ExitGameButton");
 
-        resumeButton?.RegisterCallback<ClickEvent>(_ => Resume());
-        optionsButton?.RegisterCallback<ClickEvent>(_ => OpenOptions());
-        exitGameButton?.RegisterCallback<ClickEvent>(_ => ExitGame());
+        if (resumeButton != null)
+            resumeButton.clicked += Resume;
+        if (optionsButton != null)
+            optionsButton.clicked += OpenOptions;
+        if (exitGameButton != null)
+            exitGameButton.clicked += ExitGame;
     }
 
     private void OnDisable()
@@ -101,10 +104,6 @@ public class PauseMenuStateManager : MonoBehaviour
             optionsButton.clicked -= OpenOptions;
         if (exitGameButton != null)
             exitGameButton.clicked -= ExitGame;
-        
-        resumeButton?.UnregisterCallback<ClickEvent>(_ => Resume());
-        optionsButton?.UnregisterCallback<ClickEvent>(_ => OpenOptions());
-        exitGameButton?.UnregisterCallback<ClickEvent>(_ => ExitGame());
 
         if (controlsMenuStateManager != null)
             controlsMenuStateManager.Close();
