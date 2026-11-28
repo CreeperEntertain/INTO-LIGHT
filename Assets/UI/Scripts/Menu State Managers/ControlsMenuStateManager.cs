@@ -1,6 +1,4 @@
-using System.IO.IsolatedStorage;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
 [RequireComponent(typeof(UIDocument))]
