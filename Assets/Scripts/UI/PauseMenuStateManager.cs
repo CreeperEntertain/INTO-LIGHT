@@ -55,7 +55,7 @@ public class PauseMenuStateManager : MonoBehaviour
     private void Update()
     {
         if (isOpen && keybinds.ResetKeybinds.WasPressedThisFrame())
-            resetKeybindsPopup?.Show(
+            PopupManager.Show(
                 "Reset Controls",
                 "Using this option will reset all your controls to factory defaults, overwriting what you have currently set. Alternatively, you can also do this by clicking \"Input Presets\" and selecting the \"Default\" option.",
                 new PopupButton("Confirm", ResetKeybindsToDefault),
@@ -73,11 +73,6 @@ public class PauseMenuStateManager : MonoBehaviour
     private void OnEnable()
     {
         VisualElement root = GetComponent<UIDocument>().rootVisualElement;
-
-        // Popups
-        resetKeybindsPopup = root.Q<PopupBox>("ResetKeybindsPopup");
-        if (resetKeybindsPopup == null)
-            Debug.LogError("ResetKeybindsPopup not found in the pause menu.", this);
 
         // UI
         root.Q<InputBindingFoldout>("PauseBindingsFoldout").Input = keybinds;
